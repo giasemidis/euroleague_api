@@ -1,3 +1,4 @@
+from typing import Optional
 import pandas as pd
 import requests
 
@@ -5,7 +6,7 @@ MADE_ACTIONS = ['2FGM', '3FGM', 'LAYUPMD', 'DUNK']
 MISSES_ACTIONS = ['2FGA', '2FGAB', '3FGA', '3FGAB', 'LAYUPATT']
 
 
-def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
+def get_game_shot_data(season: int, gamecode: int) -> Optional[pd.DataFrame]:
     """
     Get the shot data of a single game in the season
     """
@@ -36,7 +37,7 @@ def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
     return shots_df
 
 
-def get_season_shot_data(season: int = 2022) -> pd.DataFrame:
+def get_season_shot_data(season: int = 2022) -> Optional[pd.DataFrame]:
     """
     Get the shot data of all games in a season
     """
