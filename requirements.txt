@@ -1,0 +1,5 @@
+requests
+pandas
+numpy
+mypy
+pandas-stubs
