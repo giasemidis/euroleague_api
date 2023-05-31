@@ -1,19 +1,19 @@
-from typing import Callable
+from typing import Dict, Union, Callable, Optional
 import logging
 import requests
 import pandas as pd
 
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(encoding='utf-8', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 BASE_URL = "https://api-live.euroleague.net"
 version = "v3"
 competition = "E"
+URL = f"{BASE_URL}/{version}/competitions/{competition}"
 
 
 def make_season_game_url(seasonCode: int, gameCode: int, endpoint: str) -> str:
-    URL = f"{BASE_URL}/{version}/competitions/{competition}/"
     FULL_URL = f"{URL}/seasons/E{seasonCode}/games/{gameCode}/{endpoint}"
     return FULL_URL
 
@@ -97,4 +97,41 @@ def get_multiple_seasons_data(
         data_df = get_season_data_from_game_data(season, fun)
         data.append(data_df)
     df = pd.concat(data)
+    return df
+
+
+def get_player_stats(
+    endpoint: str,
+    params: Dict[str, Union[str, int]],
+    phase_type_code: Optional[str] = None,
+    statistic_mode: str = "PerGame"
+) -> pd.DataFrame:
+    """"""
+
+    available_endpoints = ["traditional", "advanced", "misc", "scoring"]
+    available_phase_type_code = ["RS", "PO", "FF"]
+    available_stat_code = ["PerGame", "Accumulated", "Per100Possesions"]
+
+    if endpoint not in available_endpoints:
+        raise ValueError("endpoint")
+
+    if phase_type_code is not None:
+        if phase_type_code not in available_phase_type_code:
+            raise ValueError("phaseTypeCode")
+        params["phaseTypeCode"] = phase_type_code
+
+    if statistic_mode not in available_stat_code:
+        raise ValueError("statisticMode")
+    params["statisticMode"] = statistic_mode
+
+    params["limit"] = 400
+
+    url_ = f"{URL}/{endpoint}"
+    r = get_requests(url_, params=params)
+    data = r.json()
+    if data["total"] < len(data["players"]):
+        params["limit"] = len(data["players"]) + 1
+        r = get_requests(url_, params=params)
+        data = r.json()
+    df = pd.json_normalize(data["players"])
     return df
