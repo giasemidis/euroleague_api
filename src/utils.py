@@ -126,7 +126,8 @@ def get_player_stats(
 
     params["limit"] = 400
 
-    url_ = f"{URL}/{endpoint}"
+    url_ = f"{URL}/statistics/players/{endpoint}"
+    print(url_)
     r = get_requests(url_, params=params)
     data = r.json()
     if data["total"] < len(data["players"]):
