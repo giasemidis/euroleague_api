@@ -127,7 +127,7 @@ def get_player_stats(
     params["limit"] = 400
 
     url_ = f"{URL}/statistics/players/{endpoint}"
-    print(url_)
+
     r = get_requests(url_, params=params)
     data = r.json()
     if data["total"] < len(data["players"]):
@@ -135,4 +135,67 @@ def get_player_stats(
         r = get_requests(url_, params=params)
         data = r.json()
     df = pd.json_normalize(data["players"])
+    return df
+
+
+def get_team_stats(
+    endpoint: str,
+    params: Dict[str, Union[str, int]],
+    phase_type_code: Optional[str] = None,
+    statistic_mode: str = "PerGame"
+) -> pd.DataFrame:
+    """"""
+
+    available_endpoints = [
+        "traditional", "advanced",
+        "opponentsTraditional", "opponentsAdvanced"
+    ]
+    available_phase_type_code = ["RS", "PO", "FF"]
+    available_stat_code = ["PerGame", "Accumulated"]
+
+    if endpoint not in available_endpoints:
+        raise ValueError("endpoint")
+
+    if phase_type_code is not None:
+        if phase_type_code not in available_phase_type_code:
+            raise ValueError("phaseTypeCode")
+        params["phaseTypeCode"] = phase_type_code
+
+    if statistic_mode not in available_stat_code:
+        raise ValueError("statisticMode")
+    params["statisticMode"] = statistic_mode
+
+    params["limit"] = 400
+
+    url_ = f"{URL}/statistics/teams/{endpoint}"
+
+    r = get_requests(url_, params=params)
+    data = r.json()
+    if data["total"] < len(data["teams"]):
+        params["limit"] = len(data["teams"]) + 1
+        r = get_requests(url_, params=params)
+        data = r.json()
+    df = pd.json_normalize(data["teams"])
+    return df
+
+
+def get_standings(
+    endpoint: str,
+    season: int,
+    round_number: int,
+) -> pd.DataFrame:
+    """"""
+    available_endpoints = [
+        "calendarstandings", "streaks",
+        "aheadbehind", "margins",
+        "basicstandings"
+    ]
+
+    if endpoint not in available_endpoints:
+        raise ValueError("endpoint")
+
+    url_ = f"{URL}/seasons/E{season}/rounds/{round_number}/{endpoint}"
+    r = get_requests(url_)
+    data = r.json()
+    df = data["teams"]
     return df
