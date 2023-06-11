@@ -14,7 +14,7 @@ URL = f"{BASE_URL}/{version}/competitions/{competition}"
 
 
 def make_season_game_url(
-    season_code: int,
+    season: int,
     game_code: int,
     endpoint: str
 ) -> str:
@@ -22,7 +22,7 @@ def make_season_game_url(
     Concatenates the base URL and makes the game url.
 
     Args:
-        season_code (int): The start year of the season
+        season (int): The start year of the season
         game_code (int): The code of the game. Find the code from
             Euroleague's website
         endpoint (str): The endpoint of the API
@@ -30,7 +30,7 @@ def make_season_game_url(
     Returns:
         str: the full URL
     """
-    FULL_URL = f"{URL}/seasons/E{season_code}/games/{game_code}/{endpoint}"
+    FULL_URL = f"{URL}/seasons/E{season}/games/{game_code}/{endpoint}"
     return FULL_URL
 
 
@@ -63,16 +63,12 @@ def get_requests(
     return r
 
 
-def get_game_data(
-    season_code: int,
-    game_code: int,
-    endpoint: str
-) -> pd.DataFrame:
+def get_game_data(season: int, game_code: int, endpoint: str) -> pd.DataFrame:
     """
     A wrapper function for getting game-level data.
 
     Args:
-        season_code (int): The start year of the season
+        season (int): The start year of the season
         game_code (int): The game code of the game of interest.
             Find the game code from Euroleague's website
         endpoint (str): The type of game data, available variables:
@@ -93,7 +89,7 @@ def get_game_data(
             f"Available endpoints {game_endpoints}"
         )
 
-    url_ = make_season_game_url(season_code, game_code, endpoint)
+    url_ = make_season_game_url(season, game_code, endpoint)
     r = get_requests(url_)
 
     data = r.json()
@@ -149,7 +145,7 @@ def get_season_data_from_game_data(
     return data_df
 
 
-def get_multiple_seasons_data(
+def get_range_seasons_data(
     start_season: int,
     end_season: int,
     fun: Callable[[int, int], pd.DataFrame]
