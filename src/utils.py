@@ -529,7 +529,7 @@ def get_player_stats_leaders(
     elif game_type is None and position is not None:
         params["misc"] = position
 
-    url_ = f"{URL}/statistics/teams/stats/players/leaders"
+    url_ = f"{URL}/stats/players/leaders"
 
     r = get_requests(url_, params=params)
     data = r.json()
