@@ -1,6 +1,6 @@
 from typing import Optional
-from utils import get_team_stats
 import pandas as pd
+from .utils import get_team_stats
 
 
 def get_team_stats_all_seasons(

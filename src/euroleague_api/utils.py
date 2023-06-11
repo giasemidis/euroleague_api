@@ -1,4 +1,4 @@
-from typing import Dict, Union, Callable, Optional, List
+from typing import Callable, Optional, List
 import logging
 import requests
 import pandas as pd
@@ -172,7 +172,7 @@ def get_range_seasons_data(
 
 def get_player_stats(
     endpoint: str,
-    params: Dict[str, Union[str, int]],
+    params={},
     phase_type_code: Optional[str] = None,
     statistic_mode: str = "PerGame"
 ) -> pd.DataFrame:
@@ -224,15 +224,15 @@ def get_player_stats(
         phase_type_code, "Phase type code", available_phase_type_code, True)
 
     params["statisticMode"] = statistic_mode
-
-    params["limit"] = 400
+    params["phaseTypeCode"] = phase_type_code
+    params["limit"] = str(400)
 
     url_ = f"{URL}/statistics/players/{endpoint}"
 
     r = get_requests(url_, params=params)
     data = r.json()
     if data["total"] < len(data["players"]):
-        params["limit"] = len(data["players"]) + 1
+        params["limit"] = str(len(data["players"]) + 1)
         r = get_requests(url_, params=params)
         data = r.json()
     df = pd.json_normalize(data["players"])
@@ -241,7 +241,7 @@ def get_player_stats(
 
 def get_team_stats(
     endpoint: str,
-    params: Dict[str, Union[str, int]],
+    params={},
     phase_type_code: Optional[str] = None,
     statistic_mode: str = "PerGame"
 ) -> pd.DataFrame:
@@ -296,15 +296,15 @@ def get_team_stats(
         phase_type_code, "Phase type code", available_phase_type_code, True)
 
     params["statisticMode"] = statistic_mode
-
-    params["limit"] = 400
+    params["phaseTypeCode"] = phase_type_code
+    params["limit"] = str(400)
 
     url_ = f"{URL}/statistics/teams/{endpoint}"
 
     r = get_requests(url_, params=params)
     data = r.json()
     if data["total"] < len(data["teams"]):
-        params["limit"] = len(data["teams"]) + 1
+        params["limit"] = str(len(data["teams"]) + 1)
         r = get_requests(url_, params=params)
         data = r.json()
     df = pd.json_normalize(data["teams"])
@@ -312,8 +312,8 @@ def get_team_stats(
 
 
 def get_player_stats_leaders(
-    params: Dict[str, Union[Optional[str], Optional[int]]],
-    stat_category: str,
+    params={},
+    stat_category: str = "Score",
     top_n: int = 200,
     phase_type_code: Optional[str] = None,
     statistic_mode: str = "PerGame",
@@ -518,7 +518,7 @@ def get_player_stats_leaders(
     params["category"] = stat_category
     params["phaseTypeCode"] = phase_type_code
     params["statisticMode"] = statistic_mode
-    params["limit"] = top_n
+    params["limit"] = str(top_n)
     if game_type is not None and position is not None:
         raise ValueError(
             "Cannot select a game_type and position at the same type. "

@@ -1,6 +1,6 @@
 from typing import Optional
 import pandas as pd
-from utils import get_player_stats, get_player_stats_leaders
+from .utils import get_player_stats, get_player_stats_leaders
 
 
 def get_player_stats_all_seasons(

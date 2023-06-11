@@ -1,7 +1,7 @@
 import pandas as pd
-from utils import get_season_data_from_game_data
-from utils import get_range_seasons_data
-from utils import get_game_data
+from .utils import get_season_data_from_game_data
+from .utils import get_range_seasons_data
+from .utils import get_game_data
 
 
 def get_game_report(season: int, game_code: int) -> pd.DataFrame:

@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import (
+from .utils import (
     get_requests,
     URL
 )

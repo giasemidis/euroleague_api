@@ -1,7 +1,7 @@
 import pandas as pd
-from utils import get_requests
-from utils import get_season_data_from_game_data
-from utils import get_multiple_seasons_data
+from .utils import get_requests
+from .utils import get_season_data_from_game_data
+from .utils import get_range_seasons_data
 
 MADE_ACTIONS = ['2FGM', '3FGM', 'LAYUPMD', 'DUNK']
 MISSES_ACTIONS = ['2FGA', '2FGAB', '3FGA', '3FGAB', 'LAYUPATT']
@@ -66,6 +66,6 @@ def get_game_reports_multiple_seasons(
         pd.DataFrame: A dataframe with the shot data of all games in range of
             seasons
     """
-    df = get_multiple_seasons_data(
+    df = get_range_seasons_data(
         start_season, end_season, get_game_shot_data)
     return df
