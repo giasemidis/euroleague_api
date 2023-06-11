@@ -9,7 +9,15 @@ MISSES_ACTIONS = ['2FGA', '2FGAB', '3FGA', '3FGAB', 'LAYUPATT']
 
 def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
     """
-    Get the shot data of a single game in the season
+    A function that gets the shot data of a particular game.
+
+    Args:
+        season (int): The start year of the season
+        gamecode (int): The game-code of the game of interest.
+            It can be found on Euroleague's website.
+
+    Returns:
+        pd.DataFrame: A dataframe with the shot data of the game.
     """
     url = "https://live.euroleague.net/api/Points"
     params = {
@@ -29,15 +37,34 @@ def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
     return shots_df
 
 
-def get_game_reports_single_season(season: int):
+def get_game_reports_single_season(season: int) -> pd.DataFrame:
     """
+    A function that gets the shot data of *all* games in a single season
+
+    Args:
+        season (int): The start year of the season
+
+    Returns:
+        pd.DataFrame: A dataframe with the shot data of all games in a single
+            season
     """
     data_df = get_season_data_from_game_data(season, get_game_shot_data)
     return data_df
 
 
-def get_game_reports_multiple_seasons(start_season: int, end_season: int):
+def get_game_reports_multiple_seasons(
+    start_season: int, end_season: int
+) -> pd.DataFrame:
     """
+    A function that gets the shot data of *all* games in a range of seasons
+
+    Args:
+        start_season (int): The start year of the start season
+        end_season (int): The start year of the end season
+
+    Returns:
+        pd.DataFrame: A dataframe with the shot data of all games in range of
+            seasons
     """
     df = get_multiple_seasons_data(
         start_season, end_season, get_game_shot_data)
