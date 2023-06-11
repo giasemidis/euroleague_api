@@ -19,7 +19,7 @@ def make_season_game_url(
     endpoint: str
 ) -> str:
     """
-    Concatenates the
+    Concatenates the base URL and makes the game url.
 
     Args:
         season_code (int): The start year of the season
@@ -50,7 +50,7 @@ def get_requests(
             Defaults to {"Accept": "application/json"}.
 
     Raises:
-        ValueError: If get request was not succesful
+        Requests Error: If get request was not succesful
 
     Returns:
         requests.models.Response: The response object.
@@ -68,7 +68,8 @@ def get_game_data(
     game_code: int,
     endpoint: str
 ) -> pd.DataFrame:
-    """_summary_
+    """
+    A wrapper function for getting game-level data.
 
     Args:
         season_code (int): The start year of the season
@@ -104,13 +105,19 @@ def get_season_data_from_game_data(
     season: int,
     fun: Callable[[int, int], pd.DataFrame]
 ) -> pd.DataFrame:
-    """_summary_
+    """
+    A wrapper function for getting game data for all games in a single season.
 
     Args:
-        season (int, optional): The start year of the season. Defaults to 2022.
+        season (int, optional): The start year of the season.
+        fun (Callable[[int, int], pd.DataFrame]): A callable function that
+            determines that type of data to be collected. Available values:
+            - get_game_report
+            - get_game_stats
+            - get_game_teams_comparison
 
     Returns:
-        Optional[pd.DataFrame]: _description_
+        pd.DataFrame: A dataframe with the game data.
     """
     data_list = []
     game_code = 0
@@ -148,6 +155,19 @@ def get_multiple_seasons_data(
     fun: Callable[[int, int], pd.DataFrame]
 ) -> pd.DataFrame:
     """
+    A wrapper function with the all game data in a range of seasons
+
+    Args:
+        season (int, optional): The start year of the season.
+        end_season (int): The start year of teh end season
+        fun (Callable[[int, int], pd.DataFrame]): A callable function that
+            determines that type of data to be collected. Available values:
+            - get_game_report
+            - get_game_stats
+            - get_game_teams_comparison
+
+    Returns:
+        pd.DataFrame: A dataframe with the game data
     """
     data = []
     for season in range(start_season, end_season + 1):
@@ -184,15 +204,15 @@ def get_player_stats(
             Defaults to None, which includes all phases.
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
-             - PerGame
+            - PerGame
             - Accumulated
             - Per100Possesions
             Defaults to "PerGame".
 
     Raises:
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
+        ValueError: If the endpoint is not applicable
+        ValueError: If the phase_type_code is not applicable
+        ValueError: If the statistic_mode is not applicable
 
     Returns:
         pd.DataFrame: A dataframe with the players' stats.
@@ -203,15 +223,24 @@ def get_player_stats(
     available_stat_code = ["PerGame", "Accumulated", "Per100Possesions"]
 
     if endpoint not in available_endpoints:
-        raise ValueError("endpoint")
+        raise ValueError(
+            f"Statistic type, {endpoint}, is not applicable. "
+            f"Available values: {available_endpoints}"
+        )
 
     if phase_type_code is not None:
         if phase_type_code not in available_phase_type_code:
-            raise ValueError("phaseTypeCode")
+            raise ValueError(
+                f"Phase type, {phase_type_code}, is not applicable. "
+                f"Available values: {available_phase_type_code}"
+            )
         params["phaseTypeCode"] = phase_type_code
 
     if statistic_mode not in available_stat_code:
-        raise ValueError("statisticMode")
+        raise ValueError(
+            f"Statistic mode, {statistic_mode}, is not applicable. "
+            f"Available values: {available_stat_code}"
+        )
     params["statisticMode"] = statistic_mode
 
     params["limit"] = 400
@@ -234,22 +263,40 @@ def get_team_stats(
     phase_type_code: Optional[str] = None,
     statistic_mode: str = "PerGame"
 ) -> pd.DataFrame:
-    """_summary_
+    """
+    A wrapper functions for collecting teams' stats.
+    Allows for three types of data:
+    - all seasons
+    - single season
+    - range of seasons
 
     Args:
-        endpoint (str): _description_
-        params (Dict[str, Union[str, int]]): _description_
-        phase_type_code (Optional[str], optional): _description_.
-            Defaults to None.
-        statistic_mode (str, optional): _description_. Defaults to "PerGame".
+        endpoint (str): The type of stats to fetch. Available values:
+            - traditional
+            - advanced
+            - opponentsTraditional
+            - opponentsAdvanced
+        params (Dict[str, Union[str, int]]): A dictionary of the parmaters for
+            the get request.
+        phase_type_code (Optional[str], optional): The phase of the season,
+            available variables:
+            - "RS" (regular season)
+            - "PO" (play-off)
+            - "FF" (final four)
+            Defaults to None, which includes all phases.
+        statistic_mode (str, optional): The aggregation of statistics,
+            available variables:
+            - PerGame
+            - Accumulated
+            Defaults to "PerGame".
 
     Raises:
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
+        ValueError: If the endpoint is not applicable
+        ValueError: If the phase_type_code is not applicable
+        ValueError: If the statistic_mode is not applicable
 
     Returns:
-        pd.DataFrame: _description_
+        pd.DataFrame: A dataframe with the teams' stats.
     """
 
     available_endpoints = [
@@ -260,15 +307,24 @@ def get_team_stats(
     available_stat_code = ["PerGame", "Accumulated"]
 
     if endpoint not in available_endpoints:
-        raise ValueError("endpoint")
+        raise ValueError(
+            f"Statistic type, {endpoint}, is not applicable. "
+            f"Available values: {available_endpoints}"
+        )
 
     if phase_type_code is not None:
         if phase_type_code not in available_phase_type_code:
-            raise ValueError("phaseTypeCode")
+            raise ValueError(
+                f"Phase type, {phase_type_code}, is not applicable. "
+                f"Available values: {available_phase_type_code}"
+            )
         params["phaseTypeCode"] = phase_type_code
 
     if statistic_mode not in available_stat_code:
-        raise ValueError("statisticMode")
+        raise ValueError(
+            f"Statistic mode, {statistic_mode}, is not applicable. "
+            f"Available values: {available_stat_code}"
+        )
     params["statisticMode"] = statistic_mode
 
     params["limit"] = 400
