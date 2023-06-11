@@ -320,7 +320,9 @@ def get_player_stats_leaders(
     game_type: Optional[str] = None,
     position: Optional[str] = None
 ) -> pd.DataFrame:
-    """_summary_
+    """
+    A wrapper function for collecting the leading players in a given
+    stat category.
 
     Args:
         params (Dict[str, Union[str, int]]): A dictionary of parameters for the
