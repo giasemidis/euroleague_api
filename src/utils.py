@@ -13,29 +13,86 @@ competition = "E"
 URL = f"{BASE_URL}/{version}/competitions/{competition}"
 
 
-def make_season_game_url(seasonCode: int, gameCode: int, endpoint: str) -> str:
-    FULL_URL = f"{URL}/seasons/E{seasonCode}/games/{gameCode}/{endpoint}"
+def make_season_game_url(
+    season_code: int,
+    game_code: int,
+    endpoint: str
+) -> str:
+    """
+    Concatenates the
+
+    Args:
+        season_code (int): The start year of the season
+        game_code (int): The code of the game. Find the code from
+            Euroleague's website
+        endpoint (str): The endpoint of the API
+
+    Returns:
+        str: the full URL
+    """
+    FULL_URL = f"{URL}/seasons/E{season_code}/games/{game_code}/{endpoint}"
     return FULL_URL
 
 
-def get_requests(url, params={}, headers={"Accept": "application/json"}):
+def get_requests(
+    url: str,
+    params={},
+    headers={"Accept": "application/json"}
+) -> requests.models.Response:
     """
+    A wrapper to `requests.get()` which handles unsuccesful requests too.
+
+    Args:
+        url (str): _description_
+        params (dict, optional): The `params` variables in get requests.
+            Defaults to {}.
+        headers (dict, optional): the `header` variable in get requests.
+            Defaults to {"Accept": "application/json"}.
+
+    Raises:
+        ValueError: If get request was not succesful
+
+    Returns:
+        requests.models.Response: The response object.
     """
-    r = requests.get(
-        url, params=params, headers={"Accept": "application/json"})
+    r = requests.get(url, params=params, headers=headers)
 
     if r.status_code != 200:
-        raise ValueError()
+        r.raise_for_status()
 
     return r
 
 
 def get_game_data(
-    seasonCode: int,
-    gameCode: int,
+    season_code: int,
+    game_code: int,
     endpoint: str
 ) -> pd.DataFrame:
-    url_ = make_season_game_url(seasonCode, gameCode, endpoint)
+    """_summary_
+
+    Args:
+        season_code (int): The start year of the season
+        game_code (int): The game code of the game of interest.
+            Find the game code from Euroleague's website
+        endpoint (str): The type of game data, available variables:
+            - report
+            - stats
+            - teamsComparison
+
+    Raises:
+        ValueError: If input endpoint is not applicable.
+
+    Returns:
+        pd.DataFrame: A dataframe with the game data.
+    """
+    game_endpoints = ["report", "stats", "teamsComparison"]
+    if endpoint not in game_endpoints:
+        raise ValueError(
+            f"Game endpoint, {endpoint}, is not applicable. "
+            f"Available endpoints {game_endpoints}"
+        )
+
+    url_ = make_season_game_url(season_code, game_code, endpoint)
     r = get_requests(url_)
 
     data = r.json()
@@ -50,17 +107,17 @@ def get_season_data_from_game_data(
     """_summary_
 
     Args:
-        season (int, optional): _description_. Defaults to 2022.
+        season (int, optional): The start year of the season. Defaults to 2022.
 
     Returns:
         Optional[pd.DataFrame]: _description_
     """
     data_list = []
-    gamecode = 0
+    game_code = 0
     attempt = 0
     while True:
-        gamecode += 1
-        shots_df = fun(season, gamecode)
+        game_code += 1
+        shots_df = fun(season, game_code)
 
         # Due to the ban of Russian teams from Euroleague in 2021
         # this is a hack for not breaking in the first
@@ -106,7 +163,40 @@ def get_player_stats(
     phase_type_code: Optional[str] = None,
     statistic_mode: str = "PerGame"
 ) -> pd.DataFrame:
-    """"""
+    """
+    A wrapper function for getting the players' stats for
+    - all seasons
+    - a single season
+    - a range of seasons
+
+    Args:
+        endpoint (str): The type of stats, available variables:
+            - traditional
+            - advanced
+            - misc
+            - scoring
+        params (Dict[str, Union[str, int]]): A dictionary of parameters for the
+        phase_type_code (Optional[str], optional): The phase of the season,
+            available variables:
+            - "RS" (regular season)
+            - "PO" (play-off)
+            - "FF" (final four)
+            Defaults to None, which includes all phases.
+        statistic_mode (str, optional): The aggregation of statistics,
+            available variables:
+             - PerGame
+            - Accumulated
+            - Per100Possesions
+            Defaults to "PerGame".
+
+    Raises:
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+
+    Returns:
+        pd.DataFrame: A dataframe with the players' stats.
+    """
 
     available_endpoints = ["traditional", "advanced", "misc", "scoring"]
     available_phase_type_code = ["RS", "PO", "FF"]
@@ -144,7 +234,23 @@ def get_team_stats(
     phase_type_code: Optional[str] = None,
     statistic_mode: str = "PerGame"
 ) -> pd.DataFrame:
-    """"""
+    """_summary_
+
+    Args:
+        endpoint (str): _description_
+        params (Dict[str, Union[str, int]]): _description_
+        phase_type_code (Optional[str], optional): _description_.
+            Defaults to None.
+        statistic_mode (str, optional): _description_. Defaults to "PerGame".
+
+    Raises:
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+
+    Returns:
+        pd.DataFrame: _description_
+    """
 
     available_endpoints = [
         "traditional", "advanced",
