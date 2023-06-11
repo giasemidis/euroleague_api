@@ -225,14 +225,14 @@ def get_player_stats(
 
     params["statisticMode"] = statistic_mode
     params["phaseTypeCode"] = phase_type_code
-    params["limit"] = str(400)
+    params["limit"] = 400
 
     url_ = f"{URL}/statistics/players/{endpoint}"
 
     r = get_requests(url_, params=params)
     data = r.json()
     if data["total"] < len(data["players"]):
-        params["limit"] = str(len(data["players"]) + 1)
+        params["limit"] = len(data["players"]) + 1
         r = get_requests(url_, params=params)
         data = r.json()
     df = pd.json_normalize(data["players"])
@@ -297,14 +297,14 @@ def get_team_stats(
 
     params["statisticMode"] = statistic_mode
     params["phaseTypeCode"] = phase_type_code
-    params["limit"] = str(400)
+    params["limit"] = 400
 
     url_ = f"{URL}/statistics/teams/{endpoint}"
 
     r = get_requests(url_, params=params)
     data = r.json()
     if data["total"] < len(data["teams"]):
-        params["limit"] = str(len(data["teams"]) + 1)
+        params["limit"] = len(data["teams"]) + 1
         r = get_requests(url_, params=params)
         data = r.json()
     df = pd.json_normalize(data["teams"])
@@ -518,7 +518,7 @@ def get_player_stats_leaders(
     params["category"] = stat_category
     params["phaseTypeCode"] = phase_type_code
     params["statisticMode"] = statistic_mode
-    params["limit"] = str(top_n)
+    params["limit"] = top_n
     if game_type is not None and position is not None:
         raise ValueError(
             "Cannot select a game_type and position at the same type. "
