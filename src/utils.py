@@ -1,4 +1,4 @@
-from typing import Dict, Union, Callable, Optional
+from typing import Dict, Union, Callable, Optional, List
 import logging
 import requests
 import pandas as pd
@@ -83,11 +83,8 @@ def get_game_data(season: int, game_code: int, endpoint: str) -> pd.DataFrame:
         pd.DataFrame: A dataframe with the game data.
     """
     game_endpoints = ["report", "stats", "teamsComparison"]
-    if endpoint not in game_endpoints:
-        raise ValueError(
-            f"Game endpoint, {endpoint}, is not applicable. "
-            f"Available endpoints {game_endpoints}"
-        )
+
+    raise_error(endpoint, "Statistic type", game_endpoints, False)
 
     url_ = make_season_game_url(season, game_code, endpoint)
     r = get_requests(url_)
@@ -192,6 +189,7 @@ def get_player_stats(
             - misc
             - scoring
         params (Dict[str, Union[str, int]]): A dictionary of parameters for the
+            get request.
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
@@ -216,27 +214,15 @@ def get_player_stats(
 
     available_endpoints = ["traditional", "advanced", "misc", "scoring"]
     available_phase_type_code = ["RS", "PO", "FF"]
-    available_stat_code = ["PerGame", "Accumulated", "Per100Possesions"]
+    available_stat_mode = ["PerGame", "Accumulated", "Per100Possesions"]
 
-    if endpoint not in available_endpoints:
-        raise ValueError(
-            f"Statistic type, {endpoint}, is not applicable. "
-            f"Available values: {available_endpoints}"
-        )
+    raise_error(
+        endpoint, "Statistic type", available_endpoints, False)
+    raise_error(
+        statistic_mode, "Statistic Aggregation", available_stat_mode, False)
+    raise_error(
+        phase_type_code, "Phase type code", available_phase_type_code, True)
 
-    if phase_type_code is not None:
-        if phase_type_code not in available_phase_type_code:
-            raise ValueError(
-                f"Phase type, {phase_type_code}, is not applicable. "
-                f"Available values: {available_phase_type_code}"
-            )
-        params["phaseTypeCode"] = phase_type_code
-
-    if statistic_mode not in available_stat_code:
-        raise ValueError(
-            f"Statistic mode, {statistic_mode}, is not applicable. "
-            f"Available values: {available_stat_code}"
-        )
     params["statisticMode"] = statistic_mode
 
     params["limit"] = 400
@@ -300,27 +286,15 @@ def get_team_stats(
         "opponentsTraditional", "opponentsAdvanced"
     ]
     available_phase_type_code = ["RS", "PO", "FF"]
-    available_stat_code = ["PerGame", "Accumulated"]
+    available_stat_mode = ["PerGame", "Accumulated"]
 
-    if endpoint not in available_endpoints:
-        raise ValueError(
-            f"Statistic type, {endpoint}, is not applicable. "
-            f"Available values: {available_endpoints}"
-        )
+    raise_error(
+        endpoint, "Statistic type", available_endpoints, False)
+    raise_error(
+        statistic_mode, "Statistic Aggregation", available_stat_mode, False)
+    raise_error(
+        phase_type_code, "Phase type code", available_phase_type_code, True)
 
-    if phase_type_code is not None:
-        if phase_type_code not in available_phase_type_code:
-            raise ValueError(
-                f"Phase type, {phase_type_code}, is not applicable. "
-                f"Available values: {available_phase_type_code}"
-            )
-        params["phaseTypeCode"] = phase_type_code
-
-    if statistic_mode not in available_stat_code:
-        raise ValueError(
-            f"Statistic mode, {statistic_mode}, is not applicable. "
-            f"Available values: {available_stat_code}"
-        )
     params["statisticMode"] = statistic_mode
 
     params["limit"] = 400
@@ -335,3 +309,260 @@ def get_team_stats(
         data = r.json()
     df = pd.json_normalize(data["teams"])
     return df
+
+
+def get_player_stats_leaders(
+    params: Dict[str, Union[Optional[str], Optional[int]]],
+    stat_category: str,
+    top_n: int = 200,
+    phase_type_code: Optional[str] = None,
+    statistic_mode: str = "PerGame",
+    game_type: Optional[str] = None,
+    position: Optional[str] = None
+) -> pd.DataFrame:
+    """_summary_
+
+    Args:
+        params (Dict[str, Union[str, int]]): A dictionary of parameters for the
+            get request.
+        top_n (int): The number of top N players to return.  Defaults to 200.
+        stat_category (str): The stat category. Available values:
+            - Valuation
+            - Score
+            - TotalRebounds
+            - OffensiveRebounds
+            - Assistances
+            - Steals
+            - BlocksFavour
+            - BlocksAgainst
+            - Turnovers
+            - FoulsReceived
+            - FoulsCommited
+            - FreeThrowsMade
+            - FreeThrowsAttempted
+            - FreeThrowsPercent
+            - FieldGoalsMade2
+            - FieldGoalsAttempted2
+            - FieldGoals2Percent
+            - FieldGoalsMade3
+            - FieldGoalsAttempted3
+            - FieldGoals3Percent
+            - FieldGoalsMadeTotal
+            - FieldGoalsAttemptedTotal
+            - FieldGoalsPercent
+            - AccuracyMade
+            - AccuracyAttempted
+            - AccuracyPercent
+            - AssitancesTurnoversRation
+            - GamesPlayed
+            - GamesStarted
+            - TimePlayed
+            - Contras
+            - Dunks
+            - OffensiveReboundPercentage
+            - DefensiveReboundPercentage
+            - ReboundPercentage
+            - EffectiveFeildGoalPercentage
+            - TrueShootingPercentage
+            - AssistRatio
+            - TurnoverRatio
+            - FieldGoals2AttemptedRatio
+            - FieldGoals3AttemptedRatio
+            - FreeThrowRate
+            - Possessions
+            - GamesWon
+            - GamesLost
+            - DoubleDoubles
+            - TripleDoubles
+            - FieldGoalsAttempted2Share
+            - FieldGoalsAttempted3Share
+            - FreeThrowsAttemptedShare
+            - FieldGoalsMade2Share
+            - FieldGoalsMade3Share
+            - FreeThrowsMadeShare
+            - PointsMade2Rate
+            - PointsMade3Rate
+            - PointsMadeFreeThrowsRate
+            - PointsAttempted2Rate
+            - PointsAttempted3Rate
+            - Age
+        phase_type_code (Optional[str], optional): The phase of the season,
+            available variables:
+            - "RS" (regular season)
+            - "PO" (play-off)
+            - "FF" (final four)
+            Defaults to None, which includes all phases.
+        statistic_mode (str, optional): The aggregation of statistics,
+            available variables:
+            - PerGame
+            - Accumulated
+            - Per100Possesions
+            - PerGameReverse
+            - AccumulatedReverse
+            Defaults to "PerGame".
+        game_type (Optional[str], optional): The type of games to draw the top
+            stats from. Available values:
+            - HomeGames
+            - AwayGames
+            - GamesWon
+            - GamesLost
+            Defaults to None, meaning all games
+        position (Optional[str], optional): The position of the player to draw
+            the top stats from. Available values:
+            - Guards
+            - Forwards
+            - Centers
+            - RisingStars
+            Defaults to None, meaning all positions.
+
+    Raises:
+        ValueError: If the stat_category is not applicable
+        ValueError: If the phase_type_code is not applicable
+        ValueError: If the statistic_mode is not applicable
+        ValueError: If the game_type is not applicable
+        ValueError: If the position is not applicable
+
+    Returns:
+        pd.DataFrame: A dataframe with the top players' stats
+    """
+    avaiable_stat_category = [
+        "Valuation",
+        "Score",
+        "TotalRebounds",
+        "OffensiveRebounds",
+        "Assistances",
+        "Steals",
+        "BlocksFavour",
+        "BlocksAgainst",
+        "Turnovers",
+        "FoulsReceived",
+        "FoulsCommited",
+        "FreeThrowsMade",
+        "FreeThrowsAttempted",
+        "FreeThrowsPercent",
+        "FieldGoalsMade2",
+        "FieldGoalsAttempted2",
+        "FieldGoals2Percent",
+        "FieldGoalsMade3",
+        "FieldGoalsAttempted3",
+        "FieldGoals3Percent",
+        "FieldGoalsMadeTotal",
+        "FieldGoalsAttemptedTotal",
+        "FieldGoalsPercent",
+        "AccuracyMade",
+        "AccuracyAttempted",
+        "AccuracyPercent",
+        "AssitancesTurnoversRation",
+        "GamesPlayed",
+        "GamesStarted",
+        "TimePlayed",
+        "Contras",
+        "Dunks",
+        "OffensiveReboundPercentage",
+        "DefensiveReboundPercentage",
+        "ReboundPercentage",
+        "EffectiveFeildGoalPercentage",
+        "TrueShootingPercentage",
+        "AssistRatio",
+        "TurnoverRatio",
+        "FieldGoals2AttemptedRatio",
+        "FieldGoals3AttemptedRatio",
+        "FreeThrowRate",
+        "Possessions",
+        "GamesWon",
+        "GamesLost",
+        "DoubleDoubles",
+        "TripleDoubles",
+        "FieldGoalsAttempted2Share",
+        "FieldGoalsAttempted3Share",
+        "FreeThrowsAttemptedShare",
+        "FieldGoalsMade2Share",
+        "FieldGoalsMade3Share",
+        "FreeThrowsMadeShare",
+        "PointsMade2Rate",
+        "PointsMade3Rate",
+        "PointsMadeFreeThrowsRate",
+        "PointsAttempted2Rate",
+        "PointsAttempted3Rate",
+        "Age"
+    ]
+    available_phase_type_code = ["RS", "PO", "FF"]
+    available_stat_mode = [
+        "PerGame",
+        "Accumulated",
+        "Per100Possesions",
+        "PerGameReverse",
+        "AccumulatedReverse"
+    ]
+    available_game_types = [
+        "HomeGames",
+        "AwayGames",
+        "GamesWon",
+        "GamesLost",
+    ]
+    availabe_positions = [
+        "Guards",
+        "Forwards",
+        "Centers",
+        "RisingStars"
+    ]
+
+    raise_error(stat_category, "Stat category", avaiable_stat_category, False)
+    raise_error(
+        statistic_mode, "Statistic Aggregation", available_stat_mode, False)
+    raise_error(
+        phase_type_code, "Phase type code", available_phase_type_code, True)
+    raise_error(game_type, "Game type", available_game_types, True)
+    raise_error(position, "Position", availabe_positions, True)
+
+    params["category"] = stat_category
+    params["phaseTypeCode"] = phase_type_code
+    params["statisticMode"] = statistic_mode
+    params["limit"] = top_n
+    if game_type is not None and position is not None:
+        raise ValueError(
+            "Cannot select a game_type and position at the same type. "
+            "One of the variables must be None"
+        )
+    elif game_type is not None and position is None:
+        params["misc"] = game_type
+    elif game_type is None and position is not None:
+        params["misc"] = position
+
+    url_ = f"{URL}/statistics/teams/stats/players/leaders"
+
+    r = get_requests(url_, params=params)
+    data = r.json()
+    df = pd.json_normalize(data["data"])
+    return df
+
+
+def raise_error(
+    var: Optional[str],
+    descripitve_var: str,
+    available_vals: List,
+    allow_none: bool = False,
+) -> None:
+    """
+    A function that raises a ValueError with specific message.
+
+    Args:
+        var (str): The input variable by the user
+        descripitve_var (str): A description in plain English of this variable
+        available_vals (List): The available variables
+        allow_none (bool, optional): If `var` can take None value.
+            Defaults to False.
+
+    Raises:
+        ValueError: if `var` not applicable
+    """
+
+    if allow_none:
+        available_vals.append(None)
+
+    if var not in available_vals:
+        raise ValueError(
+            f"{descripitve_var}, {var}, is not applicable. "
+            f"Available values: {available_vals}"
+        )
+    return
