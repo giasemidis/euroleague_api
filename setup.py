@@ -11,6 +11,8 @@ setup(
     description='A Python wrapper of the Euroleague API',
     long_description=long_description,
     long_description_content_type="text/markdown",
+    keywords="euroleague, api, basketball",
+    license="MIT license",
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=[
