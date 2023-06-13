@@ -12,17 +12,20 @@ def get_player_stats_all_seasons(
     The players' stats for *all* seasons.
 
     Args:
+
         endpoint (str): The type of stats, available variables:
             - traditional
             - advanced
             - misc
             - scoring
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
              - PerGame
@@ -31,6 +34,7 @@ def get_player_stats_all_seasons(
             Defaults to "PerGame".
 
     Returns:
+
         pd.DataFrame: A dataframe with the players' stats
     """
     params = {"SeasonMode": "All"}
@@ -48,18 +52,22 @@ def get_player_stats_single_season(
     The players' stats for a *single* season.
 
     Args:
+
         endpoint (str): The type of stats, available variables:
             - traditional
             - advanced
             - misc
             - scoring
+
         season (int): The start year of the season.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
              - PerGame
@@ -68,6 +76,7 @@ def get_player_stats_single_season(
             Defaults to "PerGame".
 
     Returns:
+
         pd.DataFrame: A dataframe with the players' stats
     """
     params = {
@@ -89,19 +98,24 @@ def get_player_stats_range_seasons(
     The players' stats for a range of seasons.
 
     Args:
+
         endpoint (str): The type of stats, available variables:
             - traditional
             - advanced
             - misc
             - scoring
+
         start_season (int): The start year of the first season in the range.
+
         end_season (int): The start year of teh last season in the range.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
              - PerGame
@@ -110,6 +124,7 @@ def get_player_stats_range_seasons(
             Defaults to "PerGame".
 
     Returns:
+
         pd.DataFrame: A dataframe with the players' stats
     """
     params = {
@@ -133,15 +148,19 @@ def get_player_stats_leaders_all_seasons(
     Get the top leaders in a statistical category in all seasons
 
     Args:
+
         stat_category (str): The stat category. See function
             `utils.get_player_stats_leaders` for a list of available stats.
+
         top_n (int): The number of top N players to return.  Defaults to 200.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -150,6 +169,7 @@ def get_player_stats_leaders_all_seasons(
             - PerGameReverse
             - AccumulatedReverse
             Defaults to "PerGame".
+
         game_type (Optional[str], optional): The type of games to draw the top
             stats from. Available values:
             - HomeGames
@@ -157,6 +177,7 @@ def get_player_stats_leaders_all_seasons(
             - GamesWon
             - GamesLost
             Defaults to None, meaning all games
+
         position (Optional[str], optional): The position of the player to draw
             the top stats from. Available values:
             - Guards
@@ -166,6 +187,7 @@ def get_player_stats_leaders_all_seasons(
             Defaults to None, meaning all positions.
 
     Returns:
+
         pd.DataFrame: A dataframe with the top leading players and their stat
     """
     params = {"SeasonMode": "All"}
@@ -194,16 +216,20 @@ def get_player_stats_leaders_single_season(
     Get the top leaders in a statistical category in a single season
 
     Args:
+
         season (int): The start year of the season.
+
         stat_category (str): The stat category. See function
             `utils.get_player_stats_leaders` for a list of available stats.
         top_n (int): The number of top N players to return.  Defaults to 200.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -212,6 +238,7 @@ def get_player_stats_leaders_single_season(
             - PerGameReverse
             - AccumulatedReverse
             Defaults to "PerGame".
+
         game_type (Optional[str], optional): The type of games to draw the top
             stats from. Available values:
             - HomeGames
@@ -219,6 +246,7 @@ def get_player_stats_leaders_single_season(
             - GamesWon
             - GamesLost
             Defaults to None, meaning all games
+
         position (Optional[str], optional): The position of the player to draw
             the top stats from. Available values:
             - Guards
@@ -228,6 +256,7 @@ def get_player_stats_leaders_single_season(
             Defaults to None, meaning all positions.
 
     Returns:
+
         pd.DataFrame: A dataframe with the top leading players and their stat
     """
     params = {
@@ -260,17 +289,21 @@ def get_player_stats_leaders_range_seasons(
     Get the top leaders in a statistical category in a range of seasons
 
     Args:
-        start_season (int): _description_
+
         start_season (int): The start year of the first season in the range.
+
         stat_category (str): The stat category. See function
             `utils.get_player_stats_leaders` for a list of available stats.
+
         top_n (int): The number of top N players to return.  Defaults to 200.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -279,6 +312,7 @@ def get_player_stats_leaders_range_seasons(
             - PerGameReverse
             - AccumulatedReverse
             Defaults to "PerGame".
+
         game_type (Optional[str], optional): The type of games to draw the top
             stats from. Available values:
             - HomeGames
@@ -286,6 +320,7 @@ def get_player_stats_leaders_range_seasons(
             - GamesWon
             - GamesLost
             Defaults to None, meaning all games
+
         position (Optional[str], optional): The position of the player to draw
             the top stats from. Available values:
             - Guards
@@ -295,6 +330,7 @@ def get_player_stats_leaders_range_seasons(
             Defaults to None, meaning all positions.
 
     Returns:
+
         pd.DataFrame: A dataframe with the top leading players and their stat
     """
     params = {

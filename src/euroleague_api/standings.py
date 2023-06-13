@@ -10,11 +10,15 @@ def get_standings(
     round_number: int,
     endpoint: str = "basicstandings",
 ) -> pd.DataFrame:
-    """Get the standings of round in given season
+    """
+    Get the standings of round in given season
 
     Args:
+
         season (int): The start year of the season
+
         round_number (int): The round number
+
         endpoint (str, optional): The type of standing.
         One of the following options
         - calendarstandings
@@ -25,9 +29,11 @@ def get_standings(
         Defaults to "basicstandings".
 
     Raises:
+
         ValueError: If endpoint is not applicable
 
     Returns:
+
         pd.DataFrame: A dataframe with the standings of the teams
     """
     available_endpoints = [

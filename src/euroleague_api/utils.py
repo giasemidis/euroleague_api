@@ -22,12 +22,16 @@ def make_season_game_url(
     Concatenates the base URL and makes the game url.
 
     Args:
+
         season (int): The start year of the season
+
         game_code (int): The code of the game. Find the code from
             Euroleague's website
+
         endpoint (str): The endpoint of the API
 
     Returns:
+
         str: the full URL
     """
     FULL_URL = f"{URL}/seasons/E{season}/games/{game_code}/{endpoint}"
@@ -43,16 +47,21 @@ def get_requests(
     A wrapper to `requests.get()` which handles unsuccesful requests too.
 
     Args:
+
         url (str): _description_
+
         params (dict, optional): The `params` variables in get requests.
             Defaults to {}.
+
         headers (dict, optional): the `header` variable in get requests.
             Defaults to {"Accept": "application/json"}.
 
     Raises:
+
         Requests Error: If get request was not succesful
 
     Returns:
+
         requests.models.Response: The response object.
     """
     r = requests.get(url, params=params, headers=headers)
@@ -68,18 +77,23 @@ def get_game_data(season: int, game_code: int, endpoint: str) -> pd.DataFrame:
     A wrapper function for getting game-level data.
 
     Args:
+
         season (int): The start year of the season
+
         game_code (int): The game code of the game of interest.
             Find the game code from Euroleague's website
+
         endpoint (str): The type of game data, available variables:
             - report
             - stats
             - teamsComparison
 
     Raises:
+
         ValueError: If input endpoint is not applicable.
 
     Returns:
+
         pd.DataFrame: A dataframe with the game data.
     """
     game_endpoints = ["report", "stats", "teamsComparison"]
@@ -102,7 +116,9 @@ def get_season_data_from_game_data(
     A wrapper function for getting game data for all games in a single season.
 
     Args:
+
         season (int, optional): The start year of the season.
+
         fun (Callable[[int, int], pd.DataFrame]): A callable function that
             determines that type of data to be collected. Available values:
             - get_game_report
@@ -110,6 +126,7 @@ def get_season_data_from_game_data(
             - get_game_teams_comparison
 
     Returns:
+
         pd.DataFrame: A dataframe with the game data.
     """
     data_list = []
@@ -150,8 +167,11 @@ def get_range_seasons_data(
     A wrapper function with the all game data in a range of seasons
 
     Args:
+
         season (int, optional): The start year of the season.
+
         end_season (int): The start year of teh end season
+
         fun (Callable[[int, int], pd.DataFrame]): A callable function that
             determines that type of data to be collected. Available values:
             - get_game_report
@@ -159,6 +179,7 @@ def get_range_seasons_data(
             - get_game_teams_comparison
 
     Returns:
+
         pd.DataFrame: A dataframe with the game data
     """
     data = []
@@ -182,19 +203,23 @@ def get_player_stats(
     - a range of seasons
 
     Args:
+
         endpoint (str): The type of stats, available variables:
             - traditional
             - advanced
             - misc
             - scoring
+
         params (Dict[str, Union[str, int]]): A dictionary of parameters for the
             get request.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -203,11 +228,15 @@ def get_player_stats(
             Defaults to "PerGame".
 
     Raises:
+
         ValueError: If the endpoint is not applicable
+
         ValueError: If the phase_type_code is not applicable
+
         ValueError: If the statistic_mode is not applicable
 
     Returns:
+
         pd.DataFrame: A dataframe with the players' stats.
     """
 
@@ -252,19 +281,23 @@ def get_team_stats(
     - range of seasons
 
     Args:
+
         endpoint (str): The type of stats to fetch. Available values:
             - traditional
             - advanced
             - opponentsTraditional
             - opponentsAdvanced
+
         params (Dict[str, Union[str, int]]): A dictionary of the parmaters for
             the get request.
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -272,11 +305,15 @@ def get_team_stats(
             Defaults to "PerGame".
 
     Raises:
+
         ValueError: If the endpoint is not applicable
+
         ValueError: If the phase_type_code is not applicable
+
         ValueError: If the statistic_mode is not applicable
 
     Returns:
+
         pd.DataFrame: A dataframe with the teams' stats.
     """
 
@@ -324,9 +361,12 @@ def get_player_stats_leaders(
     stat category.
 
     Args:
+
         params (Dict[str, Union[str, int]]): A dictionary of parameters for the
             get request.
+
         top_n (int): The number of top N players to return.  Defaults to 200.
+
         stat_category (str): The stat category. Available values:
             - Valuation
             - Score
@@ -387,12 +427,14 @@ def get_player_stats_leaders(
             - PointsAttempted2Rate
             - PointsAttempted3Rate
             - Age
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -401,6 +443,7 @@ def get_player_stats_leaders(
             - PerGameReverse
             - AccumulatedReverse
             Defaults to "PerGame".
+
         game_type (Optional[str], optional): The type of games to draw the top
             stats from. Available values:
             - HomeGames
@@ -408,6 +451,7 @@ def get_player_stats_leaders(
             - GamesWon
             - GamesLost
             Defaults to None, meaning all games
+
         position (Optional[str], optional): The position of the player to draw
             the top stats from. Available values:
             - Guards
@@ -417,13 +461,19 @@ def get_player_stats_leaders(
             Defaults to None, meaning all positions.
 
     Raises:
+
         ValueError: If the stat_category is not applicable
+
         ValueError: If the phase_type_code is not applicable
+
         ValueError: If the statistic_mode is not applicable
+
         ValueError: If the game_type is not applicable
+
         ValueError: If the position is not applicable
 
     Returns:
+
         pd.DataFrame: A dataframe with the top players' stats
     """
     avaiable_stat_category = [
@@ -548,13 +598,18 @@ def raise_error(
     A function that raises a ValueError with specific message.
 
     Args:
+
         var (str): The input variable by the user
+
         descripitve_var (str): A description in plain English of this variable
+
         available_vals (List): The available variables
+
         allow_none (bool, optional): If `var` can take None value.
             Defaults to False.
 
     Raises:
+
         ValueError: if `var` not applicable
     """
 

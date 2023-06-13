@@ -12,17 +12,20 @@ def get_team_stats_all_seasons(
     A function that gets the team stats for all seasons
 
     Args:
+
         endpoint (str): The type of stats to fetch. Available values:
             - traditional
             - advanced
             - opponentsTraditional
             - opponentsAdvanced
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -30,6 +33,7 @@ def get_team_stats_all_seasons(
             Defaults to "PerGame".
 
     Returns:
+
         pd.DataFrame: A dataframe with the teams' stats
     """
     params = {"SeasonMode": "All"}
@@ -47,18 +51,22 @@ def get_team_stats_single_season(
     A function that returns the teams' stats in a single season
 
     Args:
+
         endpoint (str): The type of stats to fetch. Available values:
             - traditional
             - advanced
             - opponentsTraditional
             - opponentsAdvanced
+
         season (int): The start year of the season
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -66,6 +74,7 @@ def get_team_stats_single_season(
             Defaults to "PerGame".
 
     Returns:
+
         pd.DataFrame: A dataframe with the teams' stats
     """
     params = {
@@ -87,19 +96,24 @@ def get_team_stats_range_seasons(
     A function that returns the teams' stats in a range of seasons
 
     Args:
+
         endpoint (str): The type of stats to fetch. Available values:
             - traditional
             - advanced
             - opponentsTraditional
             - opponentsAdvanced
+
         from_season (int): The start year of the start season
+
         to_season (int): The end year of the end season
+
         phase_type_code (Optional[str], optional): The phase of the season,
             available variables:
             - "RS" (regular season)
             - "PO" (play-off)
             - "FF" (final four)
             Defaults to None, which includes all phases.
+
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
             - PerGame
@@ -107,6 +121,7 @@ def get_team_stats_range_seasons(
             Defaults to "PerGame".
 
     Returns:
+
         pd.DataFrame: A dataframe with the teams' stats
     """
     params = {

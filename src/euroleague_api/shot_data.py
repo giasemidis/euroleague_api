@@ -13,11 +13,14 @@ def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
     A function that gets the shot data of a particular game.
 
     Args:
+
         season (int): The start year of the season
+
         gamecode (int): The game-code of the game of interest.
             It can be found on Euroleague's website.
 
     Returns:
+
         pd.DataFrame: A dataframe with the shot data of the game.
     """
     url = "https://live.euroleague.net/api/Points"
@@ -47,9 +50,11 @@ def get_game_reports_single_season(season: int) -> pd.DataFrame:
     A function that gets the shot data of *all* games in a single season
 
     Args:
+
         season (int): The start year of the season
 
     Returns:
+
         pd.DataFrame: A dataframe with the shot data of all games in a single
             season
     """
@@ -64,10 +69,13 @@ def get_game_reports_multiple_seasons(
     A function that gets the shot data of *all* games in a range of seasons
 
     Args:
+
         start_season (int): The start year of the start season
+
         end_season (int): The start year of the end season
 
     Returns:
+
         pd.DataFrame: A dataframe with the shot data of all games in range of
             seasons
     """
