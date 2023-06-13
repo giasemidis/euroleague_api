@@ -1,0 +1,6 @@
+requests
+pandas
+numpy
+mypy
+pandas-stubs
+pre-commit

@@ -1,0 +1,45 @@
+default_language_version:
+  python: python3.10
+default_stages:
+  - commit
+  - push
+fail_fast: false  # See every failure, not just first.
+repos:
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.8.4
+    hooks:
+      - id: flake8
+        args: [--config=.flake8]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: check-ast
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: debug-statements
+      - id: end-of-file-fixer
+  # add docker-pre-commit back in when docker is install in machine.
+  # - repo: http://github.com/IamTheFij/docker-pre-commit
+  #   rev: v2.0.0
+  #   hooks:
+  #     - id: docker-compose-check
+  - repo: local
+    hooks:
+      - id: check-nbstripout-installed
+        name: check-nbstripout-installed
+        entry: nbstripout --is-installed
+        language: system
+        types: [jupyter]
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy --config-file mypy.ini
+        language: system
+        # trigger for commits changing Python files
+        types: [python]
+        # use require_serial so that script
+        # is only called once per commit
+        require_serial: true
+        # print the number of files as a sanity-check
+        verbose: true
