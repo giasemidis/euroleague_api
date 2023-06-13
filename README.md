@@ -3,7 +3,11 @@
 This is a python package of the Euroleague API. The API endpoints were found on the [swagger platform](https://api-live.euroleague.net/swagger/index.html), with the addition of a few more API endpoints (e.g. shot data) found on blogs and discussions. More endpoints will be added.
 
 TODO:
-- publish on pypi
+- publish on pypi. Until package is published, clone the repo and run
+  ```
+  cd <path to repo>
+  pip install -e .
+  ```
 - tests
 
 ## Example
