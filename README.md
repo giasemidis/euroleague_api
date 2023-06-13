@@ -6,6 +6,16 @@ TODO:
 - publish on pypi
 - tests
 
+## Example
+```python
+from euroleague_api import shot_data
+
+season = 2022
+game_code = 1
+
+df = shot_data.get_game_shot_data(season, game_code)
+```
+
 ## Documentation
 
 ### Game stats
