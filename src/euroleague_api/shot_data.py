@@ -1,4 +1,5 @@
 import pandas as pd
+from json.decoder import JSONDecodeError
 from .utils import get_requests
 from .utils import get_season_data_from_game_data
 from .utils import get_range_seasons_data
@@ -26,7 +27,11 @@ def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
     }
     r = get_requests(url, params=params)
 
-    data = r.json()
+    try:
+        data = r.json()
+    except JSONDecodeError:
+        raise ValueError(f"Game code, {gamecode}, did not return any data.")
+
     shots_df = pd.DataFrame(data['Rows'])
     # team id, player id and action id contain trailing white space
     shots_df['TEAM'] = shots_df['TEAM'].str.strip()

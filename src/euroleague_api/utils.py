@@ -117,18 +117,17 @@ def get_season_data_from_game_data(
     attempt = 0
     while True:
         game_code += 1
-        shots_df = fun(season, game_code)
+        try:
+            shots_df = fun(season, game_code)
+            attempt = 0
+            data_list.append(shots_df)
+        except ValueError:
+            attempt += 1
 
         # Due to the ban of Russian teams from Euroleague in 2021
         # this is a hack for not breaking in the first
         # "empty" game, but only after 5 *concecutive*
         # "empty" games
-        if shots_df is None:
-            attempt += 1
-        else:
-            attempt = 0
-            data_list.append(shots_df)
-
         if attempt > 5:
             logger.debug(
                 "No more available game data for this season, break and exit"
