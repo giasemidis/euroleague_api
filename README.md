@@ -21,22 +21,22 @@ df = shot_data.get_game_shot_data(season, game_code)
 ## Documentation
 
 ### Game stats
-[game_stats.py](docs/euroleague_api/game_stats.md)
+[game_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/game_stats.html)
 
 ### Player stats
-[player_stats.py](docs/euroleague_api/player_stats.md)
+[player_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/player_stats.html)
 
 ### Team stats
-[team_stats.py](docs/euroleague_api/team_stats.md)
+[team_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/team_stats.html)
 
 ### Standings
-[standings.py](docs/euroleague_api/standings.md)
+[standings.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/standings.html)
 
 ### Shot data
-[shot_data.py](docs/euroleague_api/shot_data.md)
+[shot_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/shot_data.html)
 
 ### Auxiliary functions
-[utils.py](docs/euroleague_api/utils.md)
+[utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_ap/utils.html)
 
 ## TODO
 - Add more endpoints from various sources
