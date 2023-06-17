@@ -1,0 +1,2836 @@
+<!doctype html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+  
+  <title>euroleague_api.utils API documentation</title>
+  <meta name="description" content="" />
+
+
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
+  
+  <style type="text/css">
+* {
+  box-sizing: border-box;
+}
+/*! normalize.css v1.1.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/**
+ * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
+ * Known issue: no IE 6 support.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/**
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
+ *    and Opera.
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
+ *    Opera.
+ * 3. Correct text resizing oddly in IE 6/7 when body `font-size` is set using
+ *    `em` units.
+ * 4. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    background: #fff; /* 1 */
+    color: #000; /* 2 */
+    font-size: 100%; /* 3 */
+    -webkit-text-size-adjust: 100%; /* 4 */
+    -ms-text-size-adjust: 100%; /* 4 */
+}
+
+/**
+ * Address `font-family` inconsistency between `textarea` and other form
+ * elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+/**
+ * Address margins handled incorrectly in IE 6/7.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/**
+ * Address `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/**
+ * Address font sizes and margins set differently in IE 6/7.
+ * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,
+ * and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+    font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.67em;
+    margin: 2.33em 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/**
+ * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/**
+ * Address styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/**
+ * Address differences between Firefox and other browsers.
+ * Known issue: no IE 6/7 normalization.
+ */
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 6/7/8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+p,
+pre {
+    margin: 1em 0;
+}
+
+/**
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/**
+ * Improve readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/**
+ * Address CSS quotes not supported in IE 6/7.
+ */
+
+q {
+    quotes: none;
+}
+
+/**
+ * Address `quotes` property not supported in Safari 4.
+ */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/**
+ * Address paddings set differently in IE 6/7.
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 40px;
+}
+
+/**
+ * Correct list images handled incorrectly in IE 7.
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/**
+ * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.
+ * 2. Improve image quality when scaled in IE 7.
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/**
+ * Correct overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/**
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/**
+ * Correct margin displayed oddly in IE 6/7.
+ */
+
+form {
+    margin: 0;
+}
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct color not being inherited in IE 6/7/8/9.
+ * 2. Correct text not wrapping in Firefox 3.
+ * 3. Correct alignment displayed oddly in IE 6/7.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/**
+ * 1. Correct font size not being inherited in all browsers.
+ * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
+ *    and Chrome.
+ * 3. Improve appearance and consistency in all browsers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/**
+ * Address Firefox 3+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `select` style inheritance in Firefox 4+ and Opera.
+ */
+
+button,
+select {
+    text-transform: none;
+}
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
+ *    Known issue: inner spacing remains in IE 6.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+    *overflow: visible;  /* 4 */
+}
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+html input[disabled] {
+    cursor: default;
+}
+
+/**
+ * 1. Address box sizing set to content-box in IE 8/9.
+ * 2. Remove excess padding in IE 8/9.
+ * 3. Remove excess padding in IE 7.
+ *    Known issue: excess padding remains in IE 6.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/**
+ * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/**
+ * Remove inner padding and border in Firefox 3+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/**
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
+ * 2. Improve readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/**
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+</style>
+  <style type="text/css">
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+  body {
+    background: #fff;
+    font-family: "Source Sans Pro", "Helvetica Neueue", Helvetica, sans;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.6em;
+  }
+  #content {
+    width: 70%;
+    max-width: 850px;
+    float: left;
+    padding: 30px 60px;
+    border-left: 1px solid #ddd;
+  }
+  #sidebar {
+    width: 25%;
+    float: left;
+    padding: 30px;
+    overflow: hidden;
+  }
+  #nav {
+    font-size: 130%;
+    margin: 0 0 15px 0;
+  }
+
+  #top {
+    display: block;
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
+    font-size: .85em;
+    text-transform: uppercase;
+  }
+
+  #footer {
+    font-size: .75em;
+    padding: 5px 30px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+  }
+    #footer p {
+      margin: 0 0 0 30px;
+      display: inline-block;
+    }
+
+  h1, h2, h3, h4, h5 {
+    font-weight: 300;
+  }
+  h1 {
+    font-size: 2.5em;
+    line-height: 1.1em;
+    margin: 0 0 .50em 0;
+  }
+
+  h2 {
+    font-size: 1.75em;
+    margin: 1em 0 .50em 0;
+  }
+
+  h3 {
+    margin: 25px 0 10px 0;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 105%;
+  }
+
+  a {
+    color: #058;
+    text-decoration: none;
+    transition: color .3s ease-in-out;
+  }
+
+  a:hover {
+    color: #e08524;
+    transition: color .3s ease-in-out;
+  }
+
+  pre, code, .mono, .name {
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
+  }
+
+  .title .name {
+    font-weight: bold;
+  }
+  .section-title {
+    margin-top: 2em;
+  }
+  .ident {
+    color: #900;
+  }
+
+  code {
+    background: #f9f9f9;
+  } 
+
+  pre {
+    background: #fefefe;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 0 #f3f3f3;
+    margin: 0 30px;
+    padding: 15px 30px;
+  }
+
+  .codehilite {
+    margin: 0 30px 10px 30px;
+  }
+
+    .codehilite pre {
+      margin: 0;
+    }
+    .codehilite .err { background: #ff3300; color: #fff !important; } 
+
+  table#module-list {
+    font-size: 110%;
+  }
+
+    table#module-list tr td:first-child {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    table#module-list td {
+      vertical-align: top;
+      padding-bottom: 8px;
+    }
+
+      table#module-list td p {
+        margin: 0 0 7px 0;
+      }
+
+  .def {
+    display: table;
+  }
+
+    .def p {
+      display: table-cell;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .def p:first-child {
+      white-space: nowrap;
+    }
+
+    .def p:last-child {
+      width: 100%;
+    }
+
+
+  #index {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+    ul#index .class_name {
+      /* font-size: 110%; */
+      font-weight: bold;
+    }
+    #index ul {
+      margin: 0;
+    }
+
+  .item {
+    margin: 0 0 15px 0;
+  }
+
+    .item .class {
+      margin: 0 0 25px 30px;
+    }
+
+      .item .class ul.class_list {
+        margin: 0 0 20px 0;
+      }
+
+    .item .name {
+      background: #fafafa;
+      margin: 0;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 3px;
+      display: inline-block;
+      min-width: 40%;
+    }
+      .item .name:hover {
+        background: #f6f6f6;
+      }
+
+    .item .empty_desc {
+      margin: 0 0 5px 0;
+      padding: 0;
+    }
+
+    .item .inheritance {
+      margin: 3px 0 0 30px;
+    }
+
+    .item .inherited {
+      color: #666;
+    }
+
+    .item .desc {
+      padding: 0 8px;
+      margin: 0;
+    }
+
+      .item .desc p {
+        margin: 0 0 10px 0;
+      }
+
+    .source_cont {
+      margin: 0;
+      padding: 0;
+    }
+
+    .source_link a {
+      background: #ffc300;
+      font-weight: 400;
+      font-size: .75em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 1px 1px 0 #f4b700;
+      
+      padding: 3px 8px;
+      border-radius: 2px;
+      transition: background .3s ease-in-out;
+    }
+      .source_link a:hover {
+        background: #FF7200;
+        text-shadow: none;
+        transition: background .3s ease-in-out;
+      }
+
+    .source {
+      display: none;
+      max-height: 600px;
+      overflow-y: scroll;
+      margin-bottom: 15px;
+    }
+
+      .source .codehilite {
+        margin: 0;
+      }
+
+  .desc h1, .desc h2, .desc h3 {
+    font-size: 100% !important;
+  }
+  .clear {
+    clear: both;
+  }
+
+  @media all and (max-width: 950px) {
+    #sidebar {
+      width: 35%;
+    }
+    #content {
+      width: 65%;
+    }
+  }
+  @media all and (max-width: 650px) {
+    #top {
+      display: none;
+    }
+    #sidebar {
+      float: none;
+      width: auto;
+    }
+    #content {
+      float: none;
+      width: auto;
+      padding: 30px;
+    }
+
+    #index ul {
+      padding: 0;
+      margin-bottom: 15px;
+    }
+    #index ul li {
+      display: inline-block;
+      margin-right: 30px;
+    }
+    #footer {
+      text-align: left;
+    }
+    #footer p {
+      display: block;
+      margin: inherit;
+    }
+  }
+
+  /*****************************/
+</style>
+  <style type="text/css">
+  pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f8f8f8; }
+.codehilite .c { color: #3D7B7B; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #9C6500 } /* Comment.Preproc */
+.codehilite .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #E40000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #008400 } /* Generic.Inserted */
+.codehilite .go { color: #717171 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #687822 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #767600 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mb { color: #666666 } /* Literal.Number.Bin */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sa { color: #BA2121 } /* Literal.String.Affix */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #A45A77 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #0000FF } /* Name.Function.Magic */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .vm { color: #19177C } /* Name.Variable.Magic */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+  </style>
+  <style type="text/css">
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
+</style>
+
+  <script type="text/javascript">
+  function toggle(id, $link) {
+    $node = document.getElementById(id);
+    if (!$node)
+    return;
+    if (!$node.style.display || $node.style.display == 'none') {
+    $node.style.display = 'block';
+    $link.innerHTML = 'Hide source &nequiv;';
+    } else {
+    $node.style.display = 'none';
+    $link.innerHTML = 'Show source &equiv;';
+    }
+  }
+  </script>
+</head>
+<body>
+<a href="#" id="top">Top</a>
+<div id="container">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <div id="sidebar">
+    <h1>Index</h1>
+    <ul id="index">
+    <li class="set"><h3>Super-module</h3>
+      <ul>
+        <li class="mono"><a href="index.html">euroleague_api</a></li>
+      </ul>
+    </li>
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#euroleague_api.utils.BASE_URL">BASE_URL</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.URL">URL</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.competition">competition</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.logger">logger</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.version">version</a></li>
+  </ul>
+
+    </li>
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#euroleague_api.utils.get_game_data">get_game_data</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_player_stats">get_player_stats</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_player_stats_leaders">get_player_stats_leaders</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_range_seasons_data">get_range_seasons_data</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_requests">get_requests</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_team_stats">get_team_stats</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.make_season_game_url">make_season_game_url</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.raise_error">raise_error</a></li>
+  </ul>
+
+    </li>
+
+
+    </ul>
+  </div>
+
+<article id="content">
+  
+
+  
+
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">euroleague_api.utils</span> module</h1>
+  
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api-live.euroleague.net&quot;</span>
+<span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;v3&quot;</span>
+<span class="n">competition</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span>
+<span class="n">URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">/competitions/</span><span class="si">{</span><span class="n">competition</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">make_season_game_url</span><span class="p">(</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenates the base URL and makes the game url.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season</span>
+
+<span class="sd">        game_code (int): The code of the game. Find the code from</span>
+<span class="sd">            Euroleague&#39;s website</span>
+
+<span class="sd">        endpoint (str): The endpoint of the API</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        str: the full URL</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">FULL_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/seasons/E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">/games/</span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">FULL_URL</span>
+
+
+<span class="k">def</span> <span class="nf">get_requests</span><span class="p">(</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper to `requests.get()` which handles unsuccesful requests too.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        url (str): _description_</span>
+
+<span class="sd">        params (dict, optional): The `params` variables in get requests.</span>
+<span class="sd">            Defaults to {}.</span>
+
+<span class="sd">        headers (dict, optional): the `header` variable in get requests.</span>
+<span class="sd">            Defaults to {&quot;Accept&quot;: &quot;application/json&quot;}.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        Requests Error: If get request was not succesful</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        requests.models.Response: The response object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">r</span>
+
+
+<span class="k">def</span> <span class="nf">get_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting game-level data.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season</span>
+
+<span class="sd">        game_code (int): The game code of the game of interest.</span>
+<span class="sd">            Find the game code from Euroleague&#39;s website</span>
+
+<span class="sd">        endpoint (str): The type of game data, available variables:</span>
+<span class="sd">            - report</span>
+<span class="sd">            - stats</span>
+<span class="sd">            - teamsComparison</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If input endpoint is not applicable.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">game_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="s2">&quot;stats&quot;</span><span class="p">,</span> <span class="s2">&quot;teamsComparison&quot;</span><span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">game_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="n">make_season_game_url</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">get_season_data_from_game_data</span><span class="p">(</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting game data for all games in a single season.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int, optional): The start year of the season.</span>
+
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">game_code</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">game_code</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shots_df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+            <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_df</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Due to the ban of Russian teams from Euroleague in 2021</span>
+        <span class="c1"># this is a hack for not breaking in the first</span>
+        <span class="c1"># &quot;empty&quot; game, but only after 5 *concecutive*</span>
+        <span class="c1"># &quot;empty&quot; games</span>
+        <span class="k">if</span> <span class="n">attempt</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;No more available game data for this season, break and exit&quot;</span>
+            <span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+
+
+<span class="k">def</span> <span class="nf">get_range_seasons_data</span><span class="p">(</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function with the all game data in a range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int, optional): The start year of the season.</span>
+
+<span class="sd">        end_season (int): The start year of teh end season</span>
+
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the game data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">get_player_stats</span><span class="p">(</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting the players&#39; stats for</span>
+<span class="sd">    - all seasons</span>
+<span class="sd">    - a single season</span>
+<span class="sd">    - a range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        endpoint (str): The type of stats, available variables:</span>
+<span class="sd">            - traditional</span>
+<span class="sd">            - advanced</span>
+<span class="sd">            - misc</span>
+<span class="sd">            - scoring</span>
+
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of parameters for the</span>
+<span class="sd">            get request.</span>
+
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If the endpoint is not applicable</span>
+
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the players&#39; stats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span> <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">400</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/statistics/players/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">]):</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">get_team_stats</span><span class="p">(</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper functions for collecting teams&#39; stats.</span>
+<span class="sd">    Allows for three types of data:</span>
+<span class="sd">    - all seasons</span>
+<span class="sd">    - single season</span>
+<span class="sd">    - range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        endpoint (str): The type of stats to fetch. Available values:</span>
+<span class="sd">            - traditional</span>
+<span class="sd">            - advanced</span>
+<span class="sd">            - opponentsTraditional</span>
+<span class="sd">            - opponentsAdvanced</span>
+
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of the parmaters for</span>
+<span class="sd">            the get request.</span>
+
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If the endpoint is not applicable</span>
+
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the teams&#39; stats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;opponentsTraditional&quot;</span><span class="p">,</span> <span class="s2">&quot;opponentsAdvanced&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">400</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/statistics/teams/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">]):</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">get_player_stats_leaders</span><span class="p">(</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+    <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+    <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for collecting the leading players in a given</span>
+<span class="sd">    stat category.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of parameters for the</span>
+<span class="sd">            get request.</span>
+
+<span class="sd">        top_n (int): The number of top N players to return.  Defaults to 200.</span>
+
+<span class="sd">        stat_category (str): The stat category. Available values:</span>
+<span class="sd">            - Valuation</span>
+<span class="sd">            - Score</span>
+<span class="sd">            - TotalRebounds</span>
+<span class="sd">            - OffensiveRebounds</span>
+<span class="sd">            - Assistances</span>
+<span class="sd">            - Steals</span>
+<span class="sd">            - BlocksFavour</span>
+<span class="sd">            - BlocksAgainst</span>
+<span class="sd">            - Turnovers</span>
+<span class="sd">            - FoulsReceived</span>
+<span class="sd">            - FoulsCommited</span>
+<span class="sd">            - FreeThrowsMade</span>
+<span class="sd">            - FreeThrowsAttempted</span>
+<span class="sd">            - FreeThrowsPercent</span>
+<span class="sd">            - FieldGoalsMade2</span>
+<span class="sd">            - FieldGoalsAttempted2</span>
+<span class="sd">            - FieldGoals2Percent</span>
+<span class="sd">            - FieldGoalsMade3</span>
+<span class="sd">            - FieldGoalsAttempted3</span>
+<span class="sd">            - FieldGoals3Percent</span>
+<span class="sd">            - FieldGoalsMadeTotal</span>
+<span class="sd">            - FieldGoalsAttemptedTotal</span>
+<span class="sd">            - FieldGoalsPercent</span>
+<span class="sd">            - AccuracyMade</span>
+<span class="sd">            - AccuracyAttempted</span>
+<span class="sd">            - AccuracyPercent</span>
+<span class="sd">            - AssitancesTurnoversRation</span>
+<span class="sd">            - GamesPlayed</span>
+<span class="sd">            - GamesStarted</span>
+<span class="sd">            - TimePlayed</span>
+<span class="sd">            - Contras</span>
+<span class="sd">            - Dunks</span>
+<span class="sd">            - OffensiveReboundPercentage</span>
+<span class="sd">            - DefensiveReboundPercentage</span>
+<span class="sd">            - ReboundPercentage</span>
+<span class="sd">            - EffectiveFeildGoalPercentage</span>
+<span class="sd">            - TrueShootingPercentage</span>
+<span class="sd">            - AssistRatio</span>
+<span class="sd">            - TurnoverRatio</span>
+<span class="sd">            - FieldGoals2AttemptedRatio</span>
+<span class="sd">            - FieldGoals3AttemptedRatio</span>
+<span class="sd">            - FreeThrowRate</span>
+<span class="sd">            - Possessions</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            - DoubleDoubles</span>
+<span class="sd">            - TripleDoubles</span>
+<span class="sd">            - FieldGoalsAttempted2Share</span>
+<span class="sd">            - FieldGoalsAttempted3Share</span>
+<span class="sd">            - FreeThrowsAttemptedShare</span>
+<span class="sd">            - FieldGoalsMade2Share</span>
+<span class="sd">            - FieldGoalsMade3Share</span>
+<span class="sd">            - FreeThrowsMadeShare</span>
+<span class="sd">            - PointsMade2Rate</span>
+<span class="sd">            - PointsMade3Rate</span>
+<span class="sd">            - PointsMadeFreeThrowsRate</span>
+<span class="sd">            - PointsAttempted2Rate</span>
+<span class="sd">            - PointsAttempted3Rate</span>
+<span class="sd">            - Age</span>
+
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            - PerGameReverse</span>
+<span class="sd">            - AccumulatedReverse</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        game_type (Optional[str], optional): The type of games to draw the top</span>
+<span class="sd">            stats from. Available values:</span>
+<span class="sd">            - HomeGames</span>
+<span class="sd">            - AwayGames</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            Defaults to None, meaning all games</span>
+
+<span class="sd">        position (Optional[str], optional): The position of the player to draw</span>
+<span class="sd">            the top stats from. Available values:</span>
+<span class="sd">            - Guards</span>
+<span class="sd">            - Forwards</span>
+<span class="sd">            - Centers</span>
+<span class="sd">            - RisingStars</span>
+<span class="sd">            Defaults to None, meaning all positions.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If the stat_category is not applicable</span>
+
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">        ValueError: If the game_type is not applicable</span>
+
+<span class="sd">        ValueError: If the position is not applicable</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the top players&#39; stats</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlocksAgainst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Turnovers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FoulsReceived&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FoulsCommited&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsMade&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals2Percent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals3Percent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMadeTotal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttemptedTotal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyMade&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyAttempted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AssitancesTurnoversRation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesPlayed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesStarted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TimePlayed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Contras&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Dunks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OffensiveReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DefensiveReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EffectiveFeildGoalPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TrueShootingPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AssistRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TurnoverRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals2AttemptedRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals3AttemptedRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowRate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DoubleDoubles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TripleDoubles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted2Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted3Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsAttemptedShare&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade2Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade3Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsMadeShare&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMade2Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMade3Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMadeFreeThrowsRate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsAttempted2Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsAttempted3Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Age&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccumulatedReverse&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_game_types</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;HomeGames&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AwayGames&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">availabe_positions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Guards&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Forwards&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Centers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;RisingStars&quot;</span>
+    <span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">stat_category</span><span class="p">,</span> <span class="s2">&quot;Stat category&quot;</span><span class="p">,</span> <span class="n">avaiable_stat_category</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;Position&quot;</span><span class="p">,</span> <span class="n">availabe_positions</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_n</span>
+    <span class="k">if</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot select a game_type and position at the same type. &quot;</span>
+            <span class="s2">&quot;One of the variables must be None&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_type</span>
+    <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">raise_error</span><span class="p">(</span>
+    <span class="n">var</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">descripitve_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">available_vals</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+    <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that raises a ValueError with specific message.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        var (str): The input variable by the user</span>
+
+<span class="sd">        descripitve_var (str): A description in plain English of this variable</span>
+
+<span class="sd">        available_vals (List): The available variables</span>
+
+<span class="sd">        allow_none (bool, optional): If `var` can take None value.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: if `var` not applicable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">allow_none</span><span class="p">:</span>
+        <span class="n">available_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_vals</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">descripitve_var</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">, is not applicable. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Available values: </span><span class="si">{</span><span class="n">available_vals</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span>
+</pre></div>
+
+  </div>
+
+  </header>
+
+  <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="euroleague_api.utils.BASE_URL" class="name">var <span class="ident">BASE_URL</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="euroleague_api.utils.URL" class="name">var <span class="ident">URL</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="euroleague_api.utils.competition" class="name">var <span class="ident">competition</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="euroleague_api.utils.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="euroleague_api.utils.version" class="name">var <span class="ident">version</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_game_data">
+    <p>def <span class="ident">get_game_data</span>(</p><p>season: int, game_code: int, endpoint: str)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for getting game-level data.</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+
+game_code (int): The game code of the game of interest.
+    Find the game code from Euroleague's website
+
+endpoint (str): The type of game data, available variables:
+    - report
+    - stats
+    - teamsComparison
+</code></pre>
+<p>Raises:</p>
+<pre><code>ValueError: If input endpoint is not applicable.
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the game data.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_game_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_game_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting game-level data.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season</span>
+
+<span class="sd">        game_code (int): The game code of the game of interest.</span>
+<span class="sd">            Find the game code from Euroleague&#39;s website</span>
+
+<span class="sd">        endpoint (str): The type of game data, available variables:</span>
+<span class="sd">            - report</span>
+<span class="sd">            - stats</span>
+<span class="sd">            - teamsComparison</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If input endpoint is not applicable.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">game_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="s2">&quot;stats&quot;</span><span class="p">,</span> <span class="s2">&quot;teamsComparison&quot;</span><span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">game_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="n">make_season_game_url</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_player_stats">
+    <p>def <span class="ident">get_player_stats</span>(</p><p>endpoint: str, params={}, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for getting the players' stats for
+- all seasons
+- a single season
+- a range of seasons</p>
+<p>Args:</p>
+<pre><code>endpoint (str): The type of stats, available variables:
+    - traditional
+    - advanced
+    - misc
+    - scoring
+
+params (Dict[str, Union[str, int]]): A dictionary of parameters for the
+    get request.
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    - Per100Possesions
+    Defaults to "PerGame".
+</code></pre>
+<p>Raises:</p>
+<pre><code>ValueError: If the endpoint is not applicable
+
+ValueError: If the phase_type_code is not applicable
+
+ValueError: If the statistic_mode is not applicable
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the players' stats.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_player_stats', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_player_stats" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_stats</span><span class="p">(</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting the players&#39; stats for</span>
+<span class="sd">    - all seasons</span>
+<span class="sd">    - a single season</span>
+<span class="sd">    - a range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        endpoint (str): The type of stats, available variables:</span>
+<span class="sd">            - traditional</span>
+<span class="sd">            - advanced</span>
+<span class="sd">            - misc</span>
+<span class="sd">            - scoring</span>
+
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of parameters for the</span>
+<span class="sd">            get request.</span>
+
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If the endpoint is not applicable</span>
+
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the players&#39; stats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span> <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">400</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/statistics/players/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">]):</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_player_stats_leaders">
+    <p>def <span class="ident">get_player_stats_leaders</span>(</p><p>params={}, stat_category: str = &#39;Score&#39;, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for collecting the leading players in a given
+stat category.</p>
+<p>Args:</p>
+<pre><code>params (Dict[str, Union[str, int]]): A dictionary of parameters for the
+    get request.
+
+top_n (int): The number of top N players to return.  Defaults to 200.
+
+stat_category (str): The stat category. Available values:
+    - Valuation
+    - Score
+    - TotalRebounds
+    - OffensiveRebounds
+    - Assistances
+    - Steals
+    - BlocksFavour
+    - BlocksAgainst
+    - Turnovers
+    - FoulsReceived
+    - FoulsCommited
+    - FreeThrowsMade
+    - FreeThrowsAttempted
+    - FreeThrowsPercent
+    - FieldGoalsMade2
+    - FieldGoalsAttempted2
+    - FieldGoals2Percent
+    - FieldGoalsMade3
+    - FieldGoalsAttempted3
+    - FieldGoals3Percent
+    - FieldGoalsMadeTotal
+    - FieldGoalsAttemptedTotal
+    - FieldGoalsPercent
+    - AccuracyMade
+    - AccuracyAttempted
+    - AccuracyPercent
+    - AssitancesTurnoversRation
+    - GamesPlayed
+    - GamesStarted
+    - TimePlayed
+    - Contras
+    - Dunks
+    - OffensiveReboundPercentage
+    - DefensiveReboundPercentage
+    - ReboundPercentage
+    - EffectiveFeildGoalPercentage
+    - TrueShootingPercentage
+    - AssistRatio
+    - TurnoverRatio
+    - FieldGoals2AttemptedRatio
+    - FieldGoals3AttemptedRatio
+    - FreeThrowRate
+    - Possessions
+    - GamesWon
+    - GamesLost
+    - DoubleDoubles
+    - TripleDoubles
+    - FieldGoalsAttempted2Share
+    - FieldGoalsAttempted3Share
+    - FreeThrowsAttemptedShare
+    - FieldGoalsMade2Share
+    - FieldGoalsMade3Share
+    - FreeThrowsMadeShare
+    - PointsMade2Rate
+    - PointsMade3Rate
+    - PointsMadeFreeThrowsRate
+    - PointsAttempted2Rate
+    - PointsAttempted3Rate
+    - Age
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    - Per100Possesions
+    - PerGameReverse
+    - AccumulatedReverse
+    Defaults to "PerGame".
+
+game_type (Optional[str], optional): The type of games to draw the top
+    stats from. Available values:
+    - HomeGames
+    - AwayGames
+    - GamesWon
+    - GamesLost
+    Defaults to None, meaning all games
+
+position (Optional[str], optional): The position of the player to draw
+    the top stats from. Available values:
+    - Guards
+    - Forwards
+    - Centers
+    - RisingStars
+    Defaults to None, meaning all positions.
+</code></pre>
+<p>Raises:</p>
+<pre><code>ValueError: If the stat_category is not applicable
+
+ValueError: If the phase_type_code is not applicable
+
+ValueError: If the statistic_mode is not applicable
+
+ValueError: If the game_type is not applicable
+
+ValueError: If the position is not applicable
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the top players' stats
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_player_stats_leaders', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_player_stats_leaders" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_stats_leaders</span><span class="p">(</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+    <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+    <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for collecting the leading players in a given</span>
+<span class="sd">    stat category.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of parameters for the</span>
+<span class="sd">            get request.</span>
+
+<span class="sd">        top_n (int): The number of top N players to return.  Defaults to 200.</span>
+
+<span class="sd">        stat_category (str): The stat category. Available values:</span>
+<span class="sd">            - Valuation</span>
+<span class="sd">            - Score</span>
+<span class="sd">            - TotalRebounds</span>
+<span class="sd">            - OffensiveRebounds</span>
+<span class="sd">            - Assistances</span>
+<span class="sd">            - Steals</span>
+<span class="sd">            - BlocksFavour</span>
+<span class="sd">            - BlocksAgainst</span>
+<span class="sd">            - Turnovers</span>
+<span class="sd">            - FoulsReceived</span>
+<span class="sd">            - FoulsCommited</span>
+<span class="sd">            - FreeThrowsMade</span>
+<span class="sd">            - FreeThrowsAttempted</span>
+<span class="sd">            - FreeThrowsPercent</span>
+<span class="sd">            - FieldGoalsMade2</span>
+<span class="sd">            - FieldGoalsAttempted2</span>
+<span class="sd">            - FieldGoals2Percent</span>
+<span class="sd">            - FieldGoalsMade3</span>
+<span class="sd">            - FieldGoalsAttempted3</span>
+<span class="sd">            - FieldGoals3Percent</span>
+<span class="sd">            - FieldGoalsMadeTotal</span>
+<span class="sd">            - FieldGoalsAttemptedTotal</span>
+<span class="sd">            - FieldGoalsPercent</span>
+<span class="sd">            - AccuracyMade</span>
+<span class="sd">            - AccuracyAttempted</span>
+<span class="sd">            - AccuracyPercent</span>
+<span class="sd">            - AssitancesTurnoversRation</span>
+<span class="sd">            - GamesPlayed</span>
+<span class="sd">            - GamesStarted</span>
+<span class="sd">            - TimePlayed</span>
+<span class="sd">            - Contras</span>
+<span class="sd">            - Dunks</span>
+<span class="sd">            - OffensiveReboundPercentage</span>
+<span class="sd">            - DefensiveReboundPercentage</span>
+<span class="sd">            - ReboundPercentage</span>
+<span class="sd">            - EffectiveFeildGoalPercentage</span>
+<span class="sd">            - TrueShootingPercentage</span>
+<span class="sd">            - AssistRatio</span>
+<span class="sd">            - TurnoverRatio</span>
+<span class="sd">            - FieldGoals2AttemptedRatio</span>
+<span class="sd">            - FieldGoals3AttemptedRatio</span>
+<span class="sd">            - FreeThrowRate</span>
+<span class="sd">            - Possessions</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            - DoubleDoubles</span>
+<span class="sd">            - TripleDoubles</span>
+<span class="sd">            - FieldGoalsAttempted2Share</span>
+<span class="sd">            - FieldGoalsAttempted3Share</span>
+<span class="sd">            - FreeThrowsAttemptedShare</span>
+<span class="sd">            - FieldGoalsMade2Share</span>
+<span class="sd">            - FieldGoalsMade3Share</span>
+<span class="sd">            - FreeThrowsMadeShare</span>
+<span class="sd">            - PointsMade2Rate</span>
+<span class="sd">            - PointsMade3Rate</span>
+<span class="sd">            - PointsMadeFreeThrowsRate</span>
+<span class="sd">            - PointsAttempted2Rate</span>
+<span class="sd">            - PointsAttempted3Rate</span>
+<span class="sd">            - Age</span>
+
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            - PerGameReverse</span>
+<span class="sd">            - AccumulatedReverse</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        game_type (Optional[str], optional): The type of games to draw the top</span>
+<span class="sd">            stats from. Available values:</span>
+<span class="sd">            - HomeGames</span>
+<span class="sd">            - AwayGames</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            Defaults to None, meaning all games</span>
+
+<span class="sd">        position (Optional[str], optional): The position of the player to draw</span>
+<span class="sd">            the top stats from. Available values:</span>
+<span class="sd">            - Guards</span>
+<span class="sd">            - Forwards</span>
+<span class="sd">            - Centers</span>
+<span class="sd">            - RisingStars</span>
+<span class="sd">            Defaults to None, meaning all positions.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If the stat_category is not applicable</span>
+
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">        ValueError: If the game_type is not applicable</span>
+
+<span class="sd">        ValueError: If the position is not applicable</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the top players&#39; stats</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlocksAgainst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Turnovers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FoulsReceived&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FoulsCommited&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsMade&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals2Percent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals3Percent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMadeTotal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttemptedTotal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyMade&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyAttempted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AssitancesTurnoversRation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesPlayed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesStarted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TimePlayed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Contras&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Dunks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OffensiveReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DefensiveReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EffectiveFeildGoalPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TrueShootingPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AssistRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TurnoverRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals2AttemptedRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals3AttemptedRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowRate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DoubleDoubles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TripleDoubles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted2Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted3Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsAttemptedShare&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade2Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade3Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsMadeShare&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMade2Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMade3Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMadeFreeThrowsRate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsAttempted2Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsAttempted3Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Age&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccumulatedReverse&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_game_types</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;HomeGames&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AwayGames&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">availabe_positions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Guards&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Forwards&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Centers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;RisingStars&quot;</span>
+    <span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">stat_category</span><span class="p">,</span> <span class="s2">&quot;Stat category&quot;</span><span class="p">,</span> <span class="n">avaiable_stat_category</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;Position&quot;</span><span class="p">,</span> <span class="n">availabe_positions</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_n</span>
+    <span class="k">if</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot select a game_type and position at the same type. &quot;</span>
+            <span class="s2">&quot;One of the variables must be None&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_type</span>
+    <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_range_seasons_data">
+    <p>def <span class="ident">get_range_seasons_data</span>(</p><p>start_season: int, end_season: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function with the all game data in a range of seasons</p>
+<p>Args:</p>
+<pre><code>season (int, optional): The start year of the season.
+
+end_season (int): The start year of teh end season
+
+fun (Callable[[int, int], pd.DataFrame]): A callable function that
+    determines that type of data to be collected. Available values:
+    - get_game_report
+    - get_game_stats
+    - get_game_teams_comparison
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the game data
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_range_seasons_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_range_seasons_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_range_seasons_data</span><span class="p">(</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function with the all game data in a range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int, optional): The start year of the season.</span>
+
+<span class="sd">        end_season (int): The start year of teh end season</span>
+
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the game data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_requests">
+    <p>def <span class="ident">get_requests</span>(</p><p>url: str, params={}, headers={&#39;Accept&#39;: &#39;application/json&#39;})</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper to <code>requests.get()</code> which handles unsuccesful requests too.</p>
+<p>Args:</p>
+<pre><code>url (str): _description_
+
+params (dict, optional): The `params` variables in get requests.
+    Defaults to {}.
+
+headers (dict, optional): the `header` variable in get requests.
+    Defaults to {"Accept": "application/json"}.
+</code></pre>
+<p>Raises:</p>
+<pre><code>Requests Error: If get request was not succesful
+</code></pre>
+<p>Returns:</p>
+<pre><code>requests.models.Response: The response object.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_requests', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_requests" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_requests</span><span class="p">(</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper to `requests.get()` which handles unsuccesful requests too.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        url (str): _description_</span>
+
+<span class="sd">        params (dict, optional): The `params` variables in get requests.</span>
+<span class="sd">            Defaults to {}.</span>
+
+<span class="sd">        headers (dict, optional): the `header` variable in get requests.</span>
+<span class="sd">            Defaults to {&quot;Accept&quot;: &quot;application/json&quot;}.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        Requests Error: If get request was not succesful</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        requests.models.Response: The response object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">r</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_season_data_from_game_data">
+    <p>def <span class="ident">get_season_data_from_game_data</span>(</p><p>season: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for getting game data for all games in a single season.</p>
+<p>Args:</p>
+<pre><code>season (int, optional): The start year of the season.
+
+fun (Callable[[int, int], pd.DataFrame]): A callable function that
+    determines that type of data to be collected. Available values:
+    - get_game_report
+    - get_game_stats
+    - get_game_teams_comparison
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the game data.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_season_data_from_game_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_season_data_from_game_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_season_data_from_game_data</span><span class="p">(</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting game data for all games in a single season.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int, optional): The start year of the season.</span>
+
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">game_code</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">game_code</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shots_df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+            <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_df</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Due to the ban of Russian teams from Euroleague in 2021</span>
+        <span class="c1"># this is a hack for not breaking in the first</span>
+        <span class="c1"># &quot;empty&quot; game, but only after 5 *concecutive*</span>
+        <span class="c1"># &quot;empty&quot; games</span>
+        <span class="k">if</span> <span class="n">attempt</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;No more available game data for this season, break and exit&quot;</span>
+            <span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_team_stats">
+    <p>def <span class="ident">get_team_stats</span>(</p><p>endpoint: str, params={}, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper functions for collecting teams' stats.
+Allows for three types of data:
+- all seasons
+- single season
+- range of seasons</p>
+<p>Args:</p>
+<pre><code>endpoint (str): The type of stats to fetch. Available values:
+    - traditional
+    - advanced
+    - opponentsTraditional
+    - opponentsAdvanced
+
+params (Dict[str, Union[str, int]]): A dictionary of the parmaters for
+    the get request.
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    Defaults to "PerGame".
+</code></pre>
+<p>Raises:</p>
+<pre><code>ValueError: If the endpoint is not applicable
+
+ValueError: If the phase_type_code is not applicable
+
+ValueError: If the statistic_mode is not applicable
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the teams' stats.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_team_stats', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_team_stats" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_stats</span><span class="p">(</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper functions for collecting teams&#39; stats.</span>
+<span class="sd">    Allows for three types of data:</span>
+<span class="sd">    - all seasons</span>
+<span class="sd">    - single season</span>
+<span class="sd">    - range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        endpoint (str): The type of stats to fetch. Available values:</span>
+<span class="sd">            - traditional</span>
+<span class="sd">            - advanced</span>
+<span class="sd">            - opponentsTraditional</span>
+<span class="sd">            - opponentsAdvanced</span>
+
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of the parmaters for</span>
+<span class="sd">            the get request.</span>
+
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: If the endpoint is not applicable</span>
+
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the teams&#39; stats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;opponentsTraditional&quot;</span><span class="p">,</span> <span class="s2">&quot;opponentsAdvanced&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">]</span>
+
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">400</span>
+
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/statistics/teams/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">]):</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.make_season_game_url">
+    <p>def <span class="ident">make_season_game_url</span>(</p><p>season: int, game_code: int, endpoint: str)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Concatenates the base URL and makes the game url.</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+
+game_code (int): The code of the game. Find the code from
+    Euroleague's website
+
+endpoint (str): The endpoint of the API
+</code></pre>
+<p>Returns:</p>
+<pre><code>str: the full URL
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.make_season_game_url', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.make_season_game_url" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_season_game_url</span><span class="p">(</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenates the base URL and makes the game url.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season</span>
+
+<span class="sd">        game_code (int): The code of the game. Find the code from</span>
+<span class="sd">            Euroleague&#39;s website</span>
+
+<span class="sd">        endpoint (str): The endpoint of the API</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        str: the full URL</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">FULL_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/seasons/E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">/games/</span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">FULL_URL</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.raise_error">
+    <p>def <span class="ident">raise_error</span>(</p><p>var: Optional[str], descripitve_var: str, available_vals: List, allow_none: bool = False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that raises a ValueError with specific message.</p>
+<p>Args:</p>
+<pre><code>var (str): The input variable by the user
+
+descripitve_var (str): A description in plain English of this variable
+
+available_vals (List): The available variables
+
+allow_none (bool, optional): If `var` can take None value.
+    Defaults to False.
+</code></pre>
+<p>Raises:</p>
+<pre><code>ValueError: if `var` not applicable
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.raise_error', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.raise_error" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">raise_error</span><span class="p">(</span>
+    <span class="n">var</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">descripitve_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">available_vals</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+    <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that raises a ValueError with specific message.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        var (str): The input variable by the user</span>
+
+<span class="sd">        descripitve_var (str): A description in plain English of this variable</span>
+
+<span class="sd">        available_vals (List): The available variables</span>
+
+<span class="sd">        allow_none (bool, optional): If `var` can take None value.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">        ValueError: if `var` not applicable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">allow_none</span><span class="p">:</span>
+        <span class="n">available_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_vals</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">descripitve_var</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">, is not applicable. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Available values: </span><span class="si">{</span><span class="n">available_vals</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+
+
+  </section>
+</article>
+  <div class="clear"> </div>
+  <footer id="footer">
+    <p>
+      Generated by <a href="https://github.com/timothycrosley/pdocs">pdocs 1.2.0</a>
+    </p>
+  </footer>
+</div>
+</body>
+</html>
