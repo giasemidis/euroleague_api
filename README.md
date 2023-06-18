@@ -40,4 +40,5 @@ df = shot_data.get_game_shot_data(season, game_code)
 
 ## TODO
 - Add more endpoints from various sources
-- tests
+- Add Eurocup API support
+- Add tests
