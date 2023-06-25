@@ -2,7 +2,7 @@
 
 ## Functions
 
-    
+
 ### get_player_stats_all_seasons
 
 ```python3
@@ -29,7 +29,7 @@ The players' stats for *all* seasons.
 |---|---|
 | pd.DataFrame | A dataframe with the players' stats |
 
-    
+
 ### get_player_stats_leaders_all_seasons
 
 ```python3
@@ -62,7 +62,7 @@ Get the top leaders in a statistical category in all seasons
 |---|---|
 | pd.DataFrame | A dataframe with the top leading players and their stat |
 
-    
+
 ### get_player_stats_leaders_range_seasons
 
 ```python3
@@ -98,7 +98,7 @@ Get the top leaders in a statistical category in a range of seasons
 |---|---|
 | pd.DataFrame | A dataframe with the top leading players and their stat |
 
-    
+
 ### get_player_stats_leaders_single_season
 
 ```python3
@@ -133,7 +133,7 @@ Get the top leaders in a statistical category in a single season
 |---|---|
 | pd.DataFrame | A dataframe with the top leading players and their stat |
 
-    
+
 ### get_player_stats_range_seasons
 
 ```python3
@@ -164,7 +164,7 @@ The players' stats for a range of seasons.
 |---|---|
 | pd.DataFrame | A dataframe with the players' stats |
 
-    
+
 ### get_player_stats_single_season
 
 ```python3

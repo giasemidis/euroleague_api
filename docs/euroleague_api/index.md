@@ -3,6 +3,7 @@
 ## Sub-modules
 
 * [euroleague_api.game_stats](game_stats/)
+* [euroleague_api.play_by_play_data](play_by_play_data/)
 * [euroleague_api.player_stats](player_stats/)
 * [euroleague_api.shot_data](shot_data/)
 * [euroleague_api.standings](standings/)

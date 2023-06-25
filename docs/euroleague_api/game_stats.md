@@ -2,7 +2,7 @@
 
 ## Functions
 
-    
+
 ### get_game_report
 
 ```python3
@@ -27,7 +27,7 @@ Get game report data for a game
 |---|---|
 | pd.DataFrame | A dataframw with the game report data |
 
-    
+
 ### get_game_reports_range_seasons
 
 ```python3
@@ -52,7 +52,7 @@ Get game report data for *all* games in a range of seasons
 |---|---|
 | pd.DataFrame | A dataframe with game report data |
 
-    
+
 ### get_game_reports_single_season
 
 ```python3
@@ -75,7 +75,7 @@ Get game report data for *all* games in a single season
 |---|---|
 | pd.DataFrame | A dataframe with game report data |
 
-    
+
 ### get_game_stats
 
 ```python3
@@ -100,7 +100,7 @@ Get game stats data for single game
 |---|---|
 | pd.DataFrame | A dataframe with the games' stats data |
 
-    
+
 ### get_game_stats_range_seasons
 
 ```python3
@@ -125,7 +125,7 @@ Get game stats data for *all* games in a range of seasons
 |---|---|
 | pd.DataFrame | A dataframe with the games' stats data |
 
-    
+
 ### get_game_stats_single_season
 
 ```python3
@@ -148,7 +148,7 @@ Get game stats data for *all* games in a single season
 |---|---|
 | pd.DataFrame | A dataframe with the games' stats data |
 
-    
+
 ### get_game_teams_comparison
 
 ```python3
@@ -173,7 +173,7 @@ A function that gets the "teams comparison" game stats for a single game
 |---|---|
 | pd.DataFrame | A dataframe with games teams comparison stats |
 
-    
+
 ### get_game_teams_comparison_range_seasons
 
 ```python3
@@ -200,7 +200,7 @@ range seasons
 |---|---|
 | pd.DataFrame | A dataframe with games teams comparison stats |
 
-    
+
 ### get_game_teams_comparison_single_season
 
 ```python3

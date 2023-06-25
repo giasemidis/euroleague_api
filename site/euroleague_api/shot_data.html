@@ -1072,9 +1072,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#euroleague_api.shot_data.get_game_reports_multiple_seasons">get_game_reports_multiple_seasons</a></li>
-    <li class="mono"><a href="#euroleague_api.shot_data.get_game_reports_single_season">get_game_reports_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.shot_data.get_game_shot_data">get_game_shot_data</a></li>
+    <li class="mono"><a href="#euroleague_api.shot_data.get_game_shot_data_multiple_seasons">get_game_shot_data_multiple_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.shot_data.get_game_shot_data_single_season">get_game_shot_data_single_season</a></li>
   </ul>
 
     </li>
@@ -1142,7 +1142,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">return</span> <span class="n">shots_df</span>
 
 
-<span class="k">def</span> <span class="nf">get_game_reports_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_game_shot_data_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A function that gets the shot data of *all* games in a single season</span>
 
@@ -1159,7 +1159,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">return</span> <span class="n">data_df</span>
 
 
-<span class="k">def</span> <span class="nf">get_game_reports_multiple_seasons</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">get_game_shot_data_multiple_seasons</span><span class="p">(</span>
     <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1205,97 +1205,6 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
       </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
-      
-  <div class="item">
-    <div class="name def" id="euroleague_api.shot_data.get_game_reports_multiple_seasons">
-    <p>def <span class="ident">get_game_reports_multiple_seasons</span>(</p><p>start_season: int, end_season: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that gets the shot data of <em>all</em> games in a range of seasons</p>
-<p>Args:</p>
-<pre><code>start_season (int): The start year of the start season
-
-end_season (int): The start year of the end season
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the shot data of all games in range of
-    seasons
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.shot_data.get_game_reports_multiple_seasons', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.shot_data.get_game_reports_multiple_seasons" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_reports_multiple_seasons</span><span class="p">(</span>
-    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the shot data of *all* games in a range of seasons</span>
-
-<span class="sd">    Args:</span>
-
-<span class="sd">        start_season (int): The start year of the start season</span>
-
-<span class="sd">        end_season (int): The start year of the end season</span>
-
-<span class="sd">    Returns:</span>
-
-<span class="sd">        pd.DataFrame: A dataframe with the shot data of all games in range of</span>
-<span class="sd">            seasons</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">get_range_seasons_data</span><span class="p">(</span>
-        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_game_shot_data</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="euroleague_api.shot_data.get_game_reports_single_season">
-    <p>def <span class="ident">get_game_reports_single_season</span>(</p><p>season: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that gets the shot data of <em>all</em> games in a single season</p>
-<p>Args:</p>
-<pre><code>season (int): The start year of the season
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the shot data of all games in a single
-    season
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.shot_data.get_game_reports_single_season', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.shot_data.get_game_reports_single_season" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_reports_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the shot data of *all* games in a single season</span>
-
-<span class="sd">    Args:</span>
-
-<span class="sd">        season (int): The start year of the season</span>
-
-<span class="sd">    Returns:</span>
-
-<span class="sd">        pd.DataFrame: A dataframe with the shot data of all games in a single</span>
-<span class="sd">            season</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">get_game_shot_data</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data_df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
       
   <div class="item">
     <div class="name def" id="euroleague_api.shot_data.get_game_shot_data">
@@ -1353,6 +1262,97 @@ gamecode (int): The game-code of the game of interest.
     <span class="n">shots_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">shots_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">shots_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.shot_data.get_game_shot_data_multiple_seasons">
+    <p>def <span class="ident">get_game_shot_data_multiple_seasons</span>(</p><p>start_season: int, end_season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the shot data of <em>all</em> games in a range of seasons</p>
+<p>Args:</p>
+<pre><code>start_season (int): The start year of the start season
+
+end_season (int): The start year of the end season
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the shot data of all games in range of
+    seasons
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.shot_data.get_game_shot_data_multiple_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.shot_data.get_game_shot_data_multiple_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_shot_data_multiple_seasons</span><span class="p">(</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the shot data of *all* games in a range of seasons</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        start_season (int): The start year of the start season</span>
+
+<span class="sd">        end_season (int): The start year of the end season</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the shot data of all games in range of</span>
+<span class="sd">            seasons</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_range_seasons_data</span><span class="p">(</span>
+        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_game_shot_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.shot_data.get_game_shot_data_single_season">
+    <p>def <span class="ident">get_game_shot_data_single_season</span>(</p><p>season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the shot data of <em>all</em> games in a single season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the shot data of all games in a single
+    season
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.shot_data.get_game_shot_data_single_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.shot_data.get_game_shot_data_single_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_shot_data_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the shot data of *all* games in a single season</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the shot data of all games in a single</span>
+<span class="sd">            season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">get_game_shot_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
 </pre></div>
 
   </div>
