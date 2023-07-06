@@ -154,6 +154,7 @@ def get_season_data_from_game_data(
 
     if data_list:
         data_df = pd.concat(data_list, axis=0)
+        data_df.reset_index(drop=True, inplace=True)
     else:
         data_df = pd.DataFrame([])
     return data_df
@@ -188,6 +189,7 @@ def get_range_seasons_data(
         data_df = get_season_data_from_game_data(season, fun)
         data.append(data_df)
     df = pd.concat(data)
+    df.reset_index(drop=True, inplace=True)
     return df
 
 

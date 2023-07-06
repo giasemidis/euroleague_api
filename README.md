@@ -38,6 +38,9 @@ df = shot_data.get_game_shot_data(season, game_code)
 ### Play-by-play data
 [play_by_play_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/play_by_play_data.html)
 
+### Boxscore data
+[boxscore_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/boxscore_data.html)
+
 ### Auxiliary functions
 [utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_ap/utils.html)
 

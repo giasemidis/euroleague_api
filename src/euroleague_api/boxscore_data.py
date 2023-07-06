@@ -65,9 +65,9 @@ def get_game_boxscore_stats_data(
     """
     data = get_boxscore_data(season, gamecode, "Stats")
     home_df = pd.concat([
-        pd.json_normalize(data["Stats"][0]["PlayersStats"]),
-        pd.json_normalize(data["Stats"][0]["tmr"]),
-        pd.json_normalize(data["Stats"][0]["totr"])
+        pd.json_normalize(data[0]["PlayersStats"]),
+        pd.json_normalize(data[0]["tmr"]),
+        pd.json_normalize(data[0]["totr"])
     ])
     home_df.reset_index(drop=True, inplace=True)
     home_df.iloc[-2:, 0] = ["Team", "Total"]
@@ -77,9 +77,9 @@ def get_game_boxscore_stats_data(
     home_df.insert(1, 'Gamecode', gamecode)
 
     away_df = pd.concat([
-        pd.json_normalize(data["Stats"][1]["PlayersStats"]),
-        pd.json_normalize(data["Stats"][1]["tmr"]),
-        pd.json_normalize(data["Stats"][1]["totr"])
+        pd.json_normalize(data[1]["PlayersStats"]),
+        pd.json_normalize(data[1]["tmr"]),
+        pd.json_normalize(data[1]["totr"])
     ])
     away_df.reset_index(drop=True, inplace=True)
     away_df.iloc[-2:, 0] = ["Team", "Total"]
@@ -113,13 +113,17 @@ def get_game_boxscore_quarter_data_single_season(
         pd.DataFrame: A dataframe with the boxscore quarter data of all games
             in a single season
     """
+    get_game_boxscore_quarter_data_ = (
+        lambda season, gamecode: get_game_boxscore_quarter_data(
+            season, gamecode, boxscore_type)
+    )
     data_df = get_season_data_from_game_data(
-        season, get_game_boxscore_quarter_data)
+        season, get_game_boxscore_quarter_data_)
     return data_df
 
 
 def get_game_boxscore_quarter_data_multiple_seasons(
-    start_season: int, end_season: int
+    start_season: int, end_season: int, boxscore_type: str = "ByQuarter"
 ) -> pd.DataFrame:
     """
     A function that gets the play-by-play data of *all* games in a range of
@@ -142,6 +146,10 @@ def get_game_boxscore_quarter_data_multiple_seasons(
         pd.DataFrame: A dataframe with the boxscore quarter data of all games
             in range of seasons
     """
+    get_game_boxscore_quarter_data_ = (
+        lambda season, gamecode: get_game_boxscore_quarter_data(
+            season, gamecode, boxscore_type)
+    )
     df = get_range_seasons_data(
-        start_season, end_season, get_game_boxscore_quarter_data)
+        start_season, end_season, get_game_boxscore_quarter_data_)
     return df
