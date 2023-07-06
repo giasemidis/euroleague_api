@@ -5,3 +5,5 @@ mypy
 pandas-stubs
 pre-commit
 twine
+pdocs
+build
