@@ -1,6 +1,7 @@
 from typing import Callable, Optional, List
 import logging
 import requests
+from json.decoder import JSONDecodeError
 import pandas as pd
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
@@ -622,3 +623,46 @@ def raise_error(
             f"Available values: {available_vals}"
         )
     return
+
+
+def get_boxscore_data(
+    season: int,
+    gamecode: int,
+    boxscore_type: str = "ByQuarter"
+) -> List[dict]:
+    """A helper function that gets the boxscore data of a particular data.
+
+    Args:
+        season (int): The start year of the season
+        gamecode (int): The game-code of the game of interest.
+            It can be found on Euroleague's website.
+        boxscore_type (str, optional): The type of quarter boxscore data.
+            Available values:
+            - Stats
+            - ByQuarter
+            - EndOfQuarter
+            Defaults to "ByQuarter".
+
+    Raises:
+        ValueError: If boxscore_type value is not valid.
+
+    Returns:
+        List[dict]: A list of dictionaries with the data.
+    """
+    url = "https://live.euroleague.net/api/Boxscore"
+    params = {
+        "gamecode": gamecode,
+        "seasoncode": f"E{season}"
+    }
+    r = get_requests(url, params=params)
+
+    try:
+        data = r.json()
+    except JSONDecodeError:
+        raise ValueError(f"Game code, {gamecode}, did not return any data.")
+    boxscore_types = ["Stats", "ByQuarter", "EndOfQuarter"]
+
+    if boxscore_type not in boxscore_types:
+        raise_error(boxscore_type, "Boxscore", boxscore_types, False)
+
+    return data[boxscore_type]
