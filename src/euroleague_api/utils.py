@@ -2,6 +2,7 @@ from typing import Callable, Optional, List
 import logging
 import requests
 import pandas as pd
+from requests.exceptions import HTTPError
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -140,6 +141,12 @@ def get_season_data_from_game_data(
             data_list.append(shots_df)
         except ValueError:
             attempt += 1
+        except HTTPError as err:
+            attempt += 1
+            logger.warning(
+                f"HTTPError: Didn't find gamecode {game_code} for season "
+                f"{season}. Invalid {err}. Skip and continue."
+            )
 
         # Due to the ban of Russian teams from Euroleague in 2021
         # this is a hack for not breaking in the first
