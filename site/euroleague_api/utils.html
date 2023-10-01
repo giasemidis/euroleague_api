@@ -1075,6 +1075,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
+    <li class="mono"><a href="#euroleague_api.utils.get_boxscore_data">get_boxscore_data</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_game_data">get_game_data</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_player_stats">get_player_stats</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_player_stats_leaders">get_player_stats_leaders</a></li>
@@ -1107,6 +1108,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">json.decoder</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -1259,6 +1261,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
     <span class="k">return</span> <span class="n">data_df</span>
@@ -1293,6 +1296,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 
 
@@ -1728,6 +1732,49 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="sa">f</span><span class="s2">&quot;Available values: </span><span class="si">{</span><span class="n">available_vals</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">get_boxscore_data</span><span class="p">(</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">boxscore_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ByQuarter&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper function that gets the boxscore data of a particular data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        gamecode (int): The game-code of the game of interest.</span>
+<span class="sd">            It can be found on Euroleague&#39;s website.</span>
+<span class="sd">        boxscore_type (str, optional): The type of quarter boxscore data.</span>
+<span class="sd">            Available values:</span>
+<span class="sd">            - Stats</span>
+<span class="sd">            - ByQuarter</span>
+<span class="sd">            - EndOfQuarter</span>
+<span class="sd">            Defaults to &quot;ByQuarter&quot;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If boxscore_type value is not valid.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[dict]: A list of dictionaries with the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://live.euroleague.net/api/Boxscore&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;gamecode&quot;</span><span class="p">:</span> <span class="n">gamecode</span><span class="p">,</span>
+        <span class="s2">&quot;seasoncode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+    <span class="n">boxscore_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stats&quot;</span><span class="p">,</span> <span class="s2">&quot;ByQuarter&quot;</span><span class="p">,</span> <span class="s2">&quot;EndOfQuarter&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">boxscore_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">boxscore_types</span><span class="p">:</span>
+        <span class="n">raise_error</span><span class="p">(</span><span class="n">boxscore_type</span><span class="p">,</span> <span class="s2">&quot;Boxscore&quot;</span><span class="p">,</span> <span class="n">boxscore_types</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">boxscore_type</span><span class="p">]</span>
 </pre></div>
 
   </div>
@@ -1778,6 +1825,81 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
       </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_boxscore_data">
+    <p>def <span class="ident">get_boxscore_data</span>(</p><p>season: int, gamecode: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A helper function that gets the boxscore data of a particular data.</p>
+<p>Args:
+    season (int): The start year of the season
+    gamecode (int): The game-code of the game of interest.
+        It can be found on Euroleague's website.
+    boxscore_type (str, optional): The type of quarter boxscore data.
+        Available values:
+        - Stats
+        - ByQuarter
+        - EndOfQuarter
+        Defaults to "ByQuarter".</p>
+<p>Raises:
+    ValueError: If boxscore_type value is not valid.</p>
+<p>Returns:
+    List[dict]: A list of dictionaries with the data.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_boxscore_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_boxscore_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_boxscore_data</span><span class="p">(</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">boxscore_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ByQuarter&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A helper function that gets the boxscore data of a particular data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        gamecode (int): The game-code of the game of interest.</span>
+<span class="sd">            It can be found on Euroleague&#39;s website.</span>
+<span class="sd">        boxscore_type (str, optional): The type of quarter boxscore data.</span>
+<span class="sd">            Available values:</span>
+<span class="sd">            - Stats</span>
+<span class="sd">            - ByQuarter</span>
+<span class="sd">            - EndOfQuarter</span>
+<span class="sd">            Defaults to &quot;ByQuarter&quot;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If boxscore_type value is not valid.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[dict]: A list of dictionaries with the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://live.euroleague.net/api/Boxscore&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;gamecode&quot;</span><span class="p">:</span> <span class="n">gamecode</span><span class="p">,</span>
+        <span class="s2">&quot;seasoncode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+    <span class="n">boxscore_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stats&quot;</span><span class="p">,</span> <span class="s2">&quot;ByQuarter&quot;</span><span class="p">,</span> <span class="s2">&quot;EndOfQuarter&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">boxscore_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">boxscore_types</span><span class="p">:</span>
+        <span class="n">raise_error</span><span class="p">(</span><span class="n">boxscore_type</span><span class="p">,</span> <span class="s2">&quot;Boxscore&quot;</span><span class="p">,</span> <span class="n">boxscore_types</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">boxscore_type</span><span class="p">]</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
       
   <div class="item">
     <div class="name def" id="euroleague_api.utils.get_game_data">
@@ -2410,6 +2532,7 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2555,6 +2678,7 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
     <span class="k">return</span> <span class="n">data_df</span>
