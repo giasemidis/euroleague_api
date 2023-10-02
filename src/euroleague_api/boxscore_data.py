@@ -70,8 +70,8 @@ def get_game_boxscore_stats_data(
         pd.json_normalize(data[0]["totr"])
     ])
     home_df.reset_index(drop=True, inplace=True)
-    home_df.iloc[-2:, 0] = ["Team", "Total"]
-    home_df.iloc[-2:, 5] = ["Team", "Total"]
+    home_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
+    home_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
     home_df["Team"] = home_df["Team"].fillna(method="ffill")
     home_df.insert(0, 'Season', season)
     home_df.insert(1, 'Gamecode', gamecode)
@@ -82,8 +82,8 @@ def get_game_boxscore_stats_data(
         pd.json_normalize(data[1]["totr"])
     ])
     away_df.reset_index(drop=True, inplace=True)
-    away_df.iloc[-2:, 0] = ["Team", "Total"]
-    away_df.iloc[-2:, 5] = ["Team", "Total"]
+    away_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
+    away_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
     away_df["Team"] = away_df["Team"].fillna(method="ffill")
     away_df.insert(0, 'Season', season)
     away_df.insert(1, 'Gamecode', gamecode)

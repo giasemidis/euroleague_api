@@ -51,7 +51,7 @@ def get_game_play_by_play_data(season: int, gamecode: int) -> pd.DataFrame:
     return play_by_play_df
 
 
-def get_game_shot_data_single_season(season: int) -> pd.DataFrame:
+def get_game_play_by_play_data_single_season(season: int) -> pd.DataFrame:
     """
     A function that gets the play-by-play data of *all* games in a single
     season
@@ -70,7 +70,7 @@ def get_game_shot_data_single_season(season: int) -> pd.DataFrame:
     return data_df
 
 
-def get_game_shot_data_multiple_seasons(
+def get_game_play_by_play_data_multiple_seasons(
     start_season: int, end_season: int
 ) -> pd.DataFrame:
     """
