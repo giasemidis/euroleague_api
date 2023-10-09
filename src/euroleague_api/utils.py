@@ -117,6 +117,7 @@ def get_game_metadata_season(season: int) -> pd.DataFrame:
     A function that returns the game metadata, e.g. gamecodes of season
 
     Args:
+
         season (int): The start year of the season.
 
     Returns:
