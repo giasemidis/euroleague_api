@@ -3,6 +3,8 @@ import logging
 import requests
 from json.decoder import JSONDecodeError
 import pandas as pd
+import xmltodict
+from tqdm import tqdm
 from requests.exceptions import HTTPError
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
@@ -110,6 +112,28 @@ def get_game_data(season: int, game_code: int, endpoint: str) -> pd.DataFrame:
     return df
 
 
+def get_game_metadata_season(season: int) -> pd.DataFrame:
+    """
+    A function that returns the game metadata, e.g. gamecodes of season
+
+    Args:
+        season (int): The start year of the season.
+
+    Returns:
+
+        pd.DataFrame: A dataframe with the season's game metadata, e.g.
+            gamecode, score, home/away teams, date, round, etc.
+    """
+    url = f"https://api-live.euroleague.net/v1/results?seasonCode=E{season}"
+    r = get_requests(url)
+    data = xmltodict.parse(r.content)
+    df = pd.DataFrame(data["results"]["game"])
+    int_cols = ["gameday", "gamenumber", "homescore", "awayscore"]
+    df[int_cols] = df[int_cols].astype(int)
+    df["played"] = df["played"].replace({"true": True, "false": False})
+    return df
+
+
 def get_season_data_from_game_data(
     season: int,
     fun: Callable[[int, int], pd.DataFrame]
@@ -132,32 +156,20 @@ def get_season_data_from_game_data(
         pd.DataFrame: A dataframe with the game data.
     """
     data_list = []
-    game_code = 0
-    attempt = 0
-    while True:
-        game_code += 1
+
+    game_metadata_df = get_game_metadata_season(season)
+    game_metadata_df = game_metadata_df[game_metadata_df["played"]]
+    game_codes = game_metadata_df.loc[
+        game_metadata_df["played"], "gamenumber"].sort_values().values
+    for game_code in tqdm(game_codes):
         try:
             shots_df = fun(season, game_code)
-            attempt = 0
             data_list.append(shots_df)
-        except ValueError:
-            attempt += 1
         except HTTPError as err:
-            attempt += 1
             logger.warning(
                 f"HTTPError: Didn't find gamecode {game_code} for season "
                 f"{season}. Invalid {err}. Skip and continue."
             )
-
-        # Due to the ban of Russian teams from Euroleague in 2021
-        # this is a hack for not breaking in the first
-        # "empty" game, but only after 5 *concecutive*
-        # "empty" games
-        if attempt > 5:
-            logger.debug(
-                "No more available game data for this season, break and exit"
-            )
-            break
 
     if data_list:
         data_df = pd.concat(data_list, axis=0)
@@ -192,7 +204,7 @@ def get_range_seasons_data(
         pd.DataFrame: A dataframe with the game data
     """
     data = []
-    for season in range(start_season, end_season + 1):
+    for season in tqdm(range(start_season, end_season + 1)):
         data_df = get_season_data_from_game_data(season, fun)
         data.append(data_df)
     df = pd.concat(data)

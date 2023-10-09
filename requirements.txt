@@ -4,6 +4,8 @@ numpy
 mypy
 pandas-stubs
 pre-commit
+xmltodict
+tqdm
 twine
 pdocs
 build
