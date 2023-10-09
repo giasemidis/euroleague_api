@@ -123,7 +123,7 @@ def get_game_metadata_season(season: int) -> pd.DataFrame:
     Returns:
 
         pd.DataFrame: A dataframe with the season's game metadata, e.g.
-            gamecode, score, home/away teams, date, round, etc.
+            gamecode, score, home-away teams, date, round, etc.
     """
     url = f"https://api-live.euroleague.net/v1/results?seasonCode=E{season}"
     r = get_requests(url)
