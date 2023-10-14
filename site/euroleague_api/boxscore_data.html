@@ -1067,7 +1067,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <li class="mono"><a href="#euroleague_api.boxscore_data.get_game_boxscore_quarter_data">get_game_boxscore_quarter_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.get_game_boxscore_quarter_data_multiple_seasons">get_game_boxscore_quarter_data_multiple_seasons</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.get_game_boxscore_quarter_data_single_season">get_game_boxscore_quarter_data_single_season</a></li>
-    <li class="mono"><a href="#euroleague_api.boxscore_data.get_game_boxscore_stats_data">get_game_boxscore_stats_data</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.get_player_boxscore_stats_data">get_player_boxscore_stats_data</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.get_player_boxscore_stats_multiple_seasons">get_player_boxscore_stats_multiple_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.get_player_boxscore_stats_single_season">get_player_boxscore_stats_single_season</a></li>
   </ul>
 
     </li>
@@ -1088,8 +1090,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data', this);">Show source &equiv;</a></p>
   <div id="source-euroleague_api.boxscore_data" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">raise_error</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_boxscore_data</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_season_data_from_game_data</span>
@@ -1135,10 +1136,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">return</span> <span class="n">df</span>
 
 
-<span class="k">def</span> <span class="nf">get_game_boxscore_stats_data</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">get_player_boxscore_stats_data</span><span class="p">(</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The players&#39; and team&#39;s total stats of a particular game.</span>
 
@@ -1148,10 +1149,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            It can be found on Euroleague&#39;s website.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[pd.DataFrame, pd.DataFrame]: A tuple of dataframes of the player</span>
-<span class="sd">            stats.</span>
-<span class="sd">            First element is the home-team players&#39; stats dataframe</span>
-<span class="sd">            Second element is the away-team players&#39; stats dataframe</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">get_boxscore_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="s2">&quot;Stats&quot;</span><span class="p">)</span>
     <span class="n">home_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
@@ -1160,11 +1158,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
     <span class="p">])</span>
     <span class="n">home_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
     <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
     <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+    <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="n">away_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
@@ -1172,12 +1171,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
     <span class="p">])</span>
     <span class="n">away_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
     <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
     <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span>
+    <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
 
 
 <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_single_season</span><span class="p">(</span>
@@ -1243,6 +1245,45 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="n">df</span> <span class="o">=</span> <span class="n">get_range_seasons_data</span><span class="p">(</span>
         <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_game_boxscore_quarter_data_</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">get_player_boxscore_stats_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that return the player boxscore stats for all games in a</span>
+<span class="sd">    single season</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the start season</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats for a</span>
+<span class="sd">            season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+
+
+<span class="k">def</span> <span class="nf">get_player_boxscore_stats_multiple_seasons</span><span class="p">(</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that return the player boxscore stats for all games in</span>
+<span class="sd">    multiple season</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        start_season (int): The start year of the start season</span>
+
+<span class="sd">        end_season (int): The start year of the end season</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats for a</span>
+<span class="sd">            season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_range_seasons_data</span><span class="p">(</span>
+        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
 </pre></div>
 
   </div>
@@ -1459,8 +1500,8 @@ Default: ByQuarter
   
       
   <div class="item">
-    <div class="name def" id="euroleague_api.boxscore_data.get_game_boxscore_stats_data">
-    <p>def <span class="ident">get_game_boxscore_stats_data</span>(</p><p>season: int, gamecode: int)</p>
+    <div class="name def" id="euroleague_api.boxscore_data.get_player_boxscore_stats_data">
+    <p>def <span class="ident">get_player_boxscore_stats_data</span>(</p><p>season: int, gamecode: int)</p>
     </div>
     
 
@@ -1472,17 +1513,14 @@ Default: ByQuarter
     gamecode (int): The game-code of the game of interest.
         It can be found on Euroleague's website.</p>
 <p>Returns:
-    Tuple[pd.DataFrame, pd.DataFrame]: A tuple of dataframes of the player
-        stats.
-        First element is the home-team players' stats dataframe
-        Second element is the away-team players' stats dataframe</p></div>
+    pd.DataFrame: A dataframe with home and away team player stats</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.get_game_boxscore_stats_data', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.boxscore_data.get_game_boxscore_stats_data" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_boxscore_stats_data</span><span class="p">(</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.get_player_boxscore_stats_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.get_player_boxscore_stats_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_boxscore_stats_data</span><span class="p">(</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The players&#39; and team&#39;s total stats of a particular game.</span>
 
@@ -1492,10 +1530,7 @@ Default: ByQuarter
 <span class="sd">            It can be found on Euroleague&#39;s website.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[pd.DataFrame, pd.DataFrame]: A tuple of dataframes of the player</span>
-<span class="sd">            stats.</span>
-<span class="sd">            First element is the home-team players&#39; stats dataframe</span>
-<span class="sd">            Second element is the away-team players&#39; stats dataframe</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">get_boxscore_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="s2">&quot;Stats&quot;</span><span class="p">)</span>
     <span class="n">home_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
@@ -1504,11 +1539,12 @@ Default: ByQuarter
         <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
     <span class="p">])</span>
     <span class="n">home_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
     <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
     <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+    <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="n">away_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
@@ -1516,12 +1552,104 @@ Default: ByQuarter
         <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
     <span class="p">])</span>
     <span class="n">away_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
     <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
     <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span>
+    <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.boxscore_data.get_player_boxscore_stats_multiple_seasons">
+    <p>def <span class="ident">get_player_boxscore_stats_multiple_seasons</span>(</p><p>start_season: int, end_season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that return the player boxscore stats for all games in
+multiple season</p>
+<p>Args:
+    start_season (int): The start year of the start season</p>
+<pre><code>end_season (int): The start year of the end season
+</code></pre>
+<p>Returns:
+    pd.DataFrame: A dataframe with home and away team player stats for a
+        season</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.get_player_boxscore_stats_multiple_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.get_player_boxscore_stats_multiple_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_boxscore_stats_multiple_seasons</span><span class="p">(</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that return the player boxscore stats for all games in</span>
+<span class="sd">    multiple season</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        start_season (int): The start year of the start season</span>
+
+<span class="sd">        end_season (int): The start year of the end season</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats for a</span>
+<span class="sd">            season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_range_seasons_data</span><span class="p">(</span>
+        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="euroleague_api.boxscore_data.get_player_boxscore_stats_single_season">
+    <p>def <span class="ident">get_player_boxscore_stats_single_season</span>(</p><p>season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that return the player boxscore stats for all games in a
+single season</p>
+<p>Args:
+    season (int): The start year of the start season</p>
+<p>Returns:
+    pd.DataFrame: A dataframe with home and away team player stats for a
+        season</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.get_player_boxscore_stats_single_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.get_player_boxscore_stats_single_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_boxscore_stats_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that return the player boxscore stats for all games in a</span>
+<span class="sd">    single season</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the start season</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats for a</span>
+<span class="sd">            season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
 </pre></div>
 
   </div>
