@@ -109,6 +109,14 @@ def get_game_data(season: int, game_code: int, endpoint: str) -> pd.DataFrame:
 
     data = r.json()
     df = pd.json_normalize(data)
+    df.insert(0, "Season", season)
+    if "gameCode" in df.columns:
+        df.rename(columns={"gameCode": "Gamecode"}, inplace=True)
+    else:
+        df.insert(1, "Gamecode", game_code)
+    if "round" in df.columns:
+        df.rename(columns={"round": "Round"}, inplace=True)
+
     return df
 
 
@@ -160,12 +168,21 @@ def get_season_data_from_game_data(
 
     game_metadata_df = get_game_metadata_season(season)
     game_metadata_df = game_metadata_df[game_metadata_df["played"]]
-    game_codes = game_metadata_df.loc[
-        game_metadata_df["played"], "gamenumber"].sort_values().values
-    for game_code in tqdm(game_codes, desc=f"Season {season}", leave=True):
+    game_codes_df = (
+        game_metadata_df[["round", "gameday", "gamenumber"]]
+        .drop_duplicates().sort_values(["gamenumber", "gameday"])
+        .reset_index(drop=True)
+    )
+    for _, row in tqdm(game_codes_df.iterrows(), total=game_codes_df.shape[0],
+                       desc=f"Season {season}", leave=True):
+        game_code = row["gamenumber"]
         try:
-            shots_df = fun(season, game_code)
-            data_list.append(shots_df)
+            df = fun(season, game_code)
+            if "Phase" not in df.columns:
+                df.insert(1, "Phase", row["round"])
+            if "Round" not in df.columns:
+                df.insert(2, "Round", row["gameday"])
+            data_list.append(df)
         except HTTPError as err:
             logger.warning(
                 f"HTTPError: Didn't find gamecode {game_code} for season "

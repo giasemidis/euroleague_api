@@ -28,7 +28,7 @@ def get_player_stats_all_seasons(
 
         statistic_mode (str, optional): The aggregation of statistics,
             available variables:
-             - PerGame
+            - PerGame
             - Accumulated
             - Per100Possesions
             Defaults to "PerGame".
