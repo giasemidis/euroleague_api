@@ -42,7 +42,7 @@ df = shot_data.get_game_shot_data(season, game_code)
 [boxscore_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/boxscore_data.html)
 
 ### Auxiliary functions
-[utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_ap/utils.html)
+[utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/utils.html)
 
 ## TODO
 - Add more endpoints from various sources
