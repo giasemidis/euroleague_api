@@ -1077,6 +1077,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <ul>
     <li class="mono"><a href="#euroleague_api.utils.get_boxscore_data">get_boxscore_data</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_game_data">get_game_data</a></li>
+    <li class="mono"><a href="#euroleague_api.utils.get_game_metadata_season">get_game_metadata_season</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_player_stats">get_player_stats</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_player_stats_leaders">get_player_stats_leaders</a></li>
     <li class="mono"><a href="#euroleague_api.utils.get_range_seasons_data">get_range_seasons_data</a></li>
@@ -1110,6 +1111,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">json.decoder</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xmltodict</span>
+<span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">trange</span>
+<span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1216,6 +1220,29 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">return</span> <span class="n">df</span>
 
 
+<span class="k">def</span> <span class="nf">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that returns the game metadata, e.g. gamecodes of season</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the season&#39;s game metadata, e.g.</span>
+<span class="sd">            gamecode, score, home-away teams, date, round, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://api-live.euroleague.net/v1/results?seasonCode=E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
 <span class="k">def</span> <span class="nf">get_season_data_from_game_data</span><span class="p">(</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
@@ -1238,26 +1265,20 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">game_code</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">game_code</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
+    <span class="n">game_codes</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">],</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">for</span> <span class="n">game_code</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">shots_df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
-            <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_df</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="c1"># Due to the ban of Russian teams from Euroleague in 2021</span>
-        <span class="c1"># this is a hack for not breaking in the first</span>
-        <span class="c1"># &quot;empty&quot; game, but only after 5 *concecutive*</span>
-        <span class="c1"># &quot;empty&quot; games</span>
-        <span class="k">if</span> <span class="n">attempt</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;No more available game data for this season, break and exit&quot;</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
             <span class="p">)</span>
-            <span class="k">break</span>
 
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -1292,7 +1313,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">        pd.DataFrame: A dataframe with the game data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span>
+            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Season loop&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -1973,6 +1996,54 @@ endpoint (str): The type of game data, available variables:
   
       
   <div class="item">
+    <div class="name def" id="euroleague_api.utils.get_game_metadata_season">
+    <p>def <span class="ident">get_game_metadata_season</span>(</p><p>season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that returns the game metadata, e.g. gamecodes of season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season.
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the season's game metadata, e.g.
+    gamecode, score, home-away teams, date, round, etc.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils.get_game_metadata_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.utils.get_game_metadata_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that returns the game metadata, e.g. gamecodes of season</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        season (int): The start year of the season.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        pd.DataFrame: A dataframe with the season&#39;s game metadata, e.g.</span>
+<span class="sd">            gamecode, score, home-away teams, date, round, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://api-live.euroleague.net/v1/results?seasonCode=E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
     <div class="name def" id="euroleague_api.utils.get_player_stats">
     <p>def <span class="ident">get_player_stats</span>(</p><p>endpoint: str, params={}, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
     </div>
@@ -2528,7 +2599,9 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 <span class="sd">        pd.DataFrame: A dataframe with the game data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span>
+            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Season loop&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -2655,26 +2728,20 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 <span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">game_code</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">game_code</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
+    <span class="n">game_codes</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">],</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">for</span> <span class="n">game_code</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">shots_df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
-            <span class="n">attempt</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_df</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">attempt</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="c1"># Due to the ban of Russian teams from Euroleague in 2021</span>
-        <span class="c1"># this is a hack for not breaking in the first</span>
-        <span class="c1"># &quot;empty&quot; game, but only after 5 *concecutive*</span>
-        <span class="c1"># &quot;empty&quot; games</span>
-        <span class="k">if</span> <span class="n">attempt</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;No more available game data for this season, break and exit&quot;</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
             <span class="p">)</span>
-            <span class="k">break</span>
 
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
