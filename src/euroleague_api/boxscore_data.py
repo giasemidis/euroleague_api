@@ -1,4 +1,3 @@
-from typing import Tuple
 import pandas as pd
 from .utils import raise_error
 from .utils import get_boxscore_data
@@ -45,10 +44,10 @@ def get_game_boxscore_quarter_data(
     return df
 
 
-def get_game_boxscore_stats_data(
+def get_player_boxscore_stats_data(
     season: int,
     gamecode: int
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> pd.DataFrame:
     """
     The players' and team's total stats of a particular game.
 
@@ -58,10 +57,7 @@ def get_game_boxscore_stats_data(
             It can be found on Euroleague's website.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: A tuple of dataframes of the player
-            stats.
-            First element is the home-team players' stats dataframe
-            Second element is the away-team players' stats dataframe
+        pd.DataFrame: A dataframe with home and away team player stats
     """
     data = get_boxscore_data(season, gamecode, "Stats")
     home_df = pd.concat([
@@ -75,6 +71,7 @@ def get_game_boxscore_stats_data(
     home_df["Team"] = home_df["Team"].fillna(method="ffill")
     home_df.insert(0, 'Season', season)
     home_df.insert(1, 'Gamecode', gamecode)
+    home_df.insert(2, "Home", 1)
 
     away_df = pd.concat([
         pd.json_normalize(data[1]["PlayersStats"]),
@@ -87,7 +84,10 @@ def get_game_boxscore_stats_data(
     away_df["Team"] = away_df["Team"].fillna(method="ffill")
     away_df.insert(0, 'Season', season)
     away_df.insert(1, 'Gamecode', gamecode)
-    return home_df, away_df
+    away_df.insert(2, "Home", 0)
+
+    df = pd.concat([home_df, away_df], axis=0)
+    return df
 
 
 def get_game_boxscore_quarter_data_single_season(
@@ -153,3 +153,42 @@ def get_game_boxscore_quarter_data_multiple_seasons(
     df = get_range_seasons_data(
         start_season, end_season, get_game_boxscore_quarter_data_)
     return df
+
+
+def get_player_boxscore_stats_single_season(season: int) -> pd.DataFrame:
+    """
+    A function that return the player boxscore stats for all games in a
+    single season
+
+    Args:
+        season (int): The start year of the start season
+
+    Returns:
+        pd.DataFrame: A dataframe with home and away team player stats for a
+            season
+    """
+    data_df = get_season_data_from_game_data(
+        season, get_player_boxscore_stats_data)
+    return data_df
+
+
+def get_player_boxscore_stats_multiple_seasons(
+    start_season: int,
+    end_season: int
+) -> pd.DataFrame:
+    """
+    A function that return the player boxscore stats for all games in
+    multiple season
+
+    Args:
+        start_season (int): The start year of the start season
+
+        end_season (int): The start year of the end season
+
+    Returns:
+        pd.DataFrame: A dataframe with home and away team player stats for a
+            season
+    """
+    data_df = get_range_seasons_data(
+        start_season, end_season, get_player_boxscore_stats_data)
+    return data_df

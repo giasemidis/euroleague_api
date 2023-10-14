@@ -4,7 +4,7 @@ import requests
 from json.decoder import JSONDecodeError
 import pandas as pd
 import xmltodict
-from tqdm import tqdm
+from tqdm.auto import tqdm, trange
 from requests.exceptions import HTTPError
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
@@ -162,7 +162,7 @@ def get_season_data_from_game_data(
     game_metadata_df = game_metadata_df[game_metadata_df["played"]]
     game_codes = game_metadata_df.loc[
         game_metadata_df["played"], "gamenumber"].sort_values().values
-    for game_code in tqdm(game_codes):
+    for game_code in tqdm(game_codes, desc=f"Season {season}", leave=True):
         try:
             shots_df = fun(season, game_code)
             data_list.append(shots_df)
@@ -205,7 +205,9 @@ def get_range_seasons_data(
         pd.DataFrame: A dataframe with the game data
     """
     data = []
-    for season in tqdm(range(start_season, end_season + 1)):
+    for season in trange(
+            start_season, end_season + 1, desc="Season loop", leave=True):
+
         data_df = get_season_data_from_game_data(season, fun)
         data.append(data_df)
     df = pd.concat(data)
