@@ -178,15 +178,22 @@ def get_season_data_from_game_data(
         game_code = row["gamenumber"]
         try:
             df = fun(season, game_code)
-            if "Phase" not in df.columns:
+            if df.empty:
+                logger.warning(f"Game {game_code} returned no data.")
+                continue
+            if ("Phase" not in df.columns) and ("round" in row):
                 df.insert(1, "Phase", row["round"])
-            if "Round" not in df.columns:
+            if ("Round" not in df.columns) and ("gameday" in row):
                 df.insert(2, "Round", row["gameday"])
             data_list.append(df)
         except HTTPError as err:
             logger.warning(
                 f"HTTPError: Didn't find gamecode {game_code} for season "
                 f"{season}. Invalid {err}. Skip and continue."
+            )
+        except:  # noqa: E722
+            logger.warning(
+                f"Something went wrong for game {game_code}. Skip and continue"
             )
 
     if data_list:

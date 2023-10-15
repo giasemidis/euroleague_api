@@ -37,11 +37,12 @@ def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
 
     shots_df = pd.DataFrame(data['Rows'])
     # team id, player id and action id contain trailing white space
-    shots_df['TEAM'] = shots_df['TEAM'].str.strip()
-    shots_df['ID_PLAYER'] = shots_df['ID_PLAYER'].str.strip()
-    shots_df['ID_ACTION'] = shots_df['ID_ACTION'].str.strip()
-    shots_df.insert(0, 'Season', season)
-    shots_df.insert(1, 'Gamecode', gamecode)
+    if not shots_df.empty:
+        shots_df['TEAM'] = shots_df['TEAM'].str.strip()
+        shots_df['ID_PLAYER'] = shots_df['ID_PLAYER'].str.strip()
+        shots_df['ID_ACTION'] = shots_df['ID_ACTION'].str.strip()
+        shots_df.insert(0, 'Season', season)
+        shots_df.insert(1, 'Gamecode', gamecode)
     return shots_df
 
 
