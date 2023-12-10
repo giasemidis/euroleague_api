@@ -1176,8 +1176,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="k">def</span> <span class="nf">get_team_stats_range_seasons</span><span class="p">(</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">from_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">to_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1192,9 +1192,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            - opponentsTraditional</span>
 <span class="sd">            - opponentsAdvanced</span>
 
-<span class="sd">        from_season (int): The start year of the start season</span>
+<span class="sd">        start_season (int): The start year of the start season</span>
 
-<span class="sd">        to_season (int): The end year of the end season</span>
+<span class="sd">        end_season (int): The end year of the end season</span>
 
 <span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
 <span class="sd">            available variables:</span>
@@ -1215,8 +1215,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">from_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">to_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">get_team_stats</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
@@ -1311,7 +1311,7 @@ statistic_mode (str, optional): The aggregation of statistics,
       
   <div class="item">
     <div class="name def" id="euroleague_api.team_stats.get_team_stats_range_seasons">
-    <p>def <span class="ident">get_team_stats_range_seasons</span>(</p><p>endpoint: str, from_season: int, to_season: int, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
+    <p>def <span class="ident">get_team_stats_range_seasons</span>(</p><p>endpoint: str, start_season: int, end_season: int, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
     </div>
     
 
@@ -1325,9 +1325,9 @@ statistic_mode (str, optional): The aggregation of statistics,
     - opponentsTraditional
     - opponentsAdvanced
 
-from_season (int): The start year of the start season
+start_season (int): The start year of the start season
 
-to_season (int): The end year of the end season
+end_season (int): The end year of the end season
 
 phase_type_code (Optional[str], optional): The phase of the season,
     available variables:
@@ -1350,8 +1350,8 @@ statistic_mode (str, optional): The aggregation of statistics,
   <div id="source-euroleague_api.team_stats.get_team_stats_range_seasons" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_stats_range_seasons</span><span class="p">(</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">from_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">to_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1366,9 +1366,9 @@ statistic_mode (str, optional): The aggregation of statistics,
 <span class="sd">            - opponentsTraditional</span>
 <span class="sd">            - opponentsAdvanced</span>
 
-<span class="sd">        from_season (int): The start year of the start season</span>
+<span class="sd">        start_season (int): The start year of the start season</span>
 
-<span class="sd">        to_season (int): The end year of the end season</span>
+<span class="sd">        end_season (int): The end year of the end season</span>
 
 <span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
 <span class="sd">            available variables:</span>
@@ -1389,8 +1389,8 @@ statistic_mode (str, optional): The aggregation of statistics,
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">from_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">to_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">get_team_stats</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>

@@ -1211,7 +1211,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for a single game</span>
+<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for a single game.</span>
+<span class="sd">    This is the *pre-game* stats. Hence gamecodes of round 1 of each season are</span>
+<span class="sd">    not available.</span>
 
 <span class="sd">    Args:</span>
 
@@ -1230,8 +1232,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="k">def</span> <span class="nf">get_game_teams_comparison_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for *all* games</span>
-<span class="sd">    in a single season</span>
+<span class="sd">    A function that gets the pre-grame &quot;teams comparison&quot; game stats for *all*</span>
+<span class="sd">    games in a single season.</span>
 
 <span class="sd">    Args:</span>
 
@@ -1251,8 +1253,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for *all* in a</span>
-<span class="sd">    range seasons</span>
+<span class="sd">    A function that gets the pre-game &quot;teams comparison&quot; game stats for *all*</span>
+<span class="sd">    in a range seasons</span>
 
 <span class="sd">    Args:</span>
 
@@ -1544,7 +1546,9 @@ end_season (int): The start year of the end season
 
     
   
-    <div class="desc"><p>A function that gets the "teams comparison" game stats for a single game</p>
+    <div class="desc"><p>A function that gets the "teams comparison" game stats for a single game.
+This is the <em>pre-game</em> stats. Hence gamecodes of round 1 of each season are
+not available.</p>
 <p>Args:</p>
 <pre><code>season (int): The start year of the season
 
@@ -1562,7 +1566,9 @@ game_code (int): The game code of the game of interest. It can be found
     <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for a single game</span>
+<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for a single game.</span>
+<span class="sd">    This is the *pre-game* stats. Hence gamecodes of round 1 of each season are</span>
+<span class="sd">    not available.</span>
 
 <span class="sd">    Args:</span>
 
@@ -1593,8 +1599,8 @@ game_code (int): The game code of the game of interest. It can be found
 
     
   
-    <div class="desc"><p>A function that gets the "teams comparison" game stats for <em>all</em> in a
-range seasons</p>
+    <div class="desc"><p>A function that gets the pre-game "teams comparison" game stats for <em>all</em>
+in a range seasons</p>
 <p>Args:</p>
 <pre><code>start_season (int): The start year of the star season
 
@@ -1611,8 +1617,8 @@ end_season (int): The start year of the end season
     <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for *all* in a</span>
-<span class="sd">    range seasons</span>
+<span class="sd">    A function that gets the pre-game &quot;teams comparison&quot; game stats for *all*</span>
+<span class="sd">    in a range seasons</span>
 
 <span class="sd">    Args:</span>
 
@@ -1646,8 +1652,8 @@ end_season (int): The start year of the end season
 
     
   
-    <div class="desc"><p>A function that gets the "teams comparison" game stats for <em>all</em> games
-in a single season</p>
+    <div class="desc"><p>A function that gets the pre-grame "teams comparison" game stats for <em>all</em>
+games in a single season.</p>
 <p>Args:</p>
 <pre><code>season (int): The start year of the season
 </code></pre>
@@ -1659,8 +1665,8 @@ in a single season</p>
   <div id="source-euroleague_api.game_stats.get_game_teams_comparison_single_season" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_teams_comparison_single_season</span><span class="p">(</span><span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the &quot;teams comparison&quot; game stats for *all* games</span>
-<span class="sd">    in a single season</span>
+<span class="sd">    A function that gets the pre-grame &quot;teams comparison&quot; game stats for *all*</span>
+<span class="sd">    games in a single season.</span>
 
 <span class="sd">    Args:</span>
 

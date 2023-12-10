@@ -177,7 +177,11 @@
 
             """
 
-            A function that gets the "teams comparison" game stats for a single game
+            A function that gets the "teams comparison" game stats for a single game.
+
+            This is the *pre-game* stats. Hence gamecodes of round 1 of each season are
+
+            not available.
 
             Args:
 
@@ -203,9 +207,9 @@
 
             """
 
-            A function that gets the "teams comparison" game stats for *all* games
+            A function that gets the pre-grame "teams comparison" game stats for *all*
 
-            in a single season
+            games in a single season.
 
             Args:
 
@@ -235,9 +239,9 @@
 
             """
 
-            A function that gets the "teams comparison" game stats for *all* in a
+            A function that gets the pre-game "teams comparison" game stats for *all*
 
-            range seasons
+            in a range seasons
 
             Args:
 
@@ -571,7 +575,10 @@ def get_game_teams_comparison(
 ) -> pandas.core.frame.DataFrame
 ```
 
-A function that gets the "teams comparison" game stats for a single game
+A function that gets the "teams comparison" game stats for a single game.
+
+This is the *pre-game* stats. Hence gamecodes of round 1 of each season are
+not available.
 
 **Parameters:**
 
@@ -597,7 +604,11 @@ A function that gets the "teams comparison" game stats for a single game
 
             """
 
-            A function that gets the "teams comparison" game stats for a single game
+            A function that gets the "teams comparison" game stats for a single game.
+
+            This is the *pre-game* stats. Hence gamecodes of round 1 of each season are
+
+            not available.
 
             Args:
 
@@ -627,9 +638,9 @@ def get_game_teams_comparison_range_seasons(
 ) -> pandas.core.frame.DataFrame
 ```
 
-A function that gets the "teams comparison" game stats for *all* in a
+A function that gets the pre-game "teams comparison" game stats for *all*
 
-range seasons
+in a range seasons
 
 **Parameters:**
 
@@ -655,9 +666,9 @@ range seasons
 
             """
 
-            A function that gets the "teams comparison" game stats for *all* in a
+            A function that gets the pre-game "teams comparison" game stats for *all*
 
-            range seasons
+            in a range seasons
 
             Args:
 
@@ -692,9 +703,9 @@ def get_game_teams_comparison_single_season(
 ) -> pandas.core.frame.DataFrame
 ```
 
-A function that gets the "teams comparison" game stats for *all* games
+A function that gets the pre-grame "teams comparison" game stats for *all*
 
-in a single season
+games in a single season.
 
 **Parameters:**
 
@@ -713,9 +724,9 @@ in a single season
 
             """
 
-            A function that gets the "teams comparison" game stats for *all* games
+            A function that gets the pre-grame "teams comparison" game stats for *all*
 
-            in a single season
+            games in a single season.
 
             Args:
 

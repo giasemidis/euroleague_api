@@ -159,6 +159,20 @@
 
             df = pd.json_normalize(data)
 
+            df.insert(0, "Season", season)
+
+            if "gameCode" in df.columns:
+
+                df.rename(columns={"gameCode": "Gamecode"}, inplace=True)
+
+            else:
+
+                df.insert(1, "Gamecode", game_code)
+
+            if "round" in df.columns:
+
+                df.rename(columns={"round": "Round"}, inplace=True)
+
             return df
 
         
@@ -237,17 +251,41 @@
 
             game_metadata_df = game_metadata_df[game_metadata_df["played"]]
 
-            game_codes = game_metadata_df.loc[
+            game_codes_df = (
 
-                game_metadata_df["played"], "gamenumber"].sort_values().values
+                game_metadata_df[["round", "gameday", "gamenumber"]]
 
-            for game_code in tqdm(game_codes, desc=f"Season {season}", leave=True):
+                .drop_duplicates().sort_values(["gamenumber", "gameday"])
+
+                .reset_index(drop=True)
+
+            )
+
+            for _, row in tqdm(game_codes_df.iterrows(), total=game_codes_df.shape[0],
+
+                               desc=f"Season {season}", leave=True):
+
+                game_code = row["gamenumber"]
 
                 try:
 
-                    shots_df = fun(season, game_code)
+                    df = fun(season, game_code)
 
-                    data_list.append(shots_df)
+                    if df.empty:
+
+                        logger.warning(f"Game {game_code} returned no data.")
+
+                        continue
+
+                    if ("Phase" not in df.columns) and ("round" in row):
+
+                        df.insert(1, "Phase", row["round"])
+
+                    if ("Round" not in df.columns) and ("gameday" in row):
+
+                        df.insert(2, "Round", row["gameday"])
+
+                    data_list.append(df)
 
                 except HTTPError as err:
 
@@ -256,6 +294,14 @@
                         f"HTTPError: Didn't find gamecode {game_code} for season "
 
                         f"{season}. Invalid {err}. Skip and continue."
+
+                    )
+
+                except:  # noqa: E722
+
+                    logger.warning(
+
+                        f"Something went wrong for game {game_code}. Skip and continue"
 
                     )
 
@@ -1341,6 +1387,20 @@ A wrapper function for getting game-level data.
 
             df = pd.json_normalize(data)
 
+            df.insert(0, "Season", season)
+
+            if "gameCode" in df.columns:
+
+                df.rename(columns={"gameCode": "Gamecode"}, inplace=True)
+
+            else:
+
+                df.insert(1, "Gamecode", game_code)
+
+            if "round" in df.columns:
+
+                df.rename(columns={"round": "Round"}, inplace=True)
+
             return df
 
     
@@ -2269,17 +2329,41 @@ A wrapper function for getting game data for all games in a single season.
 
             game_metadata_df = game_metadata_df[game_metadata_df["played"]]
 
-            game_codes = game_metadata_df.loc[
+            game_codes_df = (
 
-                game_metadata_df["played"], "gamenumber"].sort_values().values
+                game_metadata_df[["round", "gameday", "gamenumber"]]
 
-            for game_code in tqdm(game_codes, desc=f"Season {season}", leave=True):
+                .drop_duplicates().sort_values(["gamenumber", "gameday"])
+
+                .reset_index(drop=True)
+
+            )
+
+            for _, row in tqdm(game_codes_df.iterrows(), total=game_codes_df.shape[0],
+
+                               desc=f"Season {season}", leave=True):
+
+                game_code = row["gamenumber"]
 
                 try:
 
-                    shots_df = fun(season, game_code)
+                    df = fun(season, game_code)
 
-                    data_list.append(shots_df)
+                    if df.empty:
+
+                        logger.warning(f"Game {game_code} returned no data.")
+
+                        continue
+
+                    if ("Phase" not in df.columns) and ("round" in row):
+
+                        df.insert(1, "Phase", row["round"])
+
+                    if ("Round" not in df.columns) and ("gameday" in row):
+
+                        df.insert(2, "Round", row["gameday"])
+
+                    data_list.append(df)
 
                 except HTTPError as err:
 
@@ -2288,6 +2372,14 @@ A wrapper function for getting game data for all games in a single season.
                         f"HTTPError: Didn't find gamecode {game_code} for season "
 
                         f"{season}. Invalid {err}. Skip and continue."
+
+                    )
+
+                except:  # noqa: E722
+
+                    logger.warning(
+
+                        f"Something went wrong for game {game_code}. Skip and continue"
 
                     )
 

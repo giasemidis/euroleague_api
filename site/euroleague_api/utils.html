@@ -1217,6 +1217,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;gameCode&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;gameCode&quot;</span><span class="p">:</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;round&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;round&quot;</span><span class="p">:</span> <span class="s2">&quot;Round&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">df</span>
 
 
@@ -1268,16 +1276,32 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
     <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
     <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
-    <span class="n">game_codes</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">],</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-    <span class="k">for</span> <span class="n">game_code</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">game_metadata_df</span><span class="p">[[</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                       <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">game_code</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">shots_df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
-            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_df</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> returned no data.&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Phase&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;round&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Round&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;gameday&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Round&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. Skip and continue&quot;</span>
             <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
@@ -1986,6 +2010,14 @@ endpoint (str): The type of game data, available variables:
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;gameCode&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;gameCode&quot;</span><span class="p">:</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;round&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;round&quot;</span><span class="p">:</span> <span class="s2">&quot;Round&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2731,16 +2763,32 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 
     <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
     <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
-    <span class="n">game_codes</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">],</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-    <span class="k">for</span> <span class="n">game_code</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">game_metadata_df</span><span class="p">[[</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                       <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">game_code</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">shots_df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
-            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shots_df</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> returned no data.&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Phase&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;round&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Round&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;gameday&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Round&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. Skip and continue&quot;</span>
             <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>

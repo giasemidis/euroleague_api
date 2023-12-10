@@ -147,9 +147,9 @@
 
             endpoint: str,
 
-            from_season: int,
+            start_season: int,
 
-            to_season: int,
+            end_season: int,
 
             phase_type_code: Optional[str] = None,
 
@@ -173,9 +173,9 @@
 
                     - opponentsAdvanced
 
-                from_season (int): The start year of the start season
+                start_season (int): The start year of the start season
 
-                to_season (int): The end year of the end season
+                end_season (int): The end year of the end season
 
                 phase_type_code (Optional[str], optional): The phase of the season,
 
@@ -209,9 +209,9 @@
 
                 "SeasonMode": "Range",
 
-                "FromSeasonCode": f"E{from_season}",
+                "FromSeasonCode": f"E{start_season}",
 
-                "ToSeasonCode": f"E{to_season}",
+                "ToSeasonCode": f"E{end_season}",
 
             }
 
@@ -315,8 +315,8 @@ A function that gets the team stats for all seasons
 ```python3
 def get_team_stats_range_seasons(
     endpoint: str,
-    from_season: int,
-    to_season: int,
+    start_season: int,
+    end_season: int,
     phase_type_code: Optional[str] = None,
     statistic_mode: str = 'PerGame'
 ) -> pandas.core.frame.DataFrame
@@ -329,8 +329,8 @@ A function that returns the teams' stats in a range of seasons
 | Name | Type | Description | Default |
 |---|---|---|---|
 | endpoint | str | The type of stats to fetch. Available values:<br>- traditional<br>- advanced<br>- opponentsTraditional<br>- opponentsAdvanced | None |
-| from_season | int | The start year of the start season | None |
-| to_season | int | The end year of the end season | None |
+| start_season | int | The start year of the start season | None |
+| end_season | int | The end year of the end season | None |
 | phase_type_code | Optional[str] | The phase of the season,<br>available variables:<br>- "RS" (regular season)<br>- "PO" (play-off)<br>- "FF" (final four)<br>Defaults to None, which includes all phases. | None |
 | statistic_mode | str | The aggregation of statistics,<br>available variables:<br>- PerGame<br>- Accumulated<br>Defaults to "PerGame". | None |
 
@@ -345,9 +345,9 @@ A function that returns the teams' stats in a range of seasons
 
             endpoint: str,
 
-            from_season: int,
+            start_season: int,
 
-            to_season: int,
+            end_season: int,
 
             phase_type_code: Optional[str] = None,
 
@@ -371,9 +371,9 @@ A function that returns the teams' stats in a range of seasons
 
                     - opponentsAdvanced
 
-                from_season (int): The start year of the start season
+                start_season (int): The start year of the start season
 
-                to_season (int): The end year of the end season
+                end_season (int): The end year of the end season
 
                 phase_type_code (Optional[str], optional): The phase of the season,
 
@@ -407,9 +407,9 @@ A function that returns the teams' stats in a range of seasons
 
                 "SeasonMode": "Range",
 
-                "FromSeasonCode": f"E{from_season}",
+                "FromSeasonCode": f"E{start_season}",
 
-                "ToSeasonCode": f"E{to_season}",
+                "ToSeasonCode": f"E{end_season}",
 
             }
 

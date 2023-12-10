@@ -51,7 +51,7 @@
 
                     available variables:
 
-                     - PerGame
+                    - PerGame
 
                     - Accumulated
 
@@ -612,7 +612,7 @@ The players' stats for *all* seasons.
 |---|---|---|---|
 | endpoint | str | The type of stats, available variables:<br>- traditional<br>- advanced<br>- misc<br>- scoring | None |
 | phase_type_code | Optional[str] | The phase of the season,<br>available variables:<br>- "RS" (regular season)<br>- "PO" (play-off)<br>- "FF" (final four)<br>Defaults to None, which includes all phases. | None |
-| statistic_mode | str | The aggregation of statistics,<br>available variables:<br> - PerGame<br>- Accumulated<br>- Per100Possesions<br>Defaults to "PerGame". | None |
+| statistic_mode | str | The aggregation of statistics,<br>available variables:<br>- PerGame<br>- Accumulated<br>- Per100Possesions<br>Defaults to "PerGame". | None |
 
 **Returns:**
 
@@ -663,7 +663,7 @@ The players' stats for *all* seasons.
 
                     available variables:
 
-                     - PerGame
+                    - PerGame
 
                     - Accumulated
 
