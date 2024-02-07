@@ -308,8 +308,8 @@ def get_player_stats(
 
     r = get_requests(url_, params=params)
     data = r.json()
-    if data["total"] < len(data["players"]):
-        params["limit"] = len(data["players"]) + 1
+    if data["total"] > len(data["players"]):
+        params["limit"] = data["total"] + 1
         r = get_requests(url_, params=params)
         data = r.json()
     df = pd.json_normalize(data["players"])
