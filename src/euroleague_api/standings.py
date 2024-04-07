@@ -1,55 +1,59 @@
 import pandas as pd
-from .utils import (
-    get_requests,
-    URL
-)
+from .EuroLeagueData import EuroLeagueData
+from .utils import get_requests
 
 
-def get_standings(
-    season: int,
-    round_number: int,
-    endpoint: str = "basicstandings",
-) -> pd.DataFrame:
-    """
-    Get the standings of round in given season
+class Standings(EuroLeagueData):
 
-    Args:
+    def get_standings(
+        self,
+        season: int,
+        round_number: int,
+        endpoint: str = "basicstandings",
+    ) -> pd.DataFrame:
+        """
+        Get the standings of round in given season
 
-        season (int): The start year of the season
+        Args:
 
-        round_number (int): The round number
+            season (int): The start year of the season
 
-        endpoint (str, optional): The type of standing.
-        One of the following options
-        - calendarstandings
-        - streaks
-        - aheadbehind
-        - margins
-        - basicstandings
-        Defaults to "basicstandings".
+            round_number (int): The round number
 
-    Raises:
+            endpoint (str, optional): The type of standing.
+            One of the following options
+            - calendarstandings
+            - streaks
+            - aheadbehind
+            - margins
+            - basicstandings
+            Defaults to "basicstandings".
 
-        ValueError: If endpoint is not applicable
+        Raises:
 
-    Returns:
+            ValueError: If endpoint is not applicable
 
-        pd.DataFrame: A dataframe with the standings of the teams
-    """
-    available_endpoints = [
-        "calendarstandings", "streaks",
-        "aheadbehind", "margins",
-        "basicstandings"
-    ]
+        Returns:
 
-    if endpoint not in available_endpoints:
-        raise ValueError(
-            "Standings endpoint, {endpoint}, is not applicable. Choose one of "
-            f"the following: {available_endpoints}"
+            pd.DataFrame: A dataframe with the standings of the teams
+        """
+        available_endpoints = [
+            "calendarstandings", "streaks",
+            "aheadbehind", "margins",
+            "basicstandings"
+        ]
+
+        if endpoint not in available_endpoints:
+            raise ValueError(
+                "Standings endpoint, {endpoint}, is not applicable. Choose "
+                f"one of the following: {available_endpoints}"
+            )
+
+        url_ = (
+            f"{self.url}/seasons/{self.competition}{season}/"
+            f"rounds/{round_number}/{endpoint}"
         )
-
-    url_ = f"{URL}/seasons/E{season}/rounds/{round_number}/{endpoint}"
-    r = get_requests(url_)
-    data = r.json()
-    df = pd.json_normalize(data["teams"])
-    return df
+        r = get_requests(url_)
+        data = r.json()
+        df = pd.json_normalize(data["teams"])
+        return df
