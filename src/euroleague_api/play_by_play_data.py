@@ -4,7 +4,7 @@ from .EuroLeagueData import EuroLeagueData
 from .utils import get_requests
 
 
-class GamePlayByPlay(EuroLeagueData):
+class PlayByPlay(EuroLeagueData):
     """
     A class for getting the game play-by-play data.
 
