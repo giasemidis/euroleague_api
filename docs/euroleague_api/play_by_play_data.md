@@ -1,159 +1,69 @@
 # Module euroleague_api.play_by_play_data
 
-??? example "View Source"
-        from json.decoder import JSONDecodeError
+## Classes
 
-        import pandas as pd
+### PlayByPlay
 
-        from .utils import get_requests
+```python3
+class PlayByPlay(
+    competition='E'
+)
+```
 
-        from .utils import get_season_data_from_game_data
+A class for getting the game play-by-play data.
 
-        from .utils import get_range_seasons_data
+#### Attributes
 
-        
+| Name | Type | Description | Default |
+|---|---|---|---|
+| competition | str | The competition code, inherited from the<br>`EuroLeagueData` class. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
 
-        def get_game_play_by_play_data(season: int, gamecode: int) -> pd.DataFrame:
+#### Ancestors (in MRO)
 
-            """
+* euroleague_api.EuroLeagueData.EuroLeagueData
 
-            A function that gets the play-by-play data of a particular game.
+#### Class variables
 
-            Args:
+```python3
+BASE_URL
+```
 
-                season (int): The start year of the season
+```python3
+VERSION
+```
 
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the play-by-play data of the game.
-
-            """
-
-            url = "https://live.euroleague.net/api/PlaybyPlay"
-
-            params = {
-
-                "gamecode": gamecode,
-
-                "seasoncode": f"E{season}"
-
-            }
-
-            r = get_requests(url, params=params)
-
-            try:
-
-                data = r.json()
-
-            except JSONDecodeError:
-
-                raise ValueError(f"Game code, {gamecode}, did not return any data.")
-
-            periods = [
-
-                'FirstQuarter', 'SecondQuarter', 'ThirdQuarter', 'ForthQuarter',
-
-                'ExtraTime'
-
-            ]
-
-            all_data = []
-
-            for p, period in enumerate(periods):
-
-                if data[period]:
-
-                    df = pd.json_normalize(data[period])
-
-                    df["PERIOD"] = p + 1
-
-                    all_data.append(df)
-
-            play_by_play_df = pd.concat(all_data)
-
-            play_by_play_df['CODETEAM'] = play_by_play_df['CODETEAM'].str.strip()
-
-            play_by_play_df['PLAYER_ID'] = play_by_play_df['PLAYER_ID'].str.strip()
-
-            play_by_play_df.insert(0, 'Season', season)
-
-            play_by_play_df.insert(1, 'Gamecode', gamecode)
-
-            return play_by_play_df
-
-        
-
-        def get_game_play_by_play_data_single_season(season: int) -> pd.DataFrame:
-
-            """
-
-            A function that gets the play-by-play data of *all* games in a single
-
-            season
-
-            Args:
-
-                season (int): The start year of the season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the play-by-play data of all games in a
-
-                    single season
-
-            """
-
-            data_df = get_season_data_from_game_data(
-
-                season, get_game_play_by_play_data)
-
-            return data_df
-
-        
-
-        def get_game_play_by_play_data_multiple_seasons(
-
-            start_season: int, end_season: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the play-by-play data of *all* games in a range of
-
-            seasons
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the play-by-play data of all games
-
-                    in range of seasons
-
-            """
-
-            df = get_range_seasons_data(
-
-                start_season, end_season, get_game_play_by_play_data)
-
-            return df
-
-## Functions
+#### Methods
 
     
-### get_game_play_by_play_data
+#### get_game_metadata_season
+
+```python3
+def get_game_metadata_season(
+    self,
+    season: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that returns the game metadata, e.g. gamecodes of season
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the season's game metadata, e.g.<br>gamecode, score, home-away teams, date, round, etc. |
+
+    
+#### get_game_play_by_play_data
 
 ```python3
 def get_game_play_by_play_data(
+    self,
     season: int,
     gamecode: int
 ) -> pandas.core.frame.DataFrame
@@ -174,84 +84,12 @@ A function that gets the play-by-play data of a particular game.
 |---|---|
 | pd.DataFrame | A dataframe with the play-by-play data of the game. |
 
-??? example "View Source"
-        def get_game_play_by_play_data(season: int, gamecode: int) -> pd.DataFrame:
-
-            """
-
-            A function that gets the play-by-play data of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the play-by-play data of the game.
-
-            """
-
-            url = "https://live.euroleague.net/api/PlaybyPlay"
-
-            params = {
-
-                "gamecode": gamecode,
-
-                "seasoncode": f"E{season}"
-
-            }
-
-            r = get_requests(url, params=params)
-
-            try:
-
-                data = r.json()
-
-            except JSONDecodeError:
-
-                raise ValueError(f"Game code, {gamecode}, did not return any data.")
-
-            periods = [
-
-                'FirstQuarter', 'SecondQuarter', 'ThirdQuarter', 'ForthQuarter',
-
-                'ExtraTime'
-
-            ]
-
-            all_data = []
-
-            for p, period in enumerate(periods):
-
-                if data[period]:
-
-                    df = pd.json_normalize(data[period])
-
-                    df["PERIOD"] = p + 1
-
-                    all_data.append(df)
-
-            play_by_play_df = pd.concat(all_data)
-
-            play_by_play_df['CODETEAM'] = play_by_play_df['CODETEAM'].str.strip()
-
-            play_by_play_df['PLAYER_ID'] = play_by_play_df['PLAYER_ID'].str.strip()
-
-            play_by_play_df.insert(0, 'Season', season)
-
-            play_by_play_df.insert(1, 'Gamecode', gamecode)
-
-            return play_by_play_df
-
     
-### get_game_play_by_play_data_multiple_seasons
+#### get_game_play_by_play_data_multiple_seasons
 
 ```python3
 def get_game_play_by_play_data_multiple_seasons(
+    self,
     start_season: int,
     end_season: int
 ) -> pandas.core.frame.DataFrame
@@ -274,44 +112,12 @@ seasons
 |---|---|
 | pd.DataFrame | A dataframe with the play-by-play data of all games<br>in range of seasons |
 
-??? example "View Source"
-        def get_game_play_by_play_data_multiple_seasons(
-
-            start_season: int, end_season: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the play-by-play data of *all* games in a range of
-
-            seasons
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the play-by-play data of all games
-
-                    in range of seasons
-
-            """
-
-            df = get_range_seasons_data(
-
-                start_season, end_season, get_game_play_by_play_data)
-
-            return df
-
     
-### get_game_play_by_play_data_single_season
+#### get_game_play_by_play_data_single_season
 
 ```python3
 def get_game_play_by_play_data_single_season(
+    self,
     season: int
 ) -> pandas.core.frame.DataFrame
 ```
@@ -330,31 +136,88 @@ season
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with the play-by-play data of all games in a<br>single season |
+| pd.DataFrame | A dataframe with the play-by-play data of all games<br>in a single season |
 
-??? example "View Source"
-        def get_game_play_by_play_data_single_season(season: int) -> pd.DataFrame:
+    
+#### get_range_seasons_data
 
-            """
+```python3
+def get_range_seasons_data(
+    self,
+    start_season: int,
+    end_season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
 
-            A function that gets the play-by-play data of *all* games in a single
+A wrapper function with the all game data in a range of seasons
 
-            season
+**Parameters:**
 
-            Args:
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+| end_season | int | The start year of teh end season | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison | None |
 
-                season (int): The start year of the season
+**Returns:**
 
-            Returns:
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game data |
 
-                pd.DataFrame: A dataframe with the play-by-play data of all games in a
+    
+#### get_season_data_from_game_data
 
-                    single season
+```python3
+def get_season_data_from_game_data(
+    self,
+    season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
 
-            """
+A wrapper function for getting game data for all games in a single
 
-            data_df = get_season_data_from_game_data(
+season.
 
-                season, get_game_play_by_play_data)
+**Parameters:**
 
-            return data_df
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game data. |
+
+    
+#### make_season_game_url
+
+```python3
+def make_season_game_url(
+    self,
+    season: int,
+    game_code: int,
+    endpoint: str
+) -> str
+```
+
+Concatenates the base URL and makes the game url.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| game_code | int | The code of the game. Find the code from<br>Euroleague's website | None |
+| endpoint | str | The endpoint of the API | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| str | the full URL |

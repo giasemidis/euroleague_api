@@ -1060,22 +1060,25 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <li class="mono"><a href="index.html">euroleague_api</a></li>
       </ul>
     </li>
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
+
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#euroleague_api.standings.Standings">Standings</a></span>
+        
+          
   <ul>
-    <li class="mono"><a href="#euroleague_api.standings.URL">URL</a></li>
+    <li class="mono"><a href="#euroleague_api.standings.Standings.get_game_metadata_season">get_game_metadata_season</a></li>
+    <li class="mono"><a href="#euroleague_api.standings.Standings.get_range_seasons_data">get_range_seasons_data</a></li>
+    <li class="mono"><a href="#euroleague_api.standings.Standings.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
+    <li class="mono"><a href="#euroleague_api.standings.Standings.get_standings">get_standings</a></li>
+    <li class="mono"><a href="#euroleague_api.standings.Standings.make_season_game_url">make_season_game_url</a></li>
   </ul>
 
+        </li>
+      </ul>
     </li>
-
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#euroleague_api.standings.get_standings">get_standings</a></li>
-  </ul>
-
-    </li>
-
 
     </ul>
   </div>
@@ -1093,60 +1096,74 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings', this);">Show source &equiv;</a></p>
   <div id="source-euroleague_api.standings" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_requests</span><span class="p">,</span>
-    <span class="n">URL</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.EuroLeagueData</span> <span class="kn">import</span> <span class="n">EuroLeagueData</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_requests</span>
 
 
-<span class="k">def</span> <span class="nf">get_standings</span><span class="p">(</span>
-    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;basicstandings&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Standings</span><span class="p">(</span><span class="n">EuroLeagueData</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the standings of round in given season</span>
+<span class="sd">    A class for getting standings data.</span>
 
 <span class="sd">    Args:</span>
-
-<span class="sd">        season (int): The start year of the season</span>
-
-<span class="sd">        round_number (int): The round number</span>
-
-<span class="sd">        endpoint (str, optional): The type of standing.</span>
-<span class="sd">        One of the following options</span>
-<span class="sd">        - calendarstandings</span>
-<span class="sd">        - streaks</span>
-<span class="sd">        - aheadbehind</span>
-<span class="sd">        - margins</span>
-<span class="sd">        - basicstandings</span>
-<span class="sd">        Defaults to &quot;basicstandings&quot;.</span>
-
-<span class="sd">    Raises:</span>
-
-<span class="sd">        ValueError: If endpoint is not applicable</span>
-
-<span class="sd">    Returns:</span>
-
-<span class="sd">        pd.DataFrame: A dataframe with the standings of the teams</span>
+<span class="sd">        competition (str, optional): The competition code, inherited from the</span>
+<span class="sd">            `EuroLeagueData` class. Choose one of:</span>
+<span class="sd">            - &#39;E&#39; for Euroleague</span>
+<span class="sd">            - &#39;U&#39; for Eurocup</span>
+<span class="sd">            Defaults to &quot;E&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;calendarstandings&quot;</span><span class="p">,</span> <span class="s2">&quot;streaks&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;aheadbehind&quot;</span><span class="p">,</span> <span class="s2">&quot;margins&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;basicstandings&quot;</span>
-    <span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_endpoints</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Standings endpoint, </span><span class="si">{endpoint}</span><span class="s2">, is not applicable. Choose one of &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;the following: </span><span class="si">{</span><span class="n">available_endpoints</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">def</span> <span class="nf">get_standings</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;basicstandings&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the standings of round in given season</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            season (int): The start year of the season</span>
+
+<span class="sd">            round_number (int): The round number</span>
+
+<span class="sd">            endpoint (str, optional): The type of standing.</span>
+<span class="sd">            One of the following options</span>
+<span class="sd">            - calendarstandings</span>
+<span class="sd">            - streaks</span>
+<span class="sd">            - aheadbehind</span>
+<span class="sd">            - margins</span>
+<span class="sd">            - basicstandings</span>
+<span class="sd">            Defaults to &quot;basicstandings&quot;.</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            ValueError: If endpoint is not applicable</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the standings of the teams</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;calendarstandings&quot;</span><span class="p">,</span> <span class="s2">&quot;streaks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aheadbehind&quot;</span><span class="p">,</span> <span class="s2">&quot;margins&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;basicstandings&quot;</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_endpoints</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Standings endpoint, </span><span class="si">{endpoint}</span><span class="s2">, is not applicable. Choose &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;one of the following: </span><span class="si">{</span><span class="n">available_endpoints</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">url_</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/seasons/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;rounds/</span><span class="si">{</span><span class="n">round_number</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-
-    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/seasons/E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">/rounds/</span><span class="si">{</span><span class="n">round_number</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">df</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
   </div>
@@ -1154,21 +1171,322 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="euroleague_api.standings.URL" class="name">var <span class="ident">URL</span></p>
+
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
       
+      <div class="item">
+      <p id="euroleague_api.standings.Standings" class="name">class <span class="ident">Standings</span></p>
+      
+  
+    <div class="desc"><p>A class for getting standings data.</p>
+<p>Args:
+    competition (str, optional): The competition code, inherited from the
+        <code>EuroLeagueData</code> class. Choose one of:
+        - 'E' for Euroleague
+        - 'U' for Eurocup
+        Defaults to "E".</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.Standings', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.standings.Standings" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Standings</span><span class="p">(</span><span class="n">EuroLeagueData</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for getting standings data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        competition (str, optional): The competition code, inherited from the</span>
+<span class="sd">            `EuroLeagueData` class. Choose one of:</span>
+<span class="sd">            - &#39;E&#39; for Euroleague</span>
+<span class="sd">            - &#39;U&#39; for Eurocup</span>
+<span class="sd">            Defaults to &quot;E&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_standings</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;basicstandings&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the standings of round in given season</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            season (int): The start year of the season</span>
+
+<span class="sd">            round_number (int): The round number</span>
+
+<span class="sd">            endpoint (str, optional): The type of standing.</span>
+<span class="sd">            One of the following options</span>
+<span class="sd">            - calendarstandings</span>
+<span class="sd">            - streaks</span>
+<span class="sd">            - aheadbehind</span>
+<span class="sd">            - margins</span>
+<span class="sd">            - basicstandings</span>
+<span class="sd">            Defaults to &quot;basicstandings&quot;.</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            ValueError: If endpoint is not applicable</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the standings of the teams</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;calendarstandings&quot;</span><span class="p">,</span> <span class="s2">&quot;streaks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aheadbehind&quot;</span><span class="p">,</span> <span class="s2">&quot;margins&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;basicstandings&quot;</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_endpoints</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Standings endpoint, </span><span class="si">{endpoint}</span><span class="s2">, is not applicable. Choose &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;one of the following: </span><span class="si">{</span><span class="n">available_endpoints</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">url_</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/seasons/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;rounds/</span><span class="si">{</span><span class="n">round_number</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="..\EuroLeagueData.html#euroleague_api.EuroLeagueData.EuroLeagueData">euroleague_api.EuroLeagueData.EuroLeagueData</a></li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="euroleague_api.standings.Standings.BASE_URL" class="name">var <span class="ident">BASE_URL</span></p>
+            
+
+            
   
   <div class="source_cont">
 </div>
 
-      </div>
+            </div>
+            <div class="item">
+            <p id="euroleague_api.standings.Standings.VERSION" class="name">var <span class="ident">VERSION</span></p>
+            
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
-      
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Methods</h3>
+            
   <div class="item">
-    <div class="name def" id="euroleague_api.standings.get_standings">
-    <p>def <span class="ident">get_standings</span>(</p><p>season: int, round_number: int, endpoint: str = &#39;basicstandings&#39;)</p>
+    <div class="name def" id="euroleague_api.standings.Standings.get_game_metadata_season">
+    <p>def <span class="ident">get_game_metadata_season</span>(</p><p>self, season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that returns the game metadata, e.g. gamecodes of season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season.
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the season's game metadata, e.g.
+    gamecode, score, home-away teams, date, round, etc.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.Standings.get_game_metadata_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.standings.Standings.get_game_metadata_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_metadata_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that returns the game metadata, e.g. gamecodes of season</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the season&#39;s game metadata, e.g.</span>
+<span class="sd">            gamecode, score, home-away teams, date, round, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;https://api-live.euroleague.net/v1/results&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;?seasonCode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.standings.Standings.get_range_seasons_data">
+    <p>def <span class="ident">get_range_seasons_data</span>(</p><p>self, start_season: int, end_season: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function with the all game data in a range of seasons</p>
+<p>Args:</p>
+<pre><code>season (int, optional): The start year of the season.
+
+end_season (int): The start year of teh end season
+
+fun (Callable[[int, int], pd.DataFrame]): A callable function that
+    determines that type of data to be collected. Available values:
+    - get_game_report
+    - get_game_stats
+    - get_game_teams_comparison
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the game data
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.Standings.get_range_seasons_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.standings.Standings.get_range_seasons_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_range_seasons_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function with the all game data in a range of seasons</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int, optional): The start year of the season.</span>
+<span class="sd">        end_season (int): The start year of teh end season</span>
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the game data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span>
+            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Season loop&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data_from_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">fun</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.standings.Standings.get_season_data_from_game_data">
+    <p>def <span class="ident">get_season_data_from_game_data</span>(</p><p>self, season: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for getting game data for all games in a single
+season.</p>
+<p>Args:</p>
+<pre><code>season (int, optional): The start year of the season.
+
+fun (Callable[[int, int], pd.DataFrame]): A callable function that
+    determines that type of data to be collected. Available values:
+    - get_game_report
+    - get_game_stats
+    - get_game_teams_comparison
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the game data.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.Standings.get_season_data_from_game_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.standings.Standings.get_season_data_from_game_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_season_data_from_game_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for getting game data for all games in a single</span>
+<span class="sd">    season.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int, optional): The start year of the season.</span>
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">game_metadata_df</span><span class="p">[[</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
+                       <span class="n">total</span><span class="o">=</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                       <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">game_code</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> returned no data.&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Phase&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;round&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Round&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;gameday&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Round&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Skip and continue&quot;</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.standings.Standings.get_standings">
+    <p>def <span class="ident">get_standings</span>(</p><p>self, season: int, round_number: int, endpoint: str = &#39;basicstandings&#39;)</p>
     </div>
     
 
@@ -1196,22 +1514,19 @@ Defaults to "basicstandings".
 <pre><code>pd.DataFrame: A dataframe with the standings of the teams
 </code></pre></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.get_standings', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.standings.get_standings" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.Standings.get_standings', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.standings.Standings.get_standings" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_standings</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;basicstandings&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the standings of round in given season</span>
-
 <span class="sd">    Args:</span>
-
 <span class="sd">        season (int): The start year of the season</span>
-
 <span class="sd">        round_number (int): The round number</span>
-
 <span class="sd">        endpoint (str, optional): The type of standing.</span>
 <span class="sd">        One of the following options</span>
 <span class="sd">        - calendarstandings</span>
@@ -1220,13 +1535,9 @@ Defaults to "basicstandings".
 <span class="sd">        - margins</span>
 <span class="sd">        - basicstandings</span>
 <span class="sd">        Defaults to &quot;basicstandings&quot;.</span>
-
 <span class="sd">    Raises:</span>
-
 <span class="sd">        ValueError: If endpoint is not applicable</span>
-
 <span class="sd">    Returns:</span>
-
 <span class="sd">        pd.DataFrame: A dataframe with the standings of the teams</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span>
@@ -1234,14 +1545,15 @@ Defaults to "basicstandings".
         <span class="s2">&quot;aheadbehind&quot;</span><span class="p">,</span> <span class="s2">&quot;margins&quot;</span><span class="p">,</span>
         <span class="s2">&quot;basicstandings&quot;</span>
     <span class="p">]</span>
-
     <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_endpoints</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Standings endpoint, </span><span class="si">{endpoint}</span><span class="s2">, is not applicable. Choose one of &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;the following: </span><span class="si">{</span><span class="n">available_endpoints</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Standings endpoint, </span><span class="si">{endpoint}</span><span class="s2">, is not applicable. Choose &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;one of the following: </span><span class="si">{</span><span class="n">available_endpoints</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-
-    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s2">/seasons/E</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">/rounds/</span><span class="si">{</span><span class="n">round_number</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">url_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/seasons/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;rounds/</span><span class="si">{</span><span class="n">round_number</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;teams&quot;</span><span class="p">])</span>
@@ -1253,7 +1565,60 @@ Defaults to "basicstandings".
 
   </div>
   
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.standings.Standings.make_season_game_url">
+    <p>def <span class="ident">make_season_game_url</span>(</p><p>self, season: int, game_code: int, endpoint: str)</p>
+    </div>
+    
 
+    
+  
+    <div class="desc"><p>Concatenates the base URL and makes the game url.</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+
+game_code (int): The code of the game. Find the code from
+    Euroleague's website
+
+endpoint (str): The endpoint of the API
+</code></pre>
+<p>Returns:</p>
+<pre><code>str: the full URL
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.standings.Standings.make_season_game_url', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.standings.Standings.make_season_game_url" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_season_game_url</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">game_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenates the base URL and makes the game url.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        game_code (int): The code of the game. Find the code from</span>
+<span class="sd">            Euroleague&#39;s website</span>
+<span class="sd">        endpoint (str): The endpoint of the API</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        str: the full URL</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_url</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/seasons/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;games/</span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">full_url</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
 
   </section>
 </article>
