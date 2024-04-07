@@ -8,6 +8,17 @@ from .utils import (
 
 
 class PlayerStats(EuroLeagueData):
+    """
+    A class for getting the player-level stats and data.
+
+    Args:
+        competition (str, optional): The competition code, inherited from the
+            `EuroLeagueData` class. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
+    """
+
     def get_player_stats(
         self,
         endpoint: str,

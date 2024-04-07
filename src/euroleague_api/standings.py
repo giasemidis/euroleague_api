@@ -4,6 +4,16 @@ from .utils import get_requests
 
 
 class Standings(EuroLeagueData):
+    """
+    A class for getting standings data.
+
+    Args:
+        competition (str, optional): The competition code, inherited from the
+            `EuroLeagueData` class. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
+    """
 
     def get_standings(
         self,

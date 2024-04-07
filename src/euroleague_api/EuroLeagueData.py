@@ -9,25 +9,39 @@ from .utils import get_requests
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-BASE_URL = "https://api-live.euroleague.net"
-VERSION = "v3"
-# COMPETITION = "U"
-# URL = f"{BASE_URL}/{VERSION}/competitions/{COMPETITION}"
-
 
 class EuroLeagueData:
     """
     Base class for collecting Euroleague and Eurocup competition's data.
-    """
 
-    def __init__(self, competition):
+    Args:
+        competition (str, optional): The competition code. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
+    """
+    BASE_URL = "https://api-live.euroleague.net"
+    VERSION = "v3"
+
+    def __init__(self, competition="E"):
+        """_summary_
+
+        Args:
+            competition (str, optional): The competition code. Choose one of:
+                - 'E' for Euroleague
+                - 'U' for Eurocup
+                Defaults to "E".
+
+        Raises:
+            ValueError: When an invalid competition code is provided.
+        """
         if competition not in ["E", "U"]:
             raise ValueError(
                 "Invalid competition value, {competition}. "
                 "Valid values 'E', 'U'"
             )
         self.competition = competition
-        self.url = f"{BASE_URL}/{VERSION}/competitions/{competition}"
+        self.url = f"{self.BASE_URL}/{self.VERSION}/competitions/{competition}"
 
     def make_season_game_url(
         self,

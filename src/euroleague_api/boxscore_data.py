@@ -9,10 +9,15 @@ from .utils import (
 
 
 class BoxScoreData(EuroLeagueData):
-    """_summary_
+    """
+    A class for getting box-score data
 
     Args:
-        EuroLeagueData (_type_): _description_
+        competition (str, optional): The competition code, inherited from the
+            `EuroLeagueData` class. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
     """
 
     def get_boxscore_data(

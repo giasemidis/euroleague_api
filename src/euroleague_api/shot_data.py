@@ -5,16 +5,15 @@ from .utils import get_requests
 
 
 class ShotData(EuroLeagueData):
-    """_summary_
+    """
+    A class for getting shot data.
 
     Args:
-        EuroLeagueData (_type_): _description_
-
-    Raises:
-        ValueError: _description_
-
-    Returns:
-        _type_: _description_
+        competition (str, optional): The competition code, inherited from the
+            `EuroLeagueData` class. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
     """
     # MADE_ACTIONS = ['2FGM', '3FGM', 'LAYUPMD', 'DUNK']
     # MISSES_ACTIONS = ['2FGA', '2FGAB', '3FGA', '3FGAB', 'LAYUPATT']

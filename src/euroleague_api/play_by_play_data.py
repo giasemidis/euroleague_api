@@ -5,6 +5,16 @@ from .utils import get_requests
 
 
 class GamePlayByPlay(EuroLeagueData):
+    """
+    A class for getting the game play-by-play data.
+
+    Args:
+        competition (str, optional): The competition code, inherited from the
+            `EuroLeagueData` class. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
+    """
 
     def get_game_play_by_play_data(
         self,
