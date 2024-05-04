@@ -1,6 +1,7 @@
 from typing import Optional
 import pandas as pd
 from .EuroLeagueData import EuroLeagueData
+from .boxscore_data import BoxScoreData
 from .utils import (
     raise_error,
     get_requests
@@ -232,4 +233,61 @@ class TeamStats(EuroLeagueData):
         }
         df = self.get_team_stats(
             endpoint, params, phase_type_code, statistic_mode)
+        return df
+
+    def get_advanced_team_stats_single_game(self, season: int, gamecode: int):
+        """
+        In this function we derive team advanced stats from a single game
+        that are not provided by the API but can be easily estimated from
+        stats that are given from the API, i.e.
+            - # Possessions
+            - Pace
+        The formulas and definitions of these stats can be found in
+        [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)
+
+        Args:
+            season (int): The start year of the season
+            gamecode (int): The game-code of the game of interest.
+                It can be found on Euroleague's website.
+        """
+        boxscoredata = BoxScoreData()
+        game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
+            season=season, gamecode=gamecode)
+        totals_df = (
+            game_bxscr_stats[game_bxscr_stats["Player_ID"] == "Total"]
+            .set_index("Team").T
+        )
+        possessions_simple = (
+            (totals_df.loc["FieldGoalsAttempted2"] +
+             totals_df.loc["FieldGoalsAttempted3"])
+            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
+            - totals_df.loc["OffensiveRebounds"] + totals_df.loc["Turnovers"]
+        )
+        fga = (totals_df.loc["FieldGoalsAttempted2"] +
+               totals_df.loc["FieldGoalsAttempted3"])
+
+        fgm = (totals_df.loc["FieldGoalsMade2"] +
+               totals_df.loc["FieldGoalsMade3"])
+        possessions = (
+            fga
+            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
+            - 1.07 * (
+                totals_df.loc["OffensiveRebounds"] /
+                totals_df.loc["DefensiveRebounds", ::-1].values
+            ) * (fga - fgm)
+            + totals_df.loc["Turnovers"]
+        )
+
+        df = pd.DataFrame(
+            {
+                "Possesions (simple)": possessions_simple,
+                "Possessions": possessions
+            }
+        )
+
+        min_played_ls = totals_df.loc["Minutes"][0].split(":")
+        min_played = int(min_played_ls[0]) + float(min_played_ls[1]) / 60
+
+        df[["Pace (simple)", "Pace"]] = 40 * \
+            (df + df.values[::-1, :]) / (2 * (min_played / 5))
         return df
