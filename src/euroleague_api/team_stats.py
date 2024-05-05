@@ -290,4 +290,8 @@ class TeamStats(EuroLeagueData):
 
         df[["Pace (simple)", "Pace"]] = 40 * \
             (df + df.values[::-1, :]) / (2 * (min_played / 5))
+
+        df.insert(0, "Season", season)
+        df.insert(1, "Gamecode", gamecode)
+        df.insert(2, "Home", [1, 0])
         return df
