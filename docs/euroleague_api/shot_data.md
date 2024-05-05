@@ -1,153 +1,69 @@
 # Module euroleague_api.shot_data
 
-??? example "View Source"
-        import pandas as pd
+## Classes
 
-        from json.decoder import JSONDecodeError
-
-        from .utils import get_requests
-
-        from .utils import get_season_data_from_game_data
-
-        from .utils import get_range_seasons_data
-
-        MADE_ACTIONS = ['2FGM', '3FGM', 'LAYUPMD', 'DUNK']
-
-        MISSES_ACTIONS = ['2FGA', '2FGAB', '3FGA', '3FGAB', 'LAYUPATT']
-
-        
-
-        def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
-
-            """
-
-            A function that gets the shot data of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the shot data of the game.
-
-            """
-
-            url = "https://live.euroleague.net/api/Points"
-
-            params = {
-
-                "gamecode": gamecode,
-
-                "seasoncode": f"E{season}"
-
-            }
-
-            r = get_requests(url, params=params)
-
-            try:
-
-                data = r.json()
-
-            except JSONDecodeError:
-
-                raise ValueError(f"Game code, {gamecode}, did not return any data.")
-
-            shots_df = pd.DataFrame(data['Rows'])
-
-            # team id, player id and action id contain trailing white space
-
-            if not shots_df.empty:
-
-                shots_df['TEAM'] = shots_df['TEAM'].str.strip()
-
-                shots_df['ID_PLAYER'] = shots_df['ID_PLAYER'].str.strip()
-
-                shots_df['ID_ACTION'] = shots_df['ID_ACTION'].str.strip()
-
-                shots_df.insert(0, 'Season', season)
-
-                shots_df.insert(1, 'Gamecode', gamecode)
-
-            return shots_df
-
-        
-
-        def get_game_shot_data_single_season(season: int) -> pd.DataFrame:
-
-            """
-
-            A function that gets the shot data of *all* games in a single season
-
-            Args:
-
-                season (int): The start year of the season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the shot data of all games in a single
-
-                    season
-
-            """
-
-            data_df = get_season_data_from_game_data(season, get_game_shot_data)
-
-            return data_df
-
-        
-
-        def get_game_shot_data_multiple_seasons(
-
-            start_season: int, end_season: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the shot data of *all* games in a range of seasons
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the shot data of all games in range of
-
-                    seasons
-
-            """
-
-            df = get_range_seasons_data(
-
-                start_season, end_season, get_game_shot_data)
-
-            return df
-
-## Variables
+### ShotData
 
 ```python3
-MADE_ACTIONS
+class ShotData(
+    competition='E'
+)
+```
+
+A class for getting shot data.
+
+#### Attributes
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| competition | str | The competition code, inherited from the<br>`EuroLeagueData` class. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
+
+#### Ancestors (in MRO)
+
+* euroleague_api.EuroLeagueData.EuroLeagueData
+
+#### Class variables
+
+```python3
+BASE_URL
 ```
 
 ```python3
-MISSES_ACTIONS
+VERSION
 ```
 
-## Functions
+#### Methods
 
     
-### get_game_shot_data
+#### get_game_metadata_season
+
+```python3
+def get_game_metadata_season(
+    self,
+    season: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that returns the game metadata, e.g. gamecodes of season
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the season's game metadata, e.g.<br>gamecode, score, home-away teams, date, round, etc. |
+
+    
+#### get_game_shot_data
 
 ```python3
 def get_game_shot_data(
+    self,
     season: int,
     gamecode: int
 ) -> pandas.core.frame.DataFrame
@@ -168,70 +84,12 @@ A function that gets the shot data of a particular game.
 |---|---|
 | pd.DataFrame | A dataframe with the shot data of the game. |
 
-??? example "View Source"
-        def get_game_shot_data(season: int, gamecode: int) -> pd.DataFrame:
-
-            """
-
-            A function that gets the shot data of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the shot data of the game.
-
-            """
-
-            url = "https://live.euroleague.net/api/Points"
-
-            params = {
-
-                "gamecode": gamecode,
-
-                "seasoncode": f"E{season}"
-
-            }
-
-            r = get_requests(url, params=params)
-
-            try:
-
-                data = r.json()
-
-            except JSONDecodeError:
-
-                raise ValueError(f"Game code, {gamecode}, did not return any data.")
-
-            shots_df = pd.DataFrame(data['Rows'])
-
-            # team id, player id and action id contain trailing white space
-
-            if not shots_df.empty:
-
-                shots_df['TEAM'] = shots_df['TEAM'].str.strip()
-
-                shots_df['ID_PLAYER'] = shots_df['ID_PLAYER'].str.strip()
-
-                shots_df['ID_ACTION'] = shots_df['ID_ACTION'].str.strip()
-
-                shots_df.insert(0, 'Season', season)
-
-                shots_df.insert(1, 'Gamecode', gamecode)
-
-            return shots_df
-
     
-### get_game_shot_data_multiple_seasons
+#### get_game_shot_data_multiple_seasons
 
 ```python3
 def get_game_shot_data_multiple_seasons(
+    self,
     start_season: int,
     end_season: int
 ) -> pandas.core.frame.DataFrame
@@ -250,44 +108,14 @@ A function that gets the shot data of *all* games in a range of seasons
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with the shot data of all games in range of<br>seasons |
-
-??? example "View Source"
-        def get_game_shot_data_multiple_seasons(
-
-            start_season: int, end_season: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the shot data of *all* games in a range of seasons
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the shot data of all games in range of
-
-                    seasons
-
-            """
-
-            df = get_range_seasons_data(
-
-                start_season, end_season, get_game_shot_data)
-
-            return df
+| pd.DataFrame | A dataframe with the shot data of all games in range<br>of seasons |
 
     
-### get_game_shot_data_single_season
+#### get_game_shot_data_single_season
 
 ```python3
 def get_game_shot_data_single_season(
+    self,
     season: int
 ) -> pandas.core.frame.DataFrame
 ```
@@ -304,27 +132,88 @@ A function that gets the shot data of *all* games in a single season
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with the shot data of all games in a single<br>season |
+| pd.DataFrame | A dataframe with the shot data of all games in a<br>single season |
 
-??? example "View Source"
-        def get_game_shot_data_single_season(season: int) -> pd.DataFrame:
+    
+#### get_range_seasons_data
 
-            """
+```python3
+def get_range_seasons_data(
+    self,
+    start_season: int,
+    end_season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
 
-            A function that gets the shot data of *all* games in a single season
+A wrapper function with the all game data in a range of seasons
 
-            Args:
+**Parameters:**
 
-                season (int): The start year of the season
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+| end_season | int | The start year of teh end season | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison | None |
 
-            Returns:
+**Returns:**
 
-                pd.DataFrame: A dataframe with the shot data of all games in a single
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game data |
 
-                    season
+    
+#### get_season_data_from_game_data
 
-            """
+```python3
+def get_season_data_from_game_data(
+    self,
+    season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
 
-            data_df = get_season_data_from_game_data(season, get_game_shot_data)
+A wrapper function for getting game data for all games in a single
 
-            return data_df
+season.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game data. |
+
+    
+#### make_season_game_url
+
+```python3
+def make_season_game_url(
+    self,
+    season: int,
+    game_code: int,
+    endpoint: str
+) -> str
+```
+
+Concatenates the base URL and makes the game url.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| game_code | int | The code of the game. Find the code from<br>Euroleague's website | None |
+| endpoint | str | The endpoint of the API | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| str | the full URL |

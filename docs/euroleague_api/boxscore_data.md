@@ -1,333 +1,79 @@
 # Module euroleague_api.boxscore_data
 
-??? example "View Source"
-        import pandas as pd
+## Classes
 
-        from .utils import raise_error
+### BoxScoreData
 
-        from .utils import get_boxscore_data
+```python3
+class BoxScoreData(
+    competition='E'
+)
+```
 
-        from .utils import get_season_data_from_game_data
+A class for getting box-score data
 
-        from .utils import get_range_seasons_data
+#### Attributes
 
-        
+| Name | Type | Description | Default |
+|---|---|---|---|
+| competition | str | The competition code, inherited from the<br>`EuroLeagueData` class. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
 
-        def get_game_boxscore_quarter_data(
+#### Ancestors (in MRO)
 
-                season: int,
+* euroleague_api.EuroLeagueData.EuroLeagueData
 
-                gamecode: int,
+#### Class variables
 
-                boxscore_type: str = "ByQuarter"
+```python3
+BASE_URL
+```
 
-        ) -> pd.DataFrame:
+```python3
+VERSION
+```
 
-            """
-
-            A function that gets the boxscore quarterly data of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-                boxscore_type (str): The type of quarter boxscore data.
-
-                    Available values:
-
-                    - ByQuarter
-
-                    - EndOfQuarter
-
-                    Default: ByQuarter
-
-            Raises:
-
-                ValueError: If boxscore_type value is not valid.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the boxscore quarter data of the game.
-
-            """
-
-            valid_vals = ["ByQuarter", "EndOfQuarter"]
-
-            if boxscore_type not in valid_vals:
-
-                raise_error(boxscore_type, "Boxscore quarter type", valid_vals, False)
-
-            data = get_boxscore_data(season, gamecode, boxscore_type)
-
-            df = pd.json_normalize(data)
-
-            df.insert(0, 'Season', season)
-
-            df.insert(1, 'Gamecode', gamecode)
-
-            return df
-
-        
-
-        def get_player_boxscore_stats_data(
-
-            season: int,
-
-            gamecode: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            The players' and team's total stats of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with home and away team player stats
-
-            """
-
-            data = get_boxscore_data(season, gamecode, "Stats")
-
-            home_df = pd.concat([
-
-                pd.json_normalize(data[0]["PlayersStats"]),
-
-                pd.json_normalize(data[0]["tmr"]),
-
-                pd.json_normalize(data[0]["totr"])
-
-            ])
-
-            home_df.reset_index(drop=True, inplace=True)
-
-            home_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
-
-            home_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
-
-            home_df["Team"] = home_df["Team"].fillna(method="ffill")
-
-            home_df.insert(0, 'Season', season)
-
-            home_df.insert(1, 'Gamecode', gamecode)
-
-            home_df.insert(2, "Home", 1)
-
-            away_df = pd.concat([
-
-                pd.json_normalize(data[1]["PlayersStats"]),
-
-                pd.json_normalize(data[1]["tmr"]),
-
-                pd.json_normalize(data[1]["totr"])
-
-            ])
-
-            away_df.reset_index(drop=True, inplace=True)
-
-            away_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
-
-            away_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
-
-            away_df["Team"] = away_df["Team"].fillna(method="ffill")
-
-            away_df.insert(0, 'Season', season)
-
-            away_df.insert(1, 'Gamecode', gamecode)
-
-            away_df.insert(2, "Home", 0)
-
-            df = pd.concat([home_df, away_df], axis=0)
-
-            return df
-
-        
-
-        def get_game_boxscore_quarter_data_single_season(
-
-            season: int,
-
-            boxscore_type: str = "ByQuarter"
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the boxscore quarter data of *all* games in a single
-
-            season
-
-            Args:
-
-                season (int): The start year of the season
-
-                boxscore_type (str): The type of quarter boxscore data.
-
-                Available values:
-
-                    - ByQuarter
-
-                    - EndOfQuarter
-
-                Default: ByQuarter
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the boxscore quarter data of all games
-
-                    in a single season
-
-            """
-
-            get_game_boxscore_quarter_data_ = (
-
-                lambda season, gamecode: get_game_boxscore_quarter_data(
-
-                    season, gamecode, boxscore_type)
-
-            )
-
-            data_df = get_season_data_from_game_data(
-
-                season, get_game_boxscore_quarter_data_)
-
-            return data_df
-
-        
-
-        def get_game_boxscore_quarter_data_multiple_seasons(
-
-            start_season: int, end_season: int, boxscore_type: str = "ByQuarter"
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the play-by-play data of *all* games in a range of
-
-            seasons
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-                boxscore_type (str): The type of quarter boxscore data.
-
-                    Available values:
-
-                    - ByQuarter
-
-                    - EndOfQuarter
-
-                    Default: ByQuarter
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the boxscore quarter data of all games
-
-                    in range of seasons
-
-            """
-
-            get_game_boxscore_quarter_data_ = (
-
-                lambda season, gamecode: get_game_boxscore_quarter_data(
-
-                    season, gamecode, boxscore_type)
-
-            )
-
-            df = get_range_seasons_data(
-
-                start_season, end_season, get_game_boxscore_quarter_data_)
-
-            return df
-
-        
-
-        def get_player_boxscore_stats_single_season(season: int) -> pd.DataFrame:
-
-            """
-
-            A function that return the player boxscore stats for all games in a
-
-            single season
-
-            Args:
-
-                season (int): The start year of the start season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with home and away team player stats for a
-
-                    season
-
-            """
-
-            data_df = get_season_data_from_game_data(
-
-                season, get_player_boxscore_stats_data)
-
-            return data_df
-
-        
-
-        def get_player_boxscore_stats_multiple_seasons(
-
-            start_season: int,
-
-            end_season: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that return the player boxscore stats for all games in
-
-            multiple season
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with home and away team player stats for a
-
-                    season
-
-            """
-
-            data_df = get_range_seasons_data(
-
-                start_season, end_season, get_player_boxscore_stats_data)
-
-            return data_df
-
-## Functions
+#### Methods
 
     
-### get_game_boxscore_quarter_data
+#### get_boxscore_data
+
+```python3
+def get_boxscore_data(
+    self,
+    season: int,
+    gamecode: int,
+    boxscore_type: str = 'ByQuarter'
+) -> List[dict]
+```
+
+A helper function that gets the boxscore data of a particular data.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| gamecode | int | The game-code of the game of interest.<br>It can be found on Euroleague's website. | None |
+| boxscore_type | str | The type of quarter boxscore data.<br>Available values:<br>- Stats<br>- ByQuarter<br>- EndOfQuarter<br>Defaults to "ByQuarter". | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| List[dict] | A list of dictionaries with the data. |
+
+**Raises:**
+
+| Type | Description |
+|---|---|
+| ValueError | If boxscore_type value is not valid. |
+
+    
+#### get_game_boxscore_quarter_data
 
 ```python3
 def get_game_boxscore_quarter_data(
+    self,
     season: int,
     gamecode: int,
     boxscore_type: str = 'ByQuarter'
@@ -348,7 +94,7 @@ A function that gets the boxscore quarterly data of a particular game.
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with the boxscore quarter data of the game. |
+| pd.DataFrame | A dataframe with the boxscore quarter data of the<br>game. |
 
 **Raises:**
 
@@ -356,70 +102,12 @@ A function that gets the boxscore quarterly data of a particular game.
 |---|---|
 | ValueError | If boxscore_type value is not valid. |
 
-??? example "View Source"
-        def get_game_boxscore_quarter_data(
-
-                season: int,
-
-                gamecode: int,
-
-                boxscore_type: str = "ByQuarter"
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the boxscore quarterly data of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-                boxscore_type (str): The type of quarter boxscore data.
-
-                    Available values:
-
-                    - ByQuarter
-
-                    - EndOfQuarter
-
-                    Default: ByQuarter
-
-            Raises:
-
-                ValueError: If boxscore_type value is not valid.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the boxscore quarter data of the game.
-
-            """
-
-            valid_vals = ["ByQuarter", "EndOfQuarter"]
-
-            if boxscore_type not in valid_vals:
-
-                raise_error(boxscore_type, "Boxscore quarter type", valid_vals, False)
-
-            data = get_boxscore_data(season, gamecode, boxscore_type)
-
-            df = pd.json_normalize(data)
-
-            df.insert(0, 'Season', season)
-
-            df.insert(1, 'Gamecode', gamecode)
-
-            return df
-
     
-### get_game_boxscore_quarter_data_multiple_seasons
+#### get_game_boxscore_quarter_data_multiple_seasons
 
 ```python3
 def get_game_boxscore_quarter_data_multiple_seasons(
+    self,
     start_season: int,
     end_season: int,
     boxscore_type: str = 'ByQuarter'
@@ -442,72 +130,22 @@ seasons
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with the boxscore quarter data of all games<br>in range of seasons |
-
-??? example "View Source"
-        def get_game_boxscore_quarter_data_multiple_seasons(
-
-            start_season: int, end_season: int, boxscore_type: str = "ByQuarter"
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the play-by-play data of *all* games in a range of
-
-            seasons
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-                boxscore_type (str): The type of quarter boxscore data.
-
-                    Available values:
-
-                    - ByQuarter
-
-                    - EndOfQuarter
-
-                    Default: ByQuarter
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the boxscore quarter data of all games
-
-                    in range of seasons
-
-            """
-
-            get_game_boxscore_quarter_data_ = (
-
-                lambda season, gamecode: get_game_boxscore_quarter_data(
-
-                    season, gamecode, boxscore_type)
-
-            )
-
-            df = get_range_seasons_data(
-
-                start_season, end_season, get_game_boxscore_quarter_data_)
-
-            return df
+| pd.DataFrame | A dataframe with the boxscore quarter data of all<br>games in range of seasons |
 
     
-### get_game_boxscore_quarter_data_single_season
+#### get_game_boxscore_quarter_data_single_season
 
 ```python3
 def get_game_boxscore_quarter_data_single_season(
+    self,
     season: int,
     boxscore_type: str = 'ByQuarter'
 ) -> pandas.core.frame.DataFrame
 ```
 
-A function that gets the boxscore quarter data of *all* games in a single
+A function that gets the boxscore quarter data of *all* games in a
 
-season
+single season
 
 **Parameters:**
 
@@ -522,64 +160,38 @@ season
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with the boxscore quarter data of all games<br>in a single season |
-
-??? example "View Source"
-        def get_game_boxscore_quarter_data_single_season(
-
-            season: int,
-
-            boxscore_type: str = "ByQuarter"
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that gets the boxscore quarter data of *all* games in a single
-
-            season
-
-            Args:
-
-                season (int): The start year of the season
-
-                boxscore_type (str): The type of quarter boxscore data.
-
-                Available values:
-
-                    - ByQuarter
-
-                    - EndOfQuarter
-
-                Default: ByQuarter
-
-            Returns:
-
-                pd.DataFrame: A dataframe with the boxscore quarter data of all games
-
-                    in a single season
-
-            """
-
-            get_game_boxscore_quarter_data_ = (
-
-                lambda season, gamecode: get_game_boxscore_quarter_data(
-
-                    season, gamecode, boxscore_type)
-
-            )
-
-            data_df = get_season_data_from_game_data(
-
-                season, get_game_boxscore_quarter_data_)
-
-            return data_df
+| pd.DataFrame | A dataframe with the boxscore quarter data of all<br>games in a single season |
 
     
-### get_player_boxscore_stats_data
+#### get_game_metadata_season
+
+```python3
+def get_game_metadata_season(
+    self,
+    season: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that returns the game metadata, e.g. gamecodes of season
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the season's game metadata, e.g.<br>gamecode, score, home-away teams, date, round, etc. |
+
+    
+#### get_player_boxscore_stats_data
 
 ```python3
 def get_player_boxscore_stats_data(
+    self,
     season: int,
     gamecode: int
 ) -> pandas.core.frame.DataFrame
@@ -600,92 +212,12 @@ The players' and team's total stats of a particular game.
 |---|---|
 | pd.DataFrame | A dataframe with home and away team player stats |
 
-??? example "View Source"
-        def get_player_boxscore_stats_data(
-
-            season: int,
-
-            gamecode: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            The players' and team's total stats of a particular game.
-
-            Args:
-
-                season (int): The start year of the season
-
-                gamecode (int): The game-code of the game of interest.
-
-                    It can be found on Euroleague's website.
-
-            Returns:
-
-                pd.DataFrame: A dataframe with home and away team player stats
-
-            """
-
-            data = get_boxscore_data(season, gamecode, "Stats")
-
-            home_df = pd.concat([
-
-                pd.json_normalize(data[0]["PlayersStats"]),
-
-                pd.json_normalize(data[0]["tmr"]),
-
-                pd.json_normalize(data[0]["totr"])
-
-            ])
-
-            home_df.reset_index(drop=True, inplace=True)
-
-            home_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
-
-            home_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
-
-            home_df["Team"] = home_df["Team"].fillna(method="ffill")
-
-            home_df.insert(0, 'Season', season)
-
-            home_df.insert(1, 'Gamecode', gamecode)
-
-            home_df.insert(2, "Home", 1)
-
-            away_df = pd.concat([
-
-                pd.json_normalize(data[1]["PlayersStats"]),
-
-                pd.json_normalize(data[1]["tmr"]),
-
-                pd.json_normalize(data[1]["totr"])
-
-            ])
-
-            away_df.reset_index(drop=True, inplace=True)
-
-            away_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
-
-            away_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
-
-            away_df["Team"] = away_df["Team"].fillna(method="ffill")
-
-            away_df.insert(0, 'Season', season)
-
-            away_df.insert(1, 'Gamecode', gamecode)
-
-            away_df.insert(2, "Home", 0)
-
-            df = pd.concat([home_df, away_df], axis=0)
-
-            return df
-
     
-### get_player_boxscore_stats_multiple_seasons
+#### get_player_boxscore_stats_multiple_seasons
 
 ```python3
 def get_player_boxscore_stats_multiple_seasons(
+    self,
     start_season: int,
     end_season: int
 ) -> pandas.core.frame.DataFrame
@@ -706,48 +238,14 @@ multiple season
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with home and away team player stats for a<br>season |
-
-??? example "View Source"
-        def get_player_boxscore_stats_multiple_seasons(
-
-            start_season: int,
-
-            end_season: int
-
-        ) -> pd.DataFrame:
-
-            """
-
-            A function that return the player boxscore stats for all games in
-
-            multiple season
-
-            Args:
-
-                start_season (int): The start year of the start season
-
-                end_season (int): The start year of the end season
-
-            Returns:
-
-                pd.DataFrame: A dataframe with home and away team player stats for a
-
-                    season
-
-            """
-
-            data_df = get_range_seasons_data(
-
-                start_season, end_season, get_player_boxscore_stats_data)
-
-            return data_df
+| pd.DataFrame | A dataframe with home and away team player stats for<br>a season |
 
     
-### get_player_boxscore_stats_single_season
+#### get_player_boxscore_stats_single_season
 
 ```python3
 def get_player_boxscore_stats_single_season(
+    self,
     season: int
 ) -> pandas.core.frame.DataFrame
 ```
@@ -766,31 +264,88 @@ single season
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframe with home and away team player stats for a<br>season |
+| pd.DataFrame | A dataframe with home and away team player stats for<br>a season |
 
-??? example "View Source"
-        def get_player_boxscore_stats_single_season(season: int) -> pd.DataFrame:
+    
+#### get_range_seasons_data
 
-            """
+```python3
+def get_range_seasons_data(
+    self,
+    start_season: int,
+    end_season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
 
-            A function that return the player boxscore stats for all games in a
+A wrapper function with the all game data in a range of seasons
 
-            single season
+**Parameters:**
 
-            Args:
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+| end_season | int | The start year of teh end season | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison | None |
 
-                season (int): The start year of the start season
+**Returns:**
 
-            Returns:
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game data |
 
-                pd.DataFrame: A dataframe with home and away team player stats for a
+    
+#### get_season_data_from_game_data
 
-                    season
+```python3
+def get_season_data_from_game_data(
+    self,
+    season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
 
-            """
+A wrapper function for getting game data for all games in a single
 
-            data_df = get_season_data_from_game_data(
+season.
 
-                season, get_player_boxscore_stats_data)
+**Parameters:**
 
-            return data_df
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game data. |
+
+    
+#### make_season_game_url
+
+```python3
+def make_season_game_url(
+    self,
+    season: int,
+    game_code: int,
+    endpoint: str
+) -> str
+```
+
+Concatenates the base URL and makes the game url.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| game_code | int | The code of the game. Find the code from<br>Euroleague's website | None |
+| endpoint | str | The endpoint of the API | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| str | the full URL |

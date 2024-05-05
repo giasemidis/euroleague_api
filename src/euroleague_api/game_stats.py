@@ -1,179 +1,242 @@
 import pandas as pd
-from .utils import get_season_data_from_game_data
-from .utils import get_range_seasons_data
-from .utils import get_game_data
+from .EuroLeagueData import EuroLeagueData
+from .utils import (
+    raise_error,
+    get_requests
+)
 
 
-def get_game_report(season: int, game_code: int) -> pd.DataFrame:
+class GameStats(EuroLeagueData):
     """
-    Get game report data for a game
+    A class for getting the game related stats and data.
 
     Args:
-        season (int): The start year of the season
-        game_code (int): The game code of the game of interest. It can be found
-            on Euroleague's website.
-
-    Returns:
-        pd.DataFrame: A dataframw with the game report data
+        competition (str, optional): The competition code, inherited from the
+            `EuroLeagueData` class. Choose one of:
+            - 'E' for Euroleague
+            - 'U' for Eurocup
+            Defaults to "E".
     """
-    df = get_game_data(season, game_code, "report")
-    return df
 
+    def get_game_data(
+        self,
+        season: int,
+        game_code: int,
+        endpoint: str
+    ) -> pd.DataFrame:
+        """
+        A wrapper function for getting game-level data.
 
-def get_game_reports_single_season(season: int) -> pd.DataFrame:
-    """
-    Get game report data for *all* games in a single season
+        Args:
 
-    Args:
-        season (int): The start year of the season
+            season (int): The start year of the season
 
-    Returns:
-        pd.DataFrame: A dataframe with game report data
-    """
-    data_df = get_season_data_from_game_data(season, get_game_report)
-    return data_df
+            game_code (int): The game code of the game of interest.
+                Find the game code from Euroleague's website
 
+            endpoint (str): The type of game data, available variables:
+                - report
+                - stats
+                - teamsComparison
 
-def get_game_reports_range_seasons(
-    start_season: int,
-    end_season: int
-) -> pd.DataFrame:
-    """
-    Get game report data for *all* games in a range of seasons
+        Raises:
 
-    Args:
+            ValueError: If input endpoint is not applicable.
 
-        start_season (int): The start year of the start season
+        Returns:
 
-        end_season (int): The start year of the end season
+            pd.DataFrame: A dataframe with the game data.
+        """
+        game_endpoints = ["report", "stats", "teamsComparison"]
 
-    Returns:
+        raise_error(endpoint, "Statistic type", game_endpoints, False)
 
-        pd.DataFrame: A dataframe with game report data
-    """
-    df = get_range_seasons_data(start_season, end_season, get_game_report)
-    return df
+        url_ = self.make_season_game_url(season, game_code, endpoint)
+        r = get_requests(url_)
 
+        data = r.json()
+        df = pd.json_normalize(data)
+        df.insert(0, "Season", season)
+        if "gameCode" in df.columns:
+            df.rename(columns={"gameCode": "Gamecode"}, inplace=True)
+        else:
+            df.insert(1, "Gamecode", game_code)
+        if "round" in df.columns:
+            df.rename(columns={"round": "Round"}, inplace=True)
 
-def get_game_stats(season: int, game_code: int) -> pd.DataFrame:
-    """
-    Get game stats data for single game
+        return df
 
-    Args:
+    def get_game_report(self, season: int, game_code: int) -> pd.DataFrame:
+        """
+        Get game report data for a game
 
-        season (int): The start year of the season
+        Args:
+            season (int): The start year of the season
+            game_code (int): The game code of the game of interest. It can be
+                found on Euroleague's website.
 
-        game_code (int): The game code of the game of interest. It can be found
-            on Euroleague's website.
+        Returns:
+            pd.DataFrame: A dataframw with the game report data
+        """
+        df = self.get_game_data(season, game_code, "report")
+        return df
 
-    Returns:
+    def get_game_reports_single_season(self, season: int) -> pd.DataFrame:
+        """
+        Get game report data for *all* games in a single season
 
-        pd.DataFrame: A dataframe with the games' stats data
-    """
-    df = get_game_data(season, game_code, "stats")
-    return df
+        Args:
+            season (int): The start year of the season
 
+        Returns:
+            pd.DataFrame: A dataframe with game report data
+        """
+        data_df = self.get_season_data_from_game_data(
+            season, self.get_game_report)
+        return data_df
 
-def get_game_stats_single_season(season: int) -> pd.DataFrame:
-    """
-    Get game stats data for *all* games in a single season
+    def get_game_reports_range_seasons(
+        self,
+        start_season: int,
+        end_season: int
+    ) -> pd.DataFrame:
+        """
+        Get game report data for *all* games in a range of seasons
 
-    Args:
+        Args:
 
-        season (int): The start year of the season
+            start_season (int): The start year of the start season
 
-    Returns:
+            end_season (int): The start year of the end season
 
-        pd.DataFrame: A dataframe with the games' stats data
-    """
-    data_df = get_season_data_from_game_data(season, get_game_stats)
-    return data_df
+        Returns:
 
+            pd.DataFrame: A dataframe with game report data
+        """
+        df = self.get_range_seasons_data(
+            start_season, end_season, self.get_game_report)
+        return df
 
-def get_game_stats_range_seasons(
-    start_season: int,
-    end_season: int
-) -> pd.DataFrame:
-    """
-    Get game stats data for *all* games in a range of seasons
+    def get_game_stats(self, season: int, game_code: int) -> pd.DataFrame:
+        """
+        Get game stats data for single game
 
-    Args:
+        Args:
 
-        start_season (int): The start year of the start season
+            season (int): The start year of the season
 
-        end_season (int): The start year of the end season
+            game_code (int): The game code of the game of interest. It can be
+                found on Euroleague's website.
 
-    Returns:
+        Returns:
 
-        pd.DataFrame: A dataframe with the games' stats data
-    """
-    df = get_range_seasons_data(start_season, end_season, get_game_stats)
-    return df
+            pd.DataFrame: A dataframe with the games' stats data
+        """
+        df = self.get_game_data(season, game_code, "stats")
+        return df
 
+    def get_game_stats_single_season(self, season: int) -> pd.DataFrame:
+        """
+        Get game stats data for *all* games in a single season
 
-def get_game_teams_comparison(
-    season: int,
-    game_code: int
-) -> pd.DataFrame:
-    """
-    A function that gets the "teams comparison" game stats for a single game.
-    This is the *pre-game* stats. Hence gamecodes of round 1 of each season are
-    not available.
+        Args:
 
-    Args:
+            season (int): The start year of the season
 
-        season (int): The start year of the season
+        Returns:
 
-        game_code (int): The game code of the game of interest. It can be found
-            on Euroleague's website.
+            pd.DataFrame: A dataframe with the games' stats data
+        """
+        data_df = self.get_season_data_from_game_data(
+            season, self.get_game_stats)
+        return data_df
 
-    Returns:
+    def get_game_stats_range_seasons(
+        self,
+        start_season: int,
+        end_season: int
+    ) -> pd.DataFrame:
+        """
+        Get game stats data for *all* games in a range of seasons
 
-        pd.DataFrame: A dataframe with games teams comparison stats
-    """
-    df = get_game_data(season, game_code, "teamsComparison")
-    return df
+        Args:
 
+            start_season (int): The start year of the start season
 
-def get_game_teams_comparison_single_season(season: int) -> pd.DataFrame:
-    """
-    A function that gets the pre-grame "teams comparison" game stats for *all*
-    games in a single season.
+            end_season (int): The start year of the end season
 
-    Args:
+        Returns:
 
-        season (int): The start year of the season
+            pd.DataFrame: A dataframe with the games' stats data
+        """
+        df = self.get_range_seasons_data(
+            start_season, end_season, self.get_game_stats)
+        return df
 
-    Returns:
+    def get_game_teams_comparison(
+        self,
+        season: int,
+        game_code: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the "teams comparison" game stats for a single
+        game. This is the *pre-game* stats. Hence gamecodes of round 1 of each
+        season are not available.
 
-        pd.DataFrame: A dataframe with games teams comparison stats
-    """
-    data_df = get_season_data_from_game_data(
-        season, get_game_teams_comparison)
-    return data_df
+        Args:
 
+            season (int): The start year of the season
 
-def get_game_teams_comparison_range_seasons(
-    start_season: int,
-    end_season: int
-) -> pd.DataFrame:
-    """
-    A function that gets the pre-game "teams comparison" game stats for *all*
-    in a range seasons
+            game_code (int): The game code of the game of interest. It can be
+                found on Euroleague's website.
 
-    Args:
+        Returns:
 
-        start_season (int): The start year of the star season
+            pd.DataFrame: A dataframe with games teams comparison stats
+        """
+        df = self.get_game_data(season, game_code, "teamsComparison")
+        return df
 
-        end_season (int): The start year of the end season
+    def get_game_teams_comparison_single_season(
+            self, season: int) -> pd.DataFrame:
+        """
+        A function that gets the pre-grame "teams comparison" game stats for
+        *all* games in a single season.
 
-    Returns:
+        Args:
 
-        pd.DataFrame: A dataframe with games teams comparison stats
-    """
-    df = get_range_seasons_data(
-        start_season,
-        end_season,
-        get_game_teams_comparison
-    )
-    return df
+            season (int): The start year of the season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with games teams comparison stats
+        """
+        data_df = self.get_season_data_from_game_data(
+            season, self.get_game_teams_comparison)
+        return data_df
+
+    def get_game_teams_comparison_range_seasons(
+        self,
+        start_season: int,
+        end_season: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the pre-game "teams comparison" game stats for
+        *all* in a range seasons
+
+        Args:
+
+            start_season (int): The start year of the star season
+
+            end_season (int): The start year of the end season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with games teams comparison stats
+        """
+        df = self.get_range_seasons_data(
+            start_season,
+            end_season,
+            self.get_game_teams_comparison
+        )
+        return df

@@ -1,26 +1,38 @@
-# Module euroleague_api.standings
+# Module euroleague_api.EuroLeagueData
+
+## Variables
+
+```python3
+logger
+```
 
 ## Classes
 
-### Standings
+### EuroLeagueData
 
 ```python3
-class Standings(
+class EuroLeagueData(
     competition='E'
 )
 ```
 
-A class for getting standings data.
+Base class for collecting Euroleague and Eurocup competition's data.
 
 #### Attributes
 
 | Name | Type | Description | Default |
 |---|---|---|---|
-| competition | str | The competition code, inherited from the<br>`EuroLeagueData` class. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
+| competition | str | The competition code. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
 
-#### Ancestors (in MRO)
+#### Descendants
 
-* euroleague_api.EuroLeagueData.EuroLeagueData
+* euroleague_api.game_stats.GameStats
+* euroleague_api.player_stats.PlayerStats
+* euroleague_api.shot_data.ShotData
+* euroleague_api.standings.Standings
+* euroleague_api.team_stats.TeamStats
+* euroleague_api.play_by_play_data.PlayByPlay
+* euroleague_api.boxscore_data.BoxScoreData
 
 #### Class variables
 
@@ -113,43 +125,6 @@ season.
 | Type | Description |
 |---|---|
 | pd.DataFrame | A dataframe with the game data. |
-
-    
-#### get_standings
-
-```python3
-def get_standings(
-    self,
-    season: int,
-    round_number: int,
-    endpoint: str = 'basicstandings'
-) -> pandas.core.frame.DataFrame
-```
-
-Get the standings of round in given season
-
-Args:
-
-    season (int): The start year of the season
-
-    round_number (int): The round number
-
-    endpoint (str, optional): The type of standing.
-    One of the following options
-    - calendarstandings
-    - streaks
-    - aheadbehind
-    - margins
-    - basicstandings
-    Defaults to "basicstandings".
-
-Raises:
-
-    ValueError: If endpoint is not applicable
-
-Returns:
-
-    pd.DataFrame: A dataframe with the standings of the teams
 
     
 #### make_season_game_url
