@@ -27,39 +27,39 @@ See also the `notebooks/get-season-stats.ipynb` notebook for examples.
 
 ### Euroleague Data class
 
-[EuroleagueData.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/EuroLeagueData.html)
+[EuroleagueData.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/EuroLeagueData.html)
 
 ### Game stats
 
-[game_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/game_stats.html)
+[game_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/game_stats.html)
 
 ### Player stats
 
-[player_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/player_stats.html)
+[player_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/player_stats.html)
 
 ### Team stats
 
-[team_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/team_stats.html)
+[team_stats.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/team_stats.html)
 
 ### Standings
 
-[standings.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/standings.html)
+[standings.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/standings.html)
 
 ### Shot data
 
-[shot_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/shot_data.html)
+[shot_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/shot_data.html)
 
 ### Play-by-play data
 
-[play_by_play_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/play_by_play_data.html)
+[play_by_play_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/play_by_play_data.html)
 
 ### Boxscore data
 
-[boxscore_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/boxscore_data.html)
+[boxscore_data.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/boxscore_data.html)
 
 ### Auxiliary functions
 
-[utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/refactor-class-comp/site/euroleague_api/utils.html)
+[utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/utils.html)
 
 ## TODO
 
