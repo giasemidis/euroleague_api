@@ -1,5 +1,6 @@
 from typing import Optional
 import pandas as pd
+import numpy as np
 from .EuroLeagueData import EuroLeagueData
 from .boxscore_data import BoxScoreData
 from .utils import (
@@ -235,39 +236,41 @@ class TeamStats(EuroLeagueData):
             endpoint, params, phase_type_code, statistic_mode)
         return df
 
-    def get_advanced_team_stats_single_game(self, season: int, gamecode: int):
+    def get_team_advanced_stats_single_game(self, season: int, gamecode: int):
         """
         In this function we derive team advanced stats from a single game
         that are not provided by the API but can be easily estimated from
         stats that are given from the API, i.e.
-            - # Possessions
+            - Number of Possessions
             - Pace
         The formulas and definitions of these stats can be found in
-        [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)
+            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa
+            - [kenpom](https://kenpom.com/blog/the-possession/)
+            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa
 
         Args:
             season (int): The start year of the season
             gamecode (int): The game-code of the game of interest.
                 It can be found on Euroleague's website.
         """
-        boxscoredata = BoxScoreData()
+        boxscoredata = BoxScoreData(competition=self.competition)
         game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
             season=season, gamecode=gamecode)
         totals_df = (
             game_bxscr_stats[game_bxscr_stats["Player_ID"] == "Total"]
             .set_index("Team").T
         )
-        possessions_simple = (
-            (totals_df.loc["FieldGoalsAttempted2"] +
-             totals_df.loc["FieldGoalsAttempted3"])
-            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
-            - totals_df.loc["OffensiveRebounds"] + totals_df.loc["Turnovers"]
-        )
         fga = (totals_df.loc["FieldGoalsAttempted2"] +
                totals_df.loc["FieldGoalsAttempted3"])
 
         fgm = (totals_df.loc["FieldGoalsMade2"] +
                totals_df.loc["FieldGoalsMade3"])
+        possessions_simple = (
+            fga
+            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
+            - totals_df.loc["OffensiveRebounds"] + totals_df.loc["Turnovers"]
+        )
+
         possessions = (
             fga
             + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
@@ -280,18 +283,29 @@ class TeamStats(EuroLeagueData):
 
         df = pd.DataFrame(
             {
-                "Possesions (simple)": possessions_simple,
-                "Possessions": possessions
+                "Possessions (simple)": possessions_simple,
+                "Possessions": possessions,
             }
         )
+        df.loc["Game"] = [possessions_simple.mean(), possessions.mean()]
 
         min_played_ls = totals_df.loc["Minutes"][0].split(":")
         min_played = int(min_played_ls[0]) + float(min_played_ls[1]) / 60
+        min_factor = (min_played / 5)
 
-        df[["Pace (simple)", "Pace"]] = 40 * \
-            (df + df.values[::-1, :]) / (2 * (min_played / 5))
+        df["Pace (simple)"] = [
+            np.nan, np.nan, 40 * possessions_simple.mean() / min_factor
+        ]
+        df["Pace"] = [np.nan, np.nan, 40 * possessions.mean() / min_factor]
+        df["Season"] = season
+        df["Gamecode"] = gamecode
+        df["Home"] = [1, 0, np.nan]
 
-        df.insert(0, "Season", season)
-        df.insert(1, "Gamecode", gamecode)
-        df.insert(2, "Home", [1, 0])
+        df = df[
+            [
+                "Season", "Gamecode", "Home",
+                "Possessions (simple)", "Possessions",
+                "Pace (simple)", "Pace",
+            ]
+        ]
         return df
