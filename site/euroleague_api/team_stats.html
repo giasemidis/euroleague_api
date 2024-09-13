@@ -1072,6 +1072,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_game_metadata_season">get_game_metadata_season</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_range_seasons_data">get_range_seasons_data</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
+    <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game">get_team_advanced_stats_single_game</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats">get_team_stats</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_all_seasons">get_team_stats_all_seasons</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_range_seasons">get_team_stats_range_seasons</a></li>
@@ -1100,7 +1101,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <div id="source-euroleague_api.team_stats" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">.EuroLeagueData</span> <span class="kn">import</span> <span class="n">EuroLeagueData</span>
+<span class="kn">from</span> <span class="nn">.boxscore_data</span> <span class="kn">import</span> <span class="n">BoxScoreData</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">raise_error</span><span class="p">,</span>
     <span class="n">get_requests</span>
@@ -1332,6 +1335,80 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats</span><span class="p">(</span>
             <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_advanced_stats_single_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        In this function we derive team advanced stats from a single game</span>
+<span class="sd">        that are not provided by the API but can be easily estimated from</span>
+<span class="sd">        stats that are given from the API, i.e.</span>
+<span class="sd">            - Number of Possessions</span>
+<span class="sd">            - Pace</span>
+<span class="sd">        The formulas and definitions of these stats can be found in</span>
+<span class="sd">            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa</span>
+<span class="sd">            - [kenpom](https://kenpom.com/blog/the-possession/)</span>
+<span class="sd">            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            season (int): The start year of the season</span>
+<span class="sd">            gamecode (int): The game-code of the game of interest.</span>
+<span class="sd">                It can be found on Euroleague&#39;s website.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+        <span class="n">totals_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;Player_ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="p">)</span>
+        <span class="n">fga</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">]</span> <span class="o">+</span>
+               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">])</span>
+
+        <span class="n">fgm</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">]</span> <span class="o">+</span>
+               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">])</span>
+        <span class="n">possessions_simple</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fga</span>
+            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
+            <span class="o">-</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">possessions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fga</span>
+            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
+            <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
+                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">:</span> <span class="n">possessions_simple</span><span class="p">,</span>
+                <span class="s2">&quot;Possessions&quot;</span><span class="p">:</span> <span class="n">possessions</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Game&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()]</span>
+
+        <span class="n">min_played_ls</span> <span class="o">=</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Minutes&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">min_played</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">min_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_played</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace (simple)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span>
+        <span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Season&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">season</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Gamecode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamecode</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Pace (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Pace&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
         <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -1584,6 +1661,80 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats</span><span class="p">(</span>
             <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_advanced_stats_single_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        In this function we derive team advanced stats from a single game</span>
+<span class="sd">        that are not provided by the API but can be easily estimated from</span>
+<span class="sd">        stats that are given from the API, i.e.</span>
+<span class="sd">            - Number of Possessions</span>
+<span class="sd">            - Pace</span>
+<span class="sd">        The formulas and definitions of these stats can be found in</span>
+<span class="sd">            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa</span>
+<span class="sd">            - [kenpom](https://kenpom.com/blog/the-possession/)</span>
+<span class="sd">            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            season (int): The start year of the season</span>
+<span class="sd">            gamecode (int): The game-code of the game of interest.</span>
+<span class="sd">                It can be found on Euroleague&#39;s website.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+        <span class="n">totals_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;Player_ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="p">)</span>
+        <span class="n">fga</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">]</span> <span class="o">+</span>
+               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">])</span>
+
+        <span class="n">fgm</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">]</span> <span class="o">+</span>
+               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">])</span>
+        <span class="n">possessions_simple</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fga</span>
+            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
+            <span class="o">-</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">possessions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fga</span>
+            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
+            <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
+                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">:</span> <span class="n">possessions_simple</span><span class="p">,</span>
+                <span class="s2">&quot;Possessions&quot;</span><span class="p">:</span> <span class="n">possessions</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Game&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()]</span>
+
+        <span class="n">min_played_ls</span> <span class="o">=</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Minutes&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">min_played</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">min_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_played</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace (simple)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span>
+        <span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Season&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">season</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Gamecode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamecode</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Pace (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Pace&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
   </div>
@@ -1807,6 +1958,104 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
     <span class="k">else</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
     <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game">
+    <p>def <span class="ident">get_team_advanced_stats_single_game</span>(</p><p>self, season: int, gamecode: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>In this function we derive team advanced stats from a single game
+that are not provided by the API but can be easily estimated from
+stats that are given from the API, i.e.
+    - Number of Possessions
+    - Pace
+The formulas and definitions of these stats can be found in
+    - <a href="https://www.basketball-reference.com/about/glossary.html">Basketball-reference.com</a>  # noqa
+    - <a href="https://kenpom.com/blog/the-possession/">kenpom</a>
+    - <a href="https://hackastat.eu/en/learn-a-stat-possessions-and-pace/">hackastat</a>  # noqa</p>
+<p>Args:
+    season (int): The start year of the season
+    gamecode (int): The game-code of the game of interest.
+        It can be found on Euroleague's website.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_advanced_stats_single_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In this function we derive team advanced stats from a single game</span>
+<span class="sd">    that are not provided by the API but can be easily estimated from</span>
+<span class="sd">    stats that are given from the API, i.e.</span>
+<span class="sd">        - Number of Possessions</span>
+<span class="sd">        - Pace</span>
+<span class="sd">    The formulas and definitions of these stats can be found in</span>
+<span class="sd">        - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa</span>
+<span class="sd">        - [kenpom](https://kenpom.com/blog/the-possession/)</span>
+<span class="sd">        - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        gamecode (int): The game-code of the game of interest.</span>
+<span class="sd">            It can be found on Euroleague&#39;s website.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+    <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+    <span class="n">totals_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;Player_ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="p">)</span>
+    <span class="n">fga</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">]</span> <span class="o">+</span>
+           <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">])</span>
+    <span class="n">fgm</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">]</span> <span class="o">+</span>
+           <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">])</span>
+    <span class="n">possessions_simple</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">fga</span>
+        <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
+        <span class="o">-</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">possessions</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">fga</span>
+        <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
+        <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
+            <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">:</span> <span class="n">possessions_simple</span><span class="p">,</span>
+            <span class="s2">&quot;Possessions&quot;</span><span class="p">:</span> <span class="n">possessions</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Game&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()]</span>
+    <span class="n">min_played_ls</span> <span class="o">=</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Minutes&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="n">min_played</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span>
+    <span class="n">min_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_played</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace (simple)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span>
+    <span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Season&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">season</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Gamecode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamecode</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Pace (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Pace&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
   </div>

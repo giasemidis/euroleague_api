@@ -115,6 +115,35 @@ season.
 | pd.DataFrame | A dataframe with the game data. |
 
     
+#### get_team_advanced_stats_single_game
+
+```python3
+def get_team_advanced_stats_single_game(
+    self,
+    season: int,
+    gamecode: int
+)
+```
+
+In this function we derive team advanced stats from a single game
+
+that are not provided by the API but can be easily estimated from
+stats that are given from the API, i.e.
+    - Number of Possessions
+    - Pace
+The formulas and definitions of these stats can be found in
+    - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa
+    - [kenpom](https://kenpom.com/blog/the-possession/)
+    - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| gamecode | int | The game-code of the game of interest.<br>It can be found on Euroleague's website. | None |
+
+    
 #### get_team_stats
 
 ```python3

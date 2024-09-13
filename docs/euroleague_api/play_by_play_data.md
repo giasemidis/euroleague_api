@@ -139,6 +139,62 @@ season
 | pd.DataFrame | A dataframe with the play-by-play data of all games<br>in a single season |
 
     
+#### get_lineups_data
+
+```python3
+def get_lineups_data(
+    self,
+    season,
+    gamecode
+)
+```
+
+Get the teams' lineups and the minute of the game these lineups
+
+change.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| gamecode | int | The game-code of the game of interest.<br>It can be found on Euroleague's website. | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the lineups of the teams as they<br>change during the game (minute of change is provided) |
+
+    
+#### get_pbp_data_with_lineups
+
+```python3
+def get_pbp_data_with_lineups(
+    self,
+    season,
+    gamecode
+)
+```
+
+Get the play-by-play data enrighed with the teams lineups for
+
+every minute in the PBP data.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| gamecode | int | The game-code of the game of interest.<br>It can be found on Euroleague's website. | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the play-by-play enriched with<br>teams' line ups |
+
+    
 #### get_range_seasons_data
 
 ```python3
