@@ -1,6 +1,7 @@
 from typing import List
 from json.decoder import JSONDecodeError
 import pandas as pd
+import numpy as np
 from .EuroLeagueData import EuroLeagueData
 from .utils import (
     get_requests,
@@ -121,34 +122,40 @@ class BoxScoreData(EuroLeagueData):
         Returns:
             pd.DataFrame: A dataframe with home and away team player stats
         """
+
+        def dict_to_df_bx(datadict, home=1):
+            playerstats_df = pd.json_normalize(datadict["PlayersStats"])
+            teamstats_df = pd.json_normalize(datadict["tmr"])
+            totalstats_df = pd.json_normalize(datadict["totr"])
+            df = pd.concat(
+                [
+                    # fix types to avoid pandas futurewarning
+                    playerstats_df.astype(teamstats_df.dtypes),
+                    teamstats_df,
+                    totalstats_df
+                ],
+                ignore_index=True
+            )
+            if "Plusminus" in df.columns:
+                # replace None entries and fix data type
+                # this behaviour used to be automatic, but since version
+                # 2.1.0, pandas throws a futurewarning
+                df.loc[df["Plusminus"].isnull(), "Plusminus"] = np.nan
+                df["Plusminus"] = df["Plusminus"].astype(float)
+            df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
+            df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
+            df["Team"] = df["Team"].ffill()
+            df.insert(0, 'Season', season)
+            df.insert(1, 'Gamecode', gamecode)
+            df.insert(2, "Home", home)
+            return df
+
         data = self.get_boxscore_data(season, gamecode, "Stats")
-        home_df = pd.concat([
-            pd.json_normalize(data[0]["PlayersStats"]),
-            pd.json_normalize(data[0]["tmr"]),
-            pd.json_normalize(data[0]["totr"])
-        ])
-        home_df.reset_index(drop=True, inplace=True)
-        home_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
-        home_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
-        home_df["Team"] = home_df["Team"].fillna(method="ffill")
-        home_df.insert(0, 'Season', season)
-        home_df.insert(1, 'Gamecode', gamecode)
-        home_df.insert(2, "Home", 1)
 
-        away_df = pd.concat([
-            pd.json_normalize(data[1]["PlayersStats"]),
-            pd.json_normalize(data[1]["tmr"]),
-            pd.json_normalize(data[1]["totr"])
-        ])
-        away_df.reset_index(drop=True, inplace=True)
-        away_df.iloc[-2:, 0] = ["Team", "Total"]  # type: ignore
-        away_df.iloc[-2:, 5] = ["Team", "Total"]  # type: ignore
-        away_df["Team"] = away_df["Team"].fillna(method="ffill")
-        away_df.insert(0, 'Season', season)
-        away_df.insert(1, 'Gamecode', gamecode)
-        away_df.insert(2, "Home", 0)
+        home_df = dict_to_df_bx(data[0], home=1)
+        away_df = dict_to_df_bx(data[1], home=0)
 
-        df = pd.concat([home_df, away_df], axis=0)
+        df = pd.concat([home_df, away_df], axis=0, ignore_index=True)
         return df
 
     def get_game_boxscore_quarter_data_single_season(
