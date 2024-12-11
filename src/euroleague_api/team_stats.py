@@ -146,8 +146,8 @@ class TeamStats(EuroLeagueData):
         self,
         endpoint: str,
         season: int,
-        phase_type_code: str,
-        statistic_mode: str
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame"
     ) -> pd.DataFrame:
         """
         A function that returns the teams' stats in a single season
@@ -276,7 +276,7 @@ class TeamStats(EuroLeagueData):
             + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
             - 1.07 * (
                 totals_df.loc["OffensiveRebounds"] /
-                totals_df.loc["DefensiveRebounds", ::-1].values
+                totals_df.loc["DefensiveRebounds", ::-1]
             ) * (fga - fgm)
             + totals_df.loc["Turnovers"]
         )

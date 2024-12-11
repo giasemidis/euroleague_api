@@ -1,8 +1,11 @@
+import logging
 from json.decoder import JSONDecodeError
 import pandas as pd
 from .EuroLeagueData import EuroLeagueData
 from .boxscore_data import BoxScoreData
 from .utils import get_requests
+
+logger = logging.getLogger(__name__)
 
 
 class PlayByPlay(EuroLeagueData):
@@ -110,10 +113,33 @@ class PlayByPlay(EuroLeagueData):
             start_season, end_season, self.get_game_play_by_play_data)
         return df
 
-    def get_lineups_data(self, season, gamecode):
+    def get_pbp_data_with_lineups(self, season, gamecode, validate=True):
         """
-        Get the teams' lineups and the minute of the game these lineups
-        change.
+        Get the play-by-play (PBP) data enriched with the teams' lineups for
+        every action in the PBP data.
+
+        There are three cases where the player in the corresponding row
+        (action) is not part of the lineup:
+        1. When the player is subbed "OUT", the assigned lineup does not
+            contain player name. Since this is reasonable, the value of the
+            `validate_lineup_*` indicator is set to `True`.
+        2. A player passes on to a teamate, who draws a shooting foul. If the
+            passer is subbed before the first free throw and the first free
+            throw is made then the subbed player is given an assist. However,
+            the player is not in the extracted lineup because he has already
+            been subbed. The value of the `validate_on_court_player`
+            indicator is set to `False`. We don't fix the lineup, because it
+            breaks the lineup continuinity. It is a quirk of the data
+            collection andrecording.
+        3. There are a few instances where a sub is recorded many seconds and
+            actions since it actually happened. This causes issues, such as a
+            player records an actions, such as a rebound, but he comes on the
+            court (according to the data) many seconds after. This has been
+            validated by watching theactual footage of the game. This requires
+            a lot of manual work, which is beyond the score of this library.
+            It is another quirk of the datacollection and recording, hence the
+            value of the `validate_on_court_player` indicator is set to
+            `False`.
 
         Args:
 
@@ -122,11 +148,55 @@ class PlayByPlay(EuroLeagueData):
             gamecode (int): The game-code of the game of interest.
                 It can be found on Euroleague's website.
 
+            validate (bool, optional): A bool indicator whether to enrich the
+                dataframe with two extra columns, which validate the validity
+                and consistency of the extracted lineup. Defaults to True.
+
         Returns:
 
-            pd.DataFrame: A dataframe with the lineups of the teams as they
-                change during the game (minute of change is provided)
+            pd.DataFrame: A dataframe with the play-by-play enriched with
+                teams' lineups
         """
+        def process_sub(five, player, sub_type):
+            opp_sub_type = "OUT" if sub_type == "IN" else "IN"
+            potential_indx = (
+                pbp_data.loc[idx + 1:].index[
+                    (pbp_data.loc[idx + 1:, "PLAYTYPE"] == opp_sub_type)
+                ]
+            )
+            potential_nops = (
+                set(potential_indx).difference(processed_idxs)
+            )
+            matching_idx = min(potential_nops)
+            processed_idxs.append(idx)
+            processed_idxs.append(matching_idx)
+            matching_row = pbp_data.loc[matching_idx]
+            invalid_mask = (
+                (matching_row["PLAYTYPE"] != opp_sub_type) or
+                (matching_row["CODETEAM"] != team) or
+                (matching_row["MARKERTIME"] != markertime)
+            )
+            if invalid_mask:
+                logger.warning(
+                    f"Something went wrong for gamecode {gamecode} at sub "
+                    f"index {idx} with matching sub index {matching_idx}"
+                )
+            player_sub = matching_row["PLAYER"].replace(" ,", ",")
+            player_in = player if sub_type == "IN" else player_sub
+            player_out = player_sub if sub_type == "IN" else player
+            pindx = five.index(player_out)
+            five = five[:pindx] + [player_in] + five[pindx + 1:]
+            return five
+
+        def validate_player(x, col1, col2):
+            flag = False
+            if (x["PLAYER"] is not None) and (x["PLAYTYPE"] != "OUT"):
+                if x["PLAYER"].replace(" ,", ",") in (x[col1] + x[col2]):
+                    flag = True
+            else:
+                flag = True
+            return flag
+
         # Get the starting line-ups from boxscore data
         boxscoredata = BoxScoreData(competition=self.competition)
         game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
@@ -151,111 +221,48 @@ class PlayByPlay(EuroLeagueData):
         starting_five = starting_five[[home_team, away_team]]
         starting_five_dict = starting_five.to_dict(orient='list')
 
-        # Build the dataframe, whose first row is the starting lineups
-        df = pd.DataFrame(
-            {
-                "Season": [season],
-                "Gamecode": [gamecode],
-                "PERIOD": [1],
-                "MARKERTIME": ["10:00"],
-                "MINUTE": [1],
-                f"Lineup_{home_team}": [starting_five_dict[home_team]],
-                f"Lineup_{away_team}": [starting_five_dict[away_team]],
-            }
-        )
-
         # Fetch play-by-play data
         pbp_data = self.get_game_play_by_play_data(
             season=season, gamecode=gamecode)
 
-        # focus on the subs entries
-        subs_mask = pbp_data["PLAYTYPE"].isin(["IN", "OUT"])
-        subs_data = pbp_data[subs_mask].reset_index(drop=True)
+        # Asign the starting lineups to the first entry of the PBP data.
+        pbp_data[f"Lineup_{home_team}"] = None
+        pbp_data[f"Lineup_{away_team}"] = None
+        pbp_data.at[0, f"Lineup_{home_team}"] = starting_five_dict[home_team]
+        pbp_data.at[0, f"Lineup_{away_team}"] = starting_five_dict[away_team]
 
-        # pivot to create a dataframe with in/out player by minute and team
-        #  side by side, i.e. column-wise.
-        subs_data_pivot = subs_data.pivot_table(
-            index=["PERIOD", "MINUTE", "MARKERTIME", "CODETEAM"],
-            columns="PLAYTYPE",
-            values="PLAYER",
-            aggfunc=list
-        )
+        # start processing the sub entries, row by row.
+        processed_idxs = []
+        current_five_home = starting_five_dict[home_team].copy()
+        current_five_away = starting_five_dict[away_team].copy()
+        for idx, row in pbp_data.iterrows():
+            playtype = row["PLAYTYPE"]
+            # there are rare instances of an extra space in player name
+            player = (
+                row["PLAYER"] if row["PLAYER"] is None
+                else row["PLAYER"].replace(" ,", ",")
+            )
+            team = row["CODETEAM"]
+            markertime = row["MARKERTIME"]
+            if team != "":
+                is_home = home_team == team
+                five = current_five_home if is_home else current_five_away
+                if (playtype == "OUT") and (idx not in processed_idxs):
+                    five = process_sub(five, player, playtype)
+                elif (playtype == "IN") and (idx not in processed_idxs):
+                    five = process_sub(five, player, playtype)
+                if is_home:
+                    current_five_home = five
+                else:
+                    current_five_away = five
 
-        # iterate this dataframe and add/remove players from the line-up list
-        n = 0
-        home_existing_lineup = starting_five_dict[home_team]
-        away_existing_lineup = starting_five_dict[away_team]
-        for r, row in subs_data_pivot.iterrows():
-            period = r[0]
-            minute = r[1]
-            time = r[2]
-            team = r[3]
-            sub_d = dict(zip(row["OUT"], row["IN"]))
+            pbp_data.at[idx, f"Lineup_{home_team}"] = current_five_home
+            pbp_data.at[idx, f"Lineup_{away_team}"] = current_five_away
 
-            n += 1
-            if team == home_team:
-                home_new_lineup = [
-                    sub_d[u] if u in sub_d else u
-                    for u in home_existing_lineup
-                ]
-                home_existing_lineup = home_new_lineup.copy()
-
-                df.loc[n] = [season, gamecode, period, time,
-                             minute, home_new_lineup, away_existing_lineup]
-            else:
-                away_new_lineup = [
-                    sub_d[u] if u in sub_d else u
-                    for u in away_existing_lineup
-                ]
-                away_existing_lineup = away_new_lineup.copy()
-
-                df.loc[n] = [season, gamecode, period, time,
-                             minute, home_existing_lineup, away_new_lineup]
-
-        cols = ["Season", "Gamecode", "PERIOD", "MARKERTIME", "MINUTE"]
-        # If the two teams made subs in the same minute, these would have
-        # been recorded in two seperate lines in the for loop above.
-        # Fix the unique minute and keep the latest values of the subs lists.
-        line_ups_df = df.drop_duplicates(
-            cols, keep="last").reset_index(drop=True)
-
-        return line_ups_df
-
-    def get_pbp_data_with_lineups(self, season, gamecode):
-        """
-        Get the play-by-play data enrighed with the teams lineups for
-        every minute in the PBP data.
-
-        Args:
-
-            season (int): The start year of the season
-
-            gamecode (int): The game-code of the game of interest.
-                It can be found on Euroleague's website.
-
-        Returns:
-
-            pd.DataFrame: A dataframe with the play-by-play enriched with
-                teams' line ups
-        """
-        pbp_data = self.get_game_play_by_play_data(
-            season=season, gamecode=gamecode)
-        line_ups_df = self.get_lineups_data(
-            season=season, gamecode=gamecode)
-        # hack for consistency
-        pbp_data.loc[pbp_data["PLAYTYPE"] == "BP", "MARKERTIME"] = "10:00"
-
-        # cols = ["Season", "Gamecode", "PERIOD", "MARKERTIME", "MINUTE"]
-        # lineup_cols = [f"Lineup_{home_team}", f"Lineup_{away_team}"]
-        cols = list(line_ups_df.columns[:5])
-        lineup_cols = list(line_ups_df.columns[-2:])
-        # merge with PBP dataframe
-        pbp_lu_data = pbp_data.merge(line_ups_df, on=cols, how="left")
-        # update the starting lineups
-        pbp_lu_data.loc[0, lineup_cols] = line_ups_df.loc[0, lineup_cols]
-        # forward fill the lineups until a lineup entry changes
-        pbp_lu_data[lineup_cols] = pbp_lu_data[lineup_cols].ffill()
-        # fix hack
-        pbp_lu_data.loc[pbp_lu_data["PLAYTYPE"] == "BP", "MARKERTIME"] = ""
-
-        return pbp_lu_data
+        if validate:
+            lu_cols = [u for u in pbp_data.columns if u.startswith("Lineup_")]
+            pbp_data["validate_on_court_player"] = pbp_data.apply(
+                lambda x: validate_player(x, lu_cols[0], lu_cols[1]),
+                axis=1
+            )
+        return pbp_data

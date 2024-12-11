@@ -387,8 +387,8 @@ class PlayerStats(EuroLeagueData):
         self,
         endpoint: str,
         season: int,
-        phase_type_code: str,
-        statistic_mode: str
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame"
     ) -> pd.DataFrame:
         """
         The players' stats for a *single* season.
