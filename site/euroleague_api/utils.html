@@ -3,13 +3,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-  
+
   <title>euroleague_api.utils API documentation</title>
   <meta name="description" content="" />
 
 
   <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
-  
+
   <style type="text/css">
 * {
   box-sizing: border-box;
@@ -649,7 +649,7 @@ table {
 
   code {
     background: #f9f9f9;
-  } 
+  }
 
   pre {
     background: #fefefe;
@@ -666,7 +666,7 @@ table {
     .codehilite pre {
       margin: 0;
     }
-    .codehilite .err { background: #ff3300; color: #fff !important; } 
+    .codehilite .err { background: #ff3300; color: #fff !important; }
 
   table#module-list {
     font-size: 110%;
@@ -777,7 +777,7 @@ table {
       text-transform: uppercase;
       color: #fff;
       text-shadow: 1px 1px 0 #f4b700;
-      
+
       padding: 3px 8px;
       border-radius: 2px;
       transition: background .3s ease-in-out;
@@ -867,6 +867,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
 .codehilite .gd { color: #A00000 } /* Generic.Deleted */
 .codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 .codehilite .gr { color: #E40000 } /* Generic.Error */
 .codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
 .codehilite .gi { color: #008400 } /* Generic.Inserted */
@@ -1032,7 +1033,6 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <body>
 <a href="#" id="top">Top</a>
 <div id="container">
-  
 
 
 
@@ -1051,7 +1051,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 
 
-  
+
+
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
@@ -1062,7 +1063,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
+
   <ul>
     <li class="mono"><a href="#euroleague_api.utils.get_requests">get_requests</a></li>
     <li class="mono"><a href="#euroleague_api.utils.raise_error">raise_error</a></li>
@@ -1075,15 +1076,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </div>
 
 <article id="content">
-  
 
-  
+
+
 
 
   <header id="section-intro">
   <h1 class="title"><span class="name">euroleague_api.utils</span> module</h1>
-  
-  
+
+
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.utils', this);">Show source &equiv;</a></p>
   <div id="source-euroleague_api.utils" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
@@ -1167,15 +1168,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <section id="section-items">
 
     <h2 class="section-title" id="header-functions">Functions</h2>
-      
+
   <div class="item">
     <div class="name def" id="euroleague_api.utils.get_requests">
     <p>def <span class="ident">get_requests</span>(</p><p>url: str, params: dict = {}, headers: dict = {&#39;Accept&#39;: &#39;application/json&#39;})</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A wrapper to <code>requests.get()</code> which handles unsuccesful requests too.</p>
 <p>Args:</p>
 <pre><code>url (str): _description_
@@ -1233,16 +1234,16 @@ headers (dict, optional): the `header` variable in get requests.
 </div>
 
   </div>
-  
-      
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.utils.raise_error">
     <p>def <span class="ident">raise_error</span>(</p><p>var: Optional[str], descripitve_var: str, available_vals: List, allow_none: bool = False)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that raises a ValueError with specific message.</p>
 <p>Args:</p>
 <pre><code>var (str): The input variable by the user
@@ -1300,7 +1301,7 @@ allow_none (bool, optional): If `var` can take None value.
 </div>
 
   </div>
-  
+
 
 
   </section>

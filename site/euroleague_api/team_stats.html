@@ -867,6 +867,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
 .codehilite .gd { color: #A00000 } /* Generic.Deleted */
 .codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 .codehilite .gr { color: #E40000 } /* Generic.Error */
 .codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
 .codehilite .gi { color: #008400 } /* Generic.Inserted */
@@ -1247,8 +1248,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function that returns the teams&#39; stats in a single season</span>
@@ -1377,7 +1378,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
             <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
                 <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
-                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
             <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
         <span class="p">)</span>
@@ -1572,8 +1573,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function that returns the teams&#39; stats in a single season</span>
@@ -1702,7 +1703,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
             <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
                 <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
-                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
             <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
         <span class="p">)</span>
@@ -2027,7 +2028,7 @@ The formulas and definitions of these stats can be found in
         <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
         <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
             <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
-            <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
         <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
     <span class="p">)</span>
@@ -2350,7 +2351,7 @@ statistic_mode (str, optional): The aggregation of statistics,
             
   <div class="item">
     <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_stats_single_season">
-    <p>def <span class="ident">get_team_stats_single_season</span>(</p><p>self, endpoint: str, season: int, phase_type_code: str, statistic_mode: str)</p>
+    <p>def <span class="ident">get_team_stats_single_season</span>(</p><p>self, endpoint: str, season: int, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
     </div>
     
 
@@ -2389,8 +2390,8 @@ statistic_mode (str, optional): The aggregation of statistics,
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">phase_type_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A function that returns the teams&#39; stats in a single season</span>

@@ -3,13 +3,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-  
+
   <title>euroleague_api.boxscore_data API documentation</title>
   <meta name="description" content="" />
 
 
   <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
-  
+
   <style type="text/css">
 * {
   box-sizing: border-box;
@@ -649,7 +649,7 @@ table {
 
   code {
     background: #f9f9f9;
-  } 
+  }
 
   pre {
     background: #fefefe;
@@ -666,7 +666,7 @@ table {
     .codehilite pre {
       margin: 0;
     }
-    .codehilite .err { background: #ff3300; color: #fff !important; } 
+    .codehilite .err { background: #ff3300; color: #fff !important; }
 
   table#module-list {
     font-size: 110%;
@@ -777,7 +777,7 @@ table {
       text-transform: uppercase;
       color: #fff;
       text-shadow: 1px 1px 0 #f4b700;
-      
+
       padding: 3px 8px;
       border-radius: 2px;
       transition: background .3s ease-in-out;
@@ -867,6 +867,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
 .codehilite .gd { color: #A00000 } /* Generic.Deleted */
 .codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 .codehilite .gr { color: #E40000 } /* Generic.Error */
 .codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
 .codehilite .gi { color: #008400 } /* Generic.Inserted */
@@ -1032,7 +1033,6 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <body>
 <a href="#" id="top">Top</a>
 <div id="container">
-  
 
 
 
@@ -1051,7 +1051,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 
 
-  
+
+
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
@@ -1066,8 +1067,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
       <ul>
         <li class="mono">
         <span class="class_name"><a href="#euroleague_api.boxscore_data.BoxScoreData">BoxScoreData</a></span>
-        
-          
+
+
   <ul>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_boxscore_data">get_boxscore_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data">get_game_boxscore_quarter_data</a></li>
@@ -1090,20 +1091,21 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </div>
 
 <article id="content">
-  
 
-  
+
+
 
 
   <header id="section-intro">
   <h1 class="title"><span class="name">euroleague_api.boxscore_data</span> module</h1>
-  
-  
+
+
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data', this);">Show source &equiv;</a></p>
   <div id="source-euroleague_api.boxscore_data" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">json.decoder</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">.EuroLeagueData</span> <span class="kn">import</span> <span class="n">EuroLeagueData</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_requests</span><span class="p">,</span>
@@ -1224,34 +1226,40 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame: A dataframe with home and away team player stats</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">dict_to_df_bx</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="n">home</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">playerstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">])</span>
+            <span class="n">teamstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;tmr&quot;</span><span class="p">])</span>
+            <span class="n">totalstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="c1"># fix types to avoid pandas futurewarning</span>
+                    <span class="n">playerstats_df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">teamstats_df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">),</span>
+                    <span class="n">teamstats_df</span><span class="p">,</span>
+                    <span class="n">totalstats_df</span>
+                <span class="p">],</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;Plusminus&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="c1"># replace None entries and fix data type</span>
+                <span class="c1"># this behaviour used to be automatic, but since version</span>
+                <span class="c1"># 2.1.0, pandas throws a futurewarning</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="n">home</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_boxscore_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="s2">&quot;Stats&quot;</span><span class="p">)</span>
-        <span class="n">home_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tmr&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
-        <span class="p">])</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">away_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;tmr&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
-        <span class="p">])</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">home_df</span> <span class="o">=</span> <span class="n">dict_to_df_bx</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">home</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">away_df</span> <span class="o">=</span> <span class="n">dict_to_df_bx</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">home</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_single_season</span><span class="p">(</span>
@@ -1371,11 +1379,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
-      
+
       <div class="item">
       <p id="euroleague_api.boxscore_data.BoxScoreData" class="name">class <span class="ident">BoxScoreData</span></p>
-      
-  
+
+
     <div class="desc"><p>A class for getting box-score data</p>
 <p>Args:
     competition (str, optional): The competition code, inherited from the
@@ -1499,34 +1507,40 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame: A dataframe with home and away team player stats</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">dict_to_df_bx</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="n">home</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">playerstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">])</span>
+            <span class="n">teamstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;tmr&quot;</span><span class="p">])</span>
+            <span class="n">totalstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="c1"># fix types to avoid pandas futurewarning</span>
+                    <span class="n">playerstats_df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">teamstats_df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">),</span>
+                    <span class="n">teamstats_df</span><span class="p">,</span>
+                    <span class="n">totalstats_df</span>
+                <span class="p">],</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;Plusminus&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="c1"># replace None entries and fix data type</span>
+                <span class="c1"># this behaviour used to be automatic, but since version</span>
+                <span class="c1"># 2.1.0, pandas throws a futurewarning</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="n">home</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_boxscore_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="s2">&quot;Stats&quot;</span><span class="p">)</span>
-        <span class="n">home_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tmr&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
-        <span class="p">])</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-        <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">away_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;tmr&quot;</span><span class="p">]),</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
-        <span class="p">])</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-        <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-        <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">home_df</span> <span class="o">=</span> <span class="n">dict_to_df_bx</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">home</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">away_df</span> <span class="o">=</span> <span class="n">dict_to_df_bx</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">home</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_single_season</span><span class="p">(</span>
@@ -1650,34 +1664,34 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
           <h3>Class variables</h3>
             <div class="item">
             <p id="euroleague_api.boxscore_data.BoxScoreData.BASE_URL" class="name">var <span class="ident">BASE_URL</span></p>
-            
 
-            
-  
+
+
+
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="euroleague_api.boxscore_data.BoxScoreData.VERSION" class="name">var <span class="ident">VERSION</span></p>
-            
 
-            
-  
+
+
+
   <div class="source_cont">
 </div>
 
             </div>
           <h3>Methods</h3>
-            
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_boxscore_data">
     <p>def <span class="ident">get_boxscore_data</span>(</p><p>self, season: int, gamecode: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A helper function that gets the boxscore data of a particular data.</p>
 <p>Args:
     season (int): The start year of the season
@@ -1739,16 +1753,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data">
     <p>def <span class="ident">get_game_boxscore_quarter_data</span>(</p><p>self, season: int, gamecode: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that gets the boxscore quarterly data of a particular game.</p>
 <p>Args:</p>
 <pre><code>season (int): The start year of the season
@@ -1809,16 +1823,16 @@ boxscore_type (str): The type of quarter boxscore data.
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_multiple_seasons">
     <p>def <span class="ident">get_game_boxscore_quarter_data_multiple_seasons</span>(</p><p>self, start_season: int, end_season: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that gets the play-by-play data of <em>all</em> games in a range of
 seasons</p>
 <p>Args:</p>
@@ -1873,16 +1887,16 @@ boxscore_type (str): The type of quarter boxscore data.
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_single_season">
     <p>def <span class="ident">get_game_boxscore_quarter_data_single_season</span>(</p><p>self, season: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that gets the boxscore quarter data of <em>all</em> games in a
 single season</p>
 <p>Args:</p>
@@ -1933,16 +1947,16 @@ Default: ByQuarter
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_metadata_season">
     <p>def <span class="ident">get_game_metadata_season</span>(</p><p>self, season: int)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that returns the game metadata, e.g. gamecodes of season</p>
 <p>Args:</p>
 <pre><code>season (int): The start year of the season.
@@ -1980,16 +1994,16 @@ Default: ByQuarter
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_data">
     <p>def <span class="ident">get_player_boxscore_stats_data</span>(</p><p>self, season: int, gamecode: int)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>The players' and team's total stats of a particular game.</p>
 <p>Args:
     season (int): The start year of the season
@@ -2014,32 +2028,36 @@ Default: ByQuarter
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: A dataframe with home and away team player stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">dict_to_df_bx</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="n">home</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">playerstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">])</span>
+        <span class="n">teamstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;tmr&quot;</span><span class="p">])</span>
+        <span class="n">totalstats_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">datadict</span><span class="p">[</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="c1"># fix types to avoid pandas futurewarning</span>
+                <span class="n">playerstats_df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">teamstats_df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">),</span>
+                <span class="n">teamstats_df</span><span class="p">,</span>
+                <span class="n">totalstats_df</span>
+            <span class="p">],</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;Plusminus&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># replace None entries and fix data type</span>
+            <span class="c1"># this behaviour used to be automatic, but since version</span>
+            <span class="c1"># 2.1.0, pandas throws a futurewarning</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Plusminus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="n">home</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_boxscore_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="s2">&quot;Stats&quot;</span><span class="p">)</span>
-    <span class="n">home_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tmr&quot;</span><span class="p">]),</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
-    <span class="p">])</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-    <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">home_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-    <span class="n">home_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">away_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;PlayersStats&quot;</span><span class="p">]),</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;tmr&quot;</span><span class="p">]),</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;totr&quot;</span><span class="p">])</span>
-    <span class="p">])</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
-    <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">away_df</span><span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
-    <span class="n">away_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">home_df</span> <span class="o">=</span> <span class="n">dict_to_df_bx</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">home</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">away_df</span> <span class="o">=</span> <span class="n">dict_to_df_bx</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">home</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2047,16 +2065,16 @@ Default: ByQuarter
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_multiple_seasons">
     <p>def <span class="ident">get_player_boxscore_stats_multiple_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that return the player boxscore stats for all games in
 multiple season</p>
 <p>Args:
@@ -2093,16 +2111,16 @@ multiple season</p>
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_single_season">
     <p>def <span class="ident">get_player_boxscore_stats_single_season</span>(</p><p>self, season: int)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A function that return the player boxscore stats for all games in a
 single season</p>
 <p>Args:
@@ -2135,16 +2153,16 @@ single season</p>
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_range_seasons_data">
     <p>def <span class="ident">get_range_seasons_data</span>(</p><p>self, start_season: int, end_season: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A wrapper function with the all game data in a range of seasons</p>
 <p>Args:</p>
 <pre><code>season (int, optional): The start year of the season.
@@ -2196,16 +2214,16 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_season_data_from_game_data">
     <p>def <span class="ident">get_season_data_from_game_data</span>(</p><p>self, season: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>A wrapper function for getting game data for all games in a single
 season.</p>
 <p>Args:</p>
@@ -2285,16 +2303,16 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 </div>
 
   </div>
-  
-            
+
+
   <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.make_season_game_url">
     <p>def <span class="ident">make_season_game_url</span>(</p><p>self, season: int, game_code: int, endpoint: str)</p>
     </div>
-    
 
-    
-  
+
+
+
     <div class="desc"><p>Concatenates the base URL and makes the game url.</p>
 <p>Args:</p>
 <pre><code>season (int): The start year of the season
@@ -2337,7 +2355,7 @@ endpoint (str): The endpoint of the API
 </div>
 
   </div>
-  
+
       </div>
       </div>
 

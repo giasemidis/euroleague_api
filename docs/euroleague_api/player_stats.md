@@ -323,8 +323,8 @@ def get_player_stats_single_season(
     self,
     endpoint: str,
     season: int,
-    phase_type_code: str,
-    statistic_mode: str
+    phase_type_code: Optional[str] = None,
+    statistic_mode: str = 'PerGame'
 ) -> pandas.core.frame.DataFrame
 ```
 
