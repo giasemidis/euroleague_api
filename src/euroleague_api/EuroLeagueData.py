@@ -93,7 +93,8 @@ class EuroLeagueData:
         df = pd.DataFrame(data["results"]["game"])
         int_cols = ["gameday", "gamenumber", "homescore", "awayscore"]
         df[int_cols] = df[int_cols].astype(int)
-        df["played"] = df["played"].replace({"true": True, "false": False})
+        df["played"] = df["played"].astype(
+            bool).replace({"true": True, "false": False})
         return df
 
     def get_season_data_from_game_data(

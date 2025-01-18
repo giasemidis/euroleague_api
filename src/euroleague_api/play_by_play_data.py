@@ -1,6 +1,7 @@
 import logging
 from json.decoder import JSONDecodeError
 import pandas as pd
+import numpy as np
 from .EuroLeagueData import EuroLeagueData
 from .boxscore_data import BoxScoreData
 from .utils import get_requests
@@ -113,7 +114,12 @@ class PlayByPlay(EuroLeagueData):
             start_season, end_season, self.get_game_play_by_play_data)
         return df
 
-    def get_pbp_data_with_lineups(self, season, gamecode, validate=True):
+    def get_pbp_data_with_lineups(
+        self,
+        season,
+        gamecode,
+        validate=True
+    ) -> pd.DataFrame:
         """
         Get the play-by-play (PBP) data enriched with the teams' lineups for
         every action in the PBP data.
@@ -229,13 +235,18 @@ class PlayByPlay(EuroLeagueData):
             season=season, gamecode=gamecode)
 
         # Asign the starting lineups to the first entry of the PBP data.
-        pbp_data[f"Lineup_{home_team}"] = None
-        pbp_data[f"Lineup_{away_team}"] = None
-        pbp_data.at[0, f"Lineup_{home_team}"] = starting_five_dict[home_team]
-        pbp_data.at[0, f"Lineup_{away_team}"] = starting_five_dict[away_team]
+        pbp_data["Lineup_A"] = None
+        pbp_data["Lineup_B"] = None
+        pbp_data.at[0, "Lineup_A"] = starting_five_dict[home_team]
+        pbp_data.at[0, "Lineup_B"] = starting_five_dict[away_team]
+        pbp_data["HomeTeam"] = np.where(
+            pbp_data["CODETEAM"] == home_team, True,
+            np.where(pbp_data["CODETEAM"] == away_team,
+                     False, None)  # type: ignore
+        )
 
         # start processing the sub entries, row by row.
-        processed_idxs = []
+        processed_idxs: list = []
         current_five_home = starting_five_dict[home_team].copy()
         current_five_away = starting_five_dict[away_team].copy()
         for idx, row in pbp_data.iterrows():
@@ -259,8 +270,8 @@ class PlayByPlay(EuroLeagueData):
                 else:
                     current_five_away = five
 
-            pbp_data.at[idx, f"Lineup_{home_team}"] = current_five_home
-            pbp_data.at[idx, f"Lineup_{away_team}"] = current_five_away
+            pbp_data.at[idx, "Lineup_A"] = current_five_home
+            pbp_data.at[idx, "Lineup_B"] = current_five_away
 
         if validate:
             lu_cols = [u for u in pbp_data.columns if u.startswith("Lineup_")]
@@ -269,3 +280,46 @@ class PlayByPlay(EuroLeagueData):
                 axis=1
             )
         return pbp_data
+
+    def get_pbp_data_with_lineups_single_season(
+        self,
+        season: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the play-by-play data enriched with team lineups
+        of *all* games in a single season
+
+        Args:
+
+            season (int): The start year of the season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the play-by-play data of all games
+                in a single season
+        """
+        data_df = self.get_season_data_from_game_data(
+            season, self.get_pbp_data_with_lineups)
+        return data_df
+
+    def get_pbp_data_with_lineups_multiple_seasons(
+        self, start_season: int, end_season: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the play-by-play data enriched with team lineups
+        of *all* games in a range of seasons
+
+        Args:
+
+            start_season (int): The start year of the start season
+
+            end_season (int): The start year of the end season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the play-by-play data of all games
+                in range of seasons
+        """
+        df = self.get_range_seasons_data(
+            start_season, end_season, self.get_pbp_data_with_lineups)
+        return df
