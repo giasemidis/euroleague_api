@@ -64,12 +64,14 @@ class PlayByPlay(EuroLeagueData):
                 df["PERIOD"] = p + 1
                 all_data.append(df)
 
-        play_by_play_df = pd.concat(all_data).reset_index(drop=True)
-        play_by_play_df['CODETEAM'] = play_by_play_df['CODETEAM'].str.strip()
-        play_by_play_df['PLAYER_ID'] = play_by_play_df['PLAYER_ID'].str.strip()
-        play_by_play_df.insert(0, 'Season', season)
-        play_by_play_df.insert(1, 'Gamecode', gamecode)
-        return play_by_play_df
+        pbp_df = pd.concat(all_data).reset_index(drop=True)
+        pbp_df['CODETEAM'] = pbp_df['CODETEAM'].str.strip()
+        pbp_df['PLAYER_ID'] = pbp_df['PLAYER_ID'].str.strip()
+        pbp_df["PLAYTYPE"] = pbp_df["PLAYTYPE"].str.strip()
+        pbp_df["MARKERTIME"] = pbp_df["MARKERTIME"].str.strip()
+        pbp_df.insert(0, 'Season', season)
+        pbp_df.insert(1, 'Gamecode', gamecode)
+        return pbp_df
 
     def get_game_play_by_play_data_single_season(
         self,
