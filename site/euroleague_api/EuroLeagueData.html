@@ -1197,7 +1197,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
         <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
         <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">def</span> <span class="nf">get_season_data_from_game_data</span><span class="p">(</span>
@@ -1251,10 +1252,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                     <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
                 <span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Skip and continue&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
@@ -1414,7 +1416,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
         <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
         <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">def</span> <span class="nf">get_season_data_from_game_data</span><span class="p">(</span>
@@ -1468,10 +1471,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                     <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
                 <span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Skip and continue&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
@@ -1582,7 +1586,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
     <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
     <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -1723,10 +1728,11 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
                 <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
             <span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Skip and continue&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
             <span class="p">)</span>
     <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>

@@ -153,7 +153,7 @@ def get_pbp_data_with_lineups(
     season,
     gamecode,
     validate=True
-)
+) -> pandas.core.frame.DataFrame
 ```
 
 Get the play-by-play (PBP) data enriched with the teams' lineups for
@@ -199,6 +199,60 @@ There are three cases where the player in the corresponding row
 | Type | Description |
 |---|---|
 | pd.DataFrame | A dataframe with the play-by-play enriched with<br>teams' lineups |
+
+    
+#### get_pbp_data_with_lineups_multiple_seasons
+
+```python3
+def get_pbp_data_with_lineups_multiple_seasons(
+    self,
+    start_season: int,
+    end_season: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that gets the play-by-play data enriched with team lineups
+
+of *all* games in a range of seasons
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| start_season | int | The start year of the start season | None |
+| end_season | int | The start year of the end season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the play-by-play data of all games<br>in range of seasons |
+
+    
+#### get_pbp_data_with_lineups_single_season
+
+```python3
+def get_pbp_data_with_lineups_single_season(
+    self,
+    season: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that gets the play-by-play data enriched with team lineups
+
+of *all* games in a single season
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the play-by-play data of all games<br>in a single season |
 
     
 #### get_range_seasons_data
