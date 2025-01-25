@@ -195,9 +195,13 @@ class PlayByPlay(EuroLeagueData):
             player_sub = matching_row["PLAYER"].replace(" ,", ",")
             player_in = player if sub_type == "IN" else player_sub
             player_out = player_sub if sub_type == "IN" else player
-            pindx = five.index(player_out)
-            five = five[:pindx] + [player_in] + five[pindx + 1:]
-            return five
+            if player_in == player_out:
+                # there are instance where the same player is subbed in and out
+                return five
+            else:
+                pindx = five.index(player_out)
+                five = five[:pindx] + [player_in] + five[pindx + 1:]
+                return five
 
         def validate_player(x, col1, col2):
             flag = False
@@ -241,7 +245,7 @@ class PlayByPlay(EuroLeagueData):
         pbp_data["Lineup_B"] = None
         pbp_data.at[0, "Lineup_A"] = starting_five_dict[home_team]
         pbp_data.at[0, "Lineup_B"] = starting_five_dict[away_team]
-        pbp_data["HomeTeam"] = np.where(
+        pbp_data["IsHomeTeam"] = np.where(
             pbp_data["CODETEAM"] == home_team, True,
             np.where(pbp_data["CODETEAM"] == away_team,
                      False, None)  # type: ignore

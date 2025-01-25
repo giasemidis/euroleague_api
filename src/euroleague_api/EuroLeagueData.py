@@ -148,10 +148,11 @@ class EuroLeagueData:
                     f"HTTPError: Didn't find gamecode {game_code} for season "
                     f"{season}. Invalid {err}. Skip and continue."
                 )
-            except:  # noqa: E722
+            except Exception as e:  # noqa: E722
                 logger.warning(
-                    f"Something went wrong for game {game_code}. "
-                    "Skip and continue"
+                    f"\nSomething went wrong for game {game_code}. "
+                    f"\nError message: {e}. "
+                    "\nSkip and continue"
                 )
 
         if data_list:
