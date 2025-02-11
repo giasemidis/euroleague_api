@@ -289,7 +289,7 @@ class TeamStats(EuroLeagueData):
         )
         df.loc["Game"] = [possessions_simple.mean(), possessions.mean()]
 
-        min_played_ls = totals_df.loc["Minutes"][0].split(":")
+        min_played_ls = totals_df.loc["Minutes"].iloc[0].split(":")
         min_played = int(min_played_ls[0]) + float(min_played_ls[1]) / 60
         min_factor = (min_played / 5)
 
