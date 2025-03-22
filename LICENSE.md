@@ -4,7 +4,7 @@ This software is licensed under a **dual-license model**:
 
 1. **Open Source License (GNU GPLv3)**
    - Free for individuals, researchers, and non-profit organizations.
-   - Any modifications or derivative works must also be open-source under [GPLv3]((https://www.gnu.org/licenses/gpl-3.0.en.html)).
+   - Any modifications or derivative works must also be open-source under [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 2. **Commercial License**
    - Required for any **for-profit** organization or commercial use.
