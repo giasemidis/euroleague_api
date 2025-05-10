@@ -3,10 +3,8 @@ import pandas as pd
 import numpy as np
 from .EuroLeagueData import EuroLeagueData
 from .boxscore_data import BoxScoreData
-from .utils import (
-    raise_error,
-    get_requests
-)
+from .play_by_play_data import PlayByPlay
+from .utils import raise_error, get_requests
 
 
 class TeamStats(EuroLeagueData):
@@ -26,7 +24,7 @@ class TeamStats(EuroLeagueData):
         endpoint: str,
         params: dict = {},
         phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
+        statistic_mode: str = "PerGame",
     ) -> pd.DataFrame:
         """
         A wrapper functions for collecting teams' stats.
@@ -73,20 +71,21 @@ class TeamStats(EuroLeagueData):
         """
 
         available_endpoints = [
-            "traditional", "advanced",
-            "opponentsTraditional", "opponentsAdvanced"
+            "traditional",
+            "advanced",
+            "opponentsTraditional",
+            "opponentsAdvanced",
         ]
         available_phase_type_code = ["RS", "PO", "FF"]
         available_stat_mode = ["PerGame", "Accumulated"]
 
+        raise_error(endpoint, "Statistic type", available_endpoints, False)
         raise_error(
-            endpoint, "Statistic type", available_endpoints, False)
+            statistic_mode, "Statistic Aggregation", available_stat_mode, False
+        )
         raise_error(
-            statistic_mode, "Statistic Aggregation", available_stat_mode,
-            False)
-        raise_error(
-            phase_type_code, "Phase type code", available_phase_type_code,
-            True)
+            phase_type_code, "Phase type code", available_phase_type_code, True
+        )
 
         params["statisticMode"] = statistic_mode
         params["phaseTypeCode"] = phase_type_code
@@ -107,7 +106,7 @@ class TeamStats(EuroLeagueData):
         self,
         endpoint: str,
         phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
+        statistic_mode: str = "PerGame",
     ) -> pd.DataFrame:
         """
         A function that gets the team stats for all seasons
@@ -139,7 +138,8 @@ class TeamStats(EuroLeagueData):
         """
         params = {"SeasonMode": "All"}
         df = self.get_team_stats(
-            endpoint, params, phase_type_code, statistic_mode)
+            endpoint, params, phase_type_code, statistic_mode
+        )
         return df
 
     def get_team_stats_single_season(
@@ -147,7 +147,7 @@ class TeamStats(EuroLeagueData):
         endpoint: str,
         season: int,
         phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
+        statistic_mode: str = "PerGame",
     ) -> pd.DataFrame:
         """
         A function that returns the teams' stats in a single season
@@ -184,7 +184,8 @@ class TeamStats(EuroLeagueData):
             "SeasonCode": f"{self.competition}{season}",
         }
         df = self.get_team_stats(
-            endpoint, params, phase_type_code, statistic_mode)
+            endpoint, params, phase_type_code, statistic_mode
+        )
         return df
 
     def get_team_stats_range_seasons(
@@ -193,7 +194,7 @@ class TeamStats(EuroLeagueData):
         start_season: int,
         end_season: int,
         phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
+        statistic_mode: str = "PerGame",
     ) -> pd.DataFrame:
         """
         A function that returns the teams' stats in a range of seasons
@@ -233,79 +234,103 @@ class TeamStats(EuroLeagueData):
             "ToSeasonCode": f"{self.competition}{end_season}",
         }
         df = self.get_team_stats(
-            endpoint, params, phase_type_code, statistic_mode)
+            endpoint, params, phase_type_code, statistic_mode
+        )
         return df
 
     def get_team_advanced_stats_single_game(self, season: int, gamecode: int):
         """
         In this function we derive team advanced stats from a single game
-        that are not provided by the API but can be easily estimated from
-        stats that are given from the API, i.e.
+        that are not provided by the API but can be easily calculated from
+        play-by-play that are given from the API, i.e.
             - Number of Possessions
             - Pace
-        The formulas and definitions of these stats can be found in
-            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa
-            - [kenpom](https://kenpom.com/blog/the-possession/)
-            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa
 
         Args:
             season (int): The start year of the season
             gamecode (int): The game-code of the game of interest.
                 It can be found on Euroleague's website.
         """
+
+        def convert_to_seconds(time_str):
+            try:
+                minutes, seconds = map(int, time_str.split(":"))
+                return minutes * 60 + seconds
+            except:
+                return None
+
+        def get_possession_number(df: pd.DataFrame, home_team_code: str):
+            df["TotalSeconds"] = df["MARKERTIME"].apply(convert_to_seconds)
+            filtered_mask = (df["PERIOD"].isin([1, 2, 3])) & (
+                df["TotalSeconds"] <= 4
+            )
+            df_filtered = df[~filtered_mask].copy()
+
+            codeteam = df_filtered["CODETEAM"].values
+            playtype = df_filtered["PLAYTYPE"].values
+
+            possessions = {"home": 0, "away": 0}
+            last_possession_owner = None
+            self_possession_end_conditions = {"2FGM", "3FGM", "TO", "FTM"}
+
+            for i in range(len(codeteam)):
+                current_team = codeteam[i]
+                pt = playtype[i]
+
+                current_owner = (
+                    "home" if current_team == home_team_code else "away"
+                )
+
+                if pt in self_possession_end_conditions:
+                    if last_possession_owner != current_owner:
+                        possessions[current_owner] += 1
+                        last_possession_owner = current_owner
+
+                elif pt == "D":
+                    new_owner = "away" if current_owner == "home" else "home"
+                    if last_possession_owner != new_owner:
+                        possessions[new_owner] += 1
+                        last_possession_owner = new_owner
+
+            return possessions
+
         boxscoredata = BoxScoreData(competition=self.competition)
         game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
-            season=season, gamecode=gamecode)
+            season=season, gamecode=gamecode
+        )
         totals_df = (
             game_bxscr_stats[game_bxscr_stats["Player_ID"] == "Total"]
-            .set_index("Team").T
+            .set_index("Team")
+            .T
         )
-        fga = (totals_df.loc["FieldGoalsAttempted2"] +
-               totals_df.loc["FieldGoalsAttempted3"])
+        minutes_played = int(totals_df.loc["Minutes"].iloc[0].split(":")[0])
 
-        fgm = (totals_df.loc["FieldGoalsMade2"] +
-               totals_df.loc["FieldGoalsMade3"])
-        possessions_simple = (
-            fga
-            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
-            - totals_df.loc["OffensiveRebounds"] + totals_df.loc["Turnovers"]
-        )
+        pbp = PlayByPlay(competition=self.competition)
+        pbp_df = pbp.get_game_play_by_play_data(season, gamecode)
 
-        possessions = (
-            fga
-            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
-            - 1.07 * (
-                totals_df.loc["OffensiveRebounds"] /
-                totals_df.loc["DefensiveRebounds", ::-1]
-            ) * (fga - fgm)
-            + totals_df.loc["Turnovers"]
+        home_team_code = totals_df.columns[1]
+
+        possessions = get_possession_number(pbp_df, home_team_code)
+        home_poss = possessions["home"]
+        away_poss = possessions["away"]
+        total_possessions = home_poss + away_poss
+
+        pace = (
+            (total_possessions / minutes_played * 5 * 40)
+            if minutes_played > 0
+            else 0
         )
 
-        df = pd.DataFrame(
+        df_result = pd.DataFrame(
             {
-                "Possessions (simple)": possessions_simple,
-                "Possessions": possessions,
-            }
+                "Season": [season, season, season],
+                "Gamecode": [gamecode, gamecode, gamecode],
+                "Home": [1, 0, np.nan],
+                "Possessions": [home_poss, away_poss, total_possessions],
+                # TODO: Add Team's Pace
+                "Pace": [np.nan, np.nan, pace],
+            },
+            index=[totals_df.columns[0], totals_df.columns[1], "Game"],
         )
-        df.loc["Game"] = [possessions_simple.mean(), possessions.mean()]
 
-        min_played_ls = totals_df.loc["Minutes"].iloc[0].split(":")
-        min_played = int(min_played_ls[0]) + float(min_played_ls[1]) / 60
-        min_factor = (min_played / 5)
-
-        df["Pace (simple)"] = [
-            np.nan, np.nan, 40 * possessions_simple.mean() / min_factor
-        ]
-        df["Pace"] = [np.nan, np.nan, 40 * possessions.mean() / min_factor]
-        df["Season"] = season
-        df["Gamecode"] = gamecode
-        df["Home"] = [1, 0, np.nan]
-
-        df = df[
-            [
-                "Season", "Gamecode", "Home",
-                "Possessions (simple)", "Possessions",
-                "Pace (simple)", "Pace",
-            ]
-        ]
-        return df
+        return df_result[["Season", "Gamecode", "Home", "Possessions", "Pace"]]
