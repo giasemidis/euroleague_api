@@ -4,6 +4,7 @@
 
 * [euroleague_api.EuroLeagueData](EuroLeagueData/)
 * [euroleague_api.boxscore_data](boxscore_data/)
+* [euroleague_api.game_metadata](game_metadata/)
 * [euroleague_api.game_stats](game_stats/)
 * [euroleague_api.play_by_play_data](play_by_play_data/)
 * [euroleague_api.player_stats](player_stats/)
@@ -16,6 +17,10 @@
 
 ```python3
 boxscore_data
+```
+
+```python3
+game_metadata
 ```
 
 ```python3

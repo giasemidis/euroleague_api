@@ -1159,9 +1159,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
 
         <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;FirstQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;SecondQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ThirdQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ForthQuarter&#39;</span><span class="p">,</span>
@@ -1513,9 +1513,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
 
         <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;FirstQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;SecondQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ThirdQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ForthQuarter&#39;</span><span class="p">,</span>
@@ -1918,9 +1918,9 @@ gamecode (int): The game-code of the game of interest.
     <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+    <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
     <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s1">&#39;FirstQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;SecondQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ThirdQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ForthQuarter&#39;</span><span class="p">,</span>
         <span class="s1">&#39;ExtraTime&#39;</span>
