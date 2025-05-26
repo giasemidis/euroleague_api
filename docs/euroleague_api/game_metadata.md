@@ -36,6 +36,30 @@ VERSION
 #### Methods
 
     
+#### get_game_gamecodes_season
+
+```python3
+def get_game_gamecodes_season(
+    self,
+    season: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that returns the game metadata, e.g. gamecodes of season
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season. | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the season's game metadata, e.g.<br>gamecode, score, home-away teams, date, round, etc. |
+
+    
 #### get_game_metadata
 
 ```python3
@@ -88,30 +112,6 @@ A function that gets the metadata of *all* games in a range of seasons
 | Type | Description |
 |---|---|
 | pd.DataFrame | A dataframe with the metadata of all games in range<br>of seasons |
-
-    
-#### get_game_metadata_season
-
-```python3
-def get_game_metadata_season(
-    self,
-    season: int
-) -> pandas.core.frame.DataFrame
-```
-
-A function that returns the game metadata, e.g. gamecodes of season
-
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| season | int | The start year of the season. | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| pd.DataFrame | A dataframe with the season's game metadata, e.g.<br>gamecode, score, home-away teams, date, round, etc. |
 
     
 #### get_game_metadata_single_season

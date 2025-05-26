@@ -1070,9 +1070,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         
           
   <ul>
+    <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_gamecodes_season">get_game_gamecodes_season</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata">get_game_metadata</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_multiple_seasons">get_game_metadata_multiple_seasons</a></li>
-    <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_season">get_game_metadata_season</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_single_season">get_game_metadata_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_range_seasons_data">get_range_seasons_data</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
@@ -1331,6 +1331,54 @@ stadum, capacity and referee names.</p>
           <h3>Methods</h3>
             
   <div class="item">
+    <div class="name def" id="euroleague_api.game_metadata.GameMetadata.get_game_gamecodes_season">
+    <p>def <span class="ident">get_game_gamecodes_season</span>(</p><p>self, season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that returns the game metadata, e.g. gamecodes of season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season.
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the season's game metadata, e.g.
+    gamecode, score, home-away teams, date, round, etc.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_metadata.GameMetadata.get_game_gamecodes_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.game_metadata.GameMetadata.get_game_gamecodes_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_gamecodes_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that returns the game metadata, e.g. gamecodes of season</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the season&#39;s game metadata, e.g.</span>
+<span class="sd">            gamecode, score, home-away teams, date, round, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;https://api-live.euroleague.net/v1/results&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;?seasonCode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="euroleague_api.game_metadata.GameMetadata.get_game_metadata">
     <p>def <span class="ident">get_game_metadata</span>(</p><p>self, season: int, gamecode: int)</p>
     </div>
@@ -1421,54 +1469,6 @@ end_season (int): The start year of the end season
     <span class="n">metadata_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
         <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_metadata</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metadata_df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.game_metadata.GameMetadata.get_game_metadata_season">
-    <p>def <span class="ident">get_game_metadata_season</span>(</p><p>self, season: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that returns the game metadata, e.g. gamecodes of season</p>
-<p>Args:</p>
-<pre><code>season (int): The start year of the season.
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the season's game metadata, e.g.
-    gamecode, score, home-away teams, date, round, etc.
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_metadata.GameMetadata.get_game_metadata_season', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.game_metadata.GameMetadata.get_game_metadata_season" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_metadata_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that returns the game metadata, e.g. gamecodes of season</span>
-<span class="sd">    Args:</span>
-<span class="sd">        season (int): The start year of the season.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the season&#39;s game metadata, e.g.</span>
-<span class="sd">            gamecode, score, home-away teams, date, round, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;https://api-live.euroleague.net/v1/results&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;?seasonCode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
-    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
-    <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
   </div>
@@ -1620,7 +1620,7 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 <span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_metadata_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
+    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_gamecodes_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
     <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
     <span class="n">game_codes_df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">game_metadata_df</span><span class="p">[[</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]]</span>

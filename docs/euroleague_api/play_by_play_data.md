@@ -41,10 +41,10 @@ VERSION
 #### Methods
 
     
-#### get_game_metadata_season
+#### get_game_gamecodes_season
 
 ```python3
-def get_game_metadata_season(
+def get_game_gamecodes_season(
     self,
     season: int
 ) -> pandas.core.frame.DataFrame

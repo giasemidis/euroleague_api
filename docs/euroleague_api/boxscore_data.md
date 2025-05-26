@@ -163,10 +163,10 @@ single season
 | pd.DataFrame | A dataframe with the boxscore quarter data of all<br>games in a single season |
 
     
-#### get_game_metadata_season
+#### get_game_gamecodes_season
 
 ```python3
-def get_game_metadata_season(
+def get_game_gamecodes_season(
     self,
     season: int
 ) -> pandas.core.frame.DataFrame
