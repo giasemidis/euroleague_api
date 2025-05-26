@@ -1,3 +1,4 @@
+from json.decoder import JSONDecodeError
 import pandas as pd
 from .EuroLeagueData import EuroLeagueData
 from .utils import get_requests
@@ -6,7 +7,8 @@ from .utils import get_requests
 class GameMetadata(EuroLeagueData):
 
     """
-    A class for getting the game related metadata.
+    A class for getting the game related metadata, such as
+    stadum, capacity and referee names.
 
     Args:
         competition (str, optional): The competition code, inherited from the
@@ -16,31 +18,39 @@ class GameMetadata(EuroLeagueData):
             Defaults to "E".
     """
 
-    def __init__(self, competition_code):
-        self.competition_code = competition_code
-
-    def get_game_metadata(self, season, gamecode):
+    def get_game_metadata(self, season: int, gamecode: int) -> pd.DataFrame:
         """
-        Retrieves game metadata for a given gamecode.
+        Retrieves game metadata for a given gamecode, such as stadium,
+        capacity and referee names.
 
         Args:
             season (int): The start year of the season.
-            gamecode (int): Unique identifier code of the game which can be found on Euroleague's official website.
+            gamecode (int): Unique identifier code of the game which can be
+                found on Euroleague's official website.
 
         Returns:
             pd.DataFrame: A dataframe containing metadata of a game.
         """
-        base_url = 'https://live.euroleague.net/api/Header?gamecode={}&seasoncode={}{}&disp='
-        url = base_url.format(gamecode, self.competition_code, season)
-        response = get_requests(url)
+        url = "https://live.euroleague.net/api/Header"
+        params = {
+            "gamecode": gamecode,
+            "seasoncode": f"{self.competition}{season}"
+        }
+        r = get_requests(url, params=params)
 
-        if response is None:
-            raise ValueError(f"Failed to retrieve data for gamecode {gamecode}, season {season}")
+        try:
+            data = r.json()
+        except JSONDecodeError:
+            raise ValueError(
+                f"Game code, {gamecode}, season {season} did not return any "
+                "data."
+            )
+        metadata_df = pd.json_normalize(data)
+        metadata_df.insert(0, 'Season', season)
+        metadata_df.insert(1, 'Gamecode', gamecode)
+        return metadata_df
 
-        json_content = response.json()
-        return pd.json_normalize(json_content)
-    
-    def get_game_metadata_single_season(self, season):
+    def get_game_metadata_single_season(self, season: int) -> pd.DataFrame:
         """
         A function to retrieve game metadata for all games in a single season.
 
@@ -48,14 +58,15 @@ class GameMetadata(EuroLeagueData):
             season (int): The start year of the season.
 
         Returns:
-            pd.DataFrame: A dataframe containing metadata for all games in the given season.
+            pd.DataFrame: A dataframe containing metadata for all games
+                in the given season.
         """
 
         single_season_metadata_df = self.get_season_data_from_game_data(
             season, self.get_game_metadata
         )
         return single_season_metadata_df
-    
+
     def get_game_metadata_multiple_seasons(
         self, start_season: int, end_season: int
     ) -> pd.DataFrame:

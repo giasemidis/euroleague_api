@@ -49,9 +49,9 @@ class PlayByPlay(EuroLeagueData):
 
         try:
             data = r.json()
-        except JSONDecodeError:
+        except JSONDecodeError as exc:
             raise ValueError(
-                f"Game code, {gamecode}, did not return any data.")
+                f"Game code, {gamecode}, did not return any data.") from exc
 
         periods = [
             'FirstQuarter', 'SecondQuarter', 'ThirdQuarter', 'ForthQuarter',
