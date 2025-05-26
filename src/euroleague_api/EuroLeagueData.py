@@ -71,7 +71,7 @@ class EuroLeagueData:
         )
         return full_url
 
-    def get_game_metadata_season(self, season: int) -> pd.DataFrame:
+    def get_game_gamecodes_season(self, season: int) -> pd.DataFrame:
         """
         A function that returns the game metadata, e.g. gamecodes of season
 
@@ -122,7 +122,7 @@ class EuroLeagueData:
         """
         data_list = []
 
-        game_metadata_df = self.get_game_metadata_season(season)
+        game_metadata_df = self.get_game_gamecodes_season(season)
         game_metadata_df = game_metadata_df[game_metadata_df["played"]]
         game_codes_df = (
             game_metadata_df[["round", "gameday", "gamenumber"]]
