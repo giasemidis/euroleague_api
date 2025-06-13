@@ -55,9 +55,11 @@ class BoxScoreData(EuroLeagueData):
 
         try:
             data = r.json()
-        except JSONDecodeError:
+        except JSONDecodeError as exc:
             raise ValueError(
-                f"Game code, {gamecode}, did not return any data.")
+                f"Game code, {gamecode}, season {season}, "
+                "did not return any data."
+            ) from exc
         boxscore_types = ["Stats", "ByQuarter", "EndOfQuarter"]
 
         if boxscore_type not in boxscore_types:

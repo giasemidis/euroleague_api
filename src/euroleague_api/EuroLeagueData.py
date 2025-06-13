@@ -1,10 +1,10 @@
 from typing import Callable
 import logging
+from json.decoder import JSONDecodeError
 import pandas as pd
-from tqdm.auto import tqdm, trange
-from requests.exceptions import HTTPError
+from tqdm.auto import trange
 import xmltodict
-from .utils import get_requests
+from .utils import get_requests, get_data_over_collection_of_games
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,7 +21,9 @@ class EuroLeagueData:
             Defaults to "E".
     """
     BASE_URL = "https://api-live.euroleague.net"
-    VERSION = "v3"
+    V3 = "v3"
+    V2 = "v2"
+    V1 = "v1"
 
     def __init__(self, competition="E"):
         """_summary_
@@ -41,7 +43,10 @@ class EuroLeagueData:
                 "Valid values 'E', 'U'"
             )
         self.competition = competition
-        self.url = f"{self.BASE_URL}/{self.VERSION}/competitions/{competition}"
+        self.url_v1 = f"{self.BASE_URL}/{self.V1}/results/"
+        self.url_v2 = f"{self.BASE_URL}/{self.V2}/competitions/{competition}"
+        # Don't rename url to url_v3, as the former it's used is several places
+        self.url = f"{self.BASE_URL}/{self.V3}/competitions/{competition}"
 
     def make_season_game_url(
         self,
@@ -84,17 +89,89 @@ class EuroLeagueData:
             pd.DataFrame: A dataframe with the season's game metadata, e.g.
                 gamecode, score, home-away teams, date, round, etc.
         """
-        url = (
-            "https://api-live.euroleague.net/v1/results"
-            f"?seasonCode={self.competition}{season}"
-        )
-        r = get_requests(url)
+        # url = f"{self.url_v1}?seasonCode={self.competition}{season}"
+        # r = get_requests(url)
+        params = {
+            "seasonCode": f"{self.competition}{season}",
+        }
+        r = get_requests(self.url_v1, params=params)
+
         data = xmltodict.parse(r.content)
         df = pd.DataFrame(data["results"]["game"])
-        int_cols = ["gameday", "gamenumber", "homescore", "awayscore"]
+        df.rename(columns={"gamenumber": "gameCode"}, inplace=True)
+        int_cols = ["gameday", "gameCode", "homescore", "awayscore"]
         df[int_cols] = df[int_cols].astype(int)
         df["played"] = df["played"].astype(
             bool).replace({"true": True, "false": False})
+        return df
+
+    def get_gamecodes_round(self, season: int, round: int) -> pd.DataFrame:
+        """
+        A function that returns the game metadata, e.g. gamecodes of a round
+        in a season.
+
+        Args:
+
+            season (int): The start year of the season.
+
+            round (int): The round number.
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the round's game metadata, e.g.
+                gamecode, score, home-away teams, date, etc.
+        """
+        url = f"{self.url_v2}/seasons/{self.competition}{season}/games"
+        params = {
+            "roundNumber": round
+        }
+        r = get_requests(url, params=params)
+        try:
+            data = r.json()
+        except JSONDecodeError as exc:
+            raise ValueError(
+                f"Round, {round}, season {season}, did not return any data."
+            ) from exc
+
+        df = pd.json_normalize(data["data"])
+        return df
+
+    def get_round_data_from_game_data(
+        self,
+        season: int,
+        round: int,
+        fun: Callable[[int, int], pd.DataFrame]
+    ) -> pd.DataFrame:
+        """A wrapper function for getting game data for all games in a single
+        round.
+
+        Args:
+            season (int, optional): The start year of the season.
+
+            round (int): The round of the season.
+
+            fun (Callable[[int, int], pd.DataFrame]): A callable function that
+                determines that type of data to be collected. Available values:
+                - get_game_report
+                - get_game_stats
+                - get_game_teams_comparison
+                - get_game_play_by_play_data
+                - get_game_shot_data
+                - get_game_boxscore_quarter_data
+                - get_player_boxscore_stats_data
+                - get_game_metadata
+
+
+        Returns:
+            pd.DataFrame: A dataframe with the corresponding data of a single
+                round
+        """
+        round_game_codes_df = self.get_gamecodes_round(season, round)
+        df = get_data_over_collection_of_games(
+            round_game_codes_df,
+            season=season,
+            fun=fun
+        )
         return df
 
     def get_season_data_from_game_data(
@@ -115,52 +192,30 @@ class EuroLeagueData:
                 - get_game_report
                 - get_game_stats
                 - get_game_teams_comparison
+                - get_game_play_by_play_data
+                - get_game_shot_data
+                - get_game_boxscore_quarter_data
+                - get_player_boxscore_stats_data
+                - get_game_metadata
 
         Returns:
 
-            pd.DataFrame: A dataframe with the game data.
+            pd.DataFrame: A dataframe with the corresponding data of all
+                games in a single season.
         """
-        data_list = []
-
         game_metadata_df = self.get_game_gamecodes_season(season)
         game_metadata_df = game_metadata_df[game_metadata_df["played"]]
-        game_codes_df = (
-            game_metadata_df[["round", "gameday", "gamenumber"]]
-            .drop_duplicates().sort_values(["gamenumber", "gameday"])
+        season_game_codes_df = (
+            game_metadata_df[["round", "gameday", "gameCode"]]
+            .drop_duplicates().sort_values(["gameCode", "gameday"])
             .reset_index(drop=True)
         )
-        for _, row in tqdm(game_codes_df.iterrows(),
-                           total=game_codes_df.shape[0],
-                           desc=f"Season {season}", leave=True):
-            game_code = row["gamenumber"]
-            try:
-                df = fun(season, game_code)
-                if df.empty:
-                    logger.warning(f"Game {game_code} returned no data.")
-                    continue
-                if ("Phase" not in df.columns) and ("round" in row):
-                    df.insert(1, "Phase", row["round"])
-                if ("Round" not in df.columns) and ("gameday" in row):
-                    df.insert(2, "Round", row["gameday"])
-                data_list.append(df)
-            except HTTPError as err:
-                logger.warning(
-                    f"HTTPError: Didn't find gamecode {game_code} for season "
-                    f"{season}. Invalid {err}. Skip and continue."
-                )
-            except Exception as e:  # noqa: E722
-                logger.warning(
-                    f"\nSomething went wrong for game {game_code}. "
-                    f"\nError message: {e}. "
-                    "\nSkip and continue"
-                )
-
-        if data_list:
-            data_df = pd.concat(data_list, axis=0)
-            data_df.reset_index(drop=True, inplace=True)
-        else:
-            data_df = pd.DataFrame([])
-        return data_df
+        df = get_data_over_collection_of_games(
+            season_game_codes_df,
+            season=season,
+            fun=fun
+        )
+        return df
 
     def get_range_seasons_data(
         self,
@@ -182,10 +237,16 @@ class EuroLeagueData:
                 - get_game_report
                 - get_game_stats
                 - get_game_teams_comparison
+                - get_game_play_by_play_data
+                - get_game_shot_data
+                - get_game_boxscore_quarter_data
+                - get_player_boxscore_stats_data
+                - get_game_metadata
 
         Returns:
 
-            pd.DataFrame: A dataframe with the game data
+            pd.DataFrame: A dataframe with the corresponding data of all
+                games in a range of seasons.
         """
         data = []
         for season in trange(

@@ -51,7 +51,9 @@ class PlayByPlay(EuroLeagueData):
             data = r.json()
         except JSONDecodeError as exc:
             raise ValueError(
-                f"Game code, {gamecode}, did not return any data.") from exc
+                f"Game code, {gamecode}, season {season}, "
+                "did not return any data."
+            ) from exc
 
         periods = [
             'FirstQuarter', 'SecondQuarter', 'ThirdQuarter', 'ForthQuarter',
@@ -72,6 +74,27 @@ class PlayByPlay(EuroLeagueData):
         pbp_df.insert(0, 'Season', season)
         pbp_df.insert(1, 'Gamecode', gamecode)
         return pbp_df
+
+    def get_play_by_play_data_round(
+        self,
+        season: int,
+        round: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the play-by-play data of *all* games in a single
+        round
+
+        Args:
+            season (int): The start year of the season
+            round (int): The round of the season
+
+        Returns:
+            pd.DataFrame: A dataframe with the play-by-play data of all games
+                in a single round
+        """
+        df = self.get_round_data_from_game_data(
+            season, round, self.get_game_play_by_play_data)
+        return df
 
     def get_game_play_by_play_data_single_season(
         self,
@@ -286,6 +309,27 @@ class PlayByPlay(EuroLeagueData):
                 axis=1
             )
         return pbp_data
+
+    def get_pbp_data_with_lineups_round(
+        self,
+        season: int,
+        round: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the play-by-play with lineups data of *all* games
+        in a single round
+
+        Args:
+            season (int): The start year of the season
+            round (int): The round of the season
+
+        Returns:
+            pd.DataFrame: A dataframe with the play-by-play data with lineups
+                of all games in a single round
+        """
+        df = self.get_round_data_from_game_data(
+            season, round, self.get_pbp_data_with_lineups)
+        return df
 
     def get_pbp_data_with_lineups_single_season(
         self,

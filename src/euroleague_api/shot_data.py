@@ -44,7 +44,9 @@ class ShotData(EuroLeagueData):
             data = r.json()
         except JSONDecodeError:
             raise ValueError(
-                f"Game code, {gamecode}, did not return any data.")
+                f"Game code, {gamecode}, season {season}, "
+                "did not return any data."
+            )
 
         shots_df = pd.DataFrame(data['Rows'])
         # team id, player id and action id contain trailing white space
@@ -55,6 +57,25 @@ class ShotData(EuroLeagueData):
             shots_df.insert(0, 'Season', season)
             shots_df.insert(1, 'Gamecode', gamecode)
         return shots_df
+
+    def get_game_shot_data_round(
+            self, season: int, round: int
+            ) -> pd.DataFrame:
+        """
+        A function that gets the shot data of *all* games in a single round
+
+        Args:
+            season (int): The start year of the season
+            round (int): The round of the season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the shot data of all games in a
+                single round
+        """
+        data_df = self.get_round_data_from_game_data(
+            season, round, self.get_game_shot_data)
+        return data_df
 
     def get_game_shot_data_single_season(self, season: int) -> pd.DataFrame:
         """
