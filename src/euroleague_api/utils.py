@@ -107,7 +107,7 @@ def get_data_over_collection_of_games(
             games in the collection.
     """
     data_list = []
-    for i, row in tqdm(game_codes_df.iterrows(),
+    for _, row in tqdm(game_codes_df.iterrows(),
                        total=game_codes_df.shape[0],
                        desc=f"Season {season}", leave=True):
         game_code = row["gameCode"]
