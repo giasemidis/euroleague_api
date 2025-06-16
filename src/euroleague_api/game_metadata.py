@@ -48,6 +48,7 @@ class GameMetadata(EuroLeagueData):
         metadata_df = pd.json_normalize(data)
         metadata_df.insert(0, 'Season', season)
         metadata_df.insert(1, 'Gamecode', gamecode)
+        metadata_df["Round"] = metadata_df["Round"].astype(int)
         return metadata_df
 
     def get_game_metadata_round(

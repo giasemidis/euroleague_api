@@ -96,12 +96,19 @@ class EuroLeagueData:
 
         data = xmltodict.parse(r.content)
         df = pd.DataFrame(data["results"]["game"])
-        df.rename(columns={"gamenumber": "gameCode"}, inplace=True)
-        int_cols = ["gameday", "gameCode", "homescore", "awayscore"]
+        df.rename(
+            columns={
+                "gamenumber": "gameCode",
+                "round": "Phase",
+                "gameday": "Round"
+            },
+            inplace=True
+        )
+        int_cols = ["Round", "gameCode", "homescore", "awayscore"]
         df[int_cols] = df[int_cols].astype(int)
         df["played"] = df["played"].astype(
             bool).replace({"true": True, "false": False})
-        df.rename(columns={"round": "Phase", "gameday": "Round"}, inplace=True)
+        df.sort_values(["gameCode"], inplace=True)
         return df
 
     def get_gamecodes_round(
@@ -142,6 +149,7 @@ class EuroLeagueData:
             },
             inplace=True
         )
+        df.sort_values(["gameCode"], inplace=True)
         return df
 
     def get_round_data_from_game_data(
