@@ -50,15 +50,15 @@ class GameMetadata(EuroLeagueData):
         metadata_df.insert(1, 'Gamecode', gamecode)
         return metadata_df
 
-    def get_gmae_metadata_round(
-        self, season: int, round: int
+    def get_game_metadata_round(
+        self, season: int, round_number: int
     ) -> pd.DataFrame:
         """
         A function that gets the metadata of all games in a single round.
 
         Args:
             season (int): The start year of the season.
-            round (int): The round of the season.
+            round_number (int): The round of the season.
 
         Returns:
             pd.DataFrame: A dataframe with the metadata of all games in a
@@ -66,7 +66,7 @@ class GameMetadata(EuroLeagueData):
         """
         df = self.get_round_data_from_game_data(
             season=season,
-            round=round,
+            round_number=round_number,
             fun=self.get_game_metadata
         )
         return df

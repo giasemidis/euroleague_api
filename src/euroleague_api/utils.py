@@ -107,7 +107,7 @@ def get_data_over_collection_of_games(
             games in the collection.
     """
     data_list = []
-    for _, row in tqdm(game_codes_df.iterrows(),
+    for i, row in tqdm(game_codes_df.iterrows(),
                        total=game_codes_df.shape[0],
                        desc=f"Season {season}", leave=True):
         game_code = row["gameCode"]
@@ -118,10 +118,10 @@ def get_data_over_collection_of_games(
                     f"Game {game_code}, season {season} returned no data."
                 )
                 continue
-            if ("Phase" not in df.columns) and ("round" in row):
-                df.insert(1, "Phase", row["round"])
-            if ("Round" not in df.columns) and ("gameday" in row):
-                df.insert(2, "Round", row["gameday"])
+            if ("Phase" not in df.columns) and ("Phase" in row):
+                df.insert(1, "Phase", row["Phase"])
+            if ("Round" not in df.columns) and ("Round" in row):
+                df.insert(2, "Round", row["Round"])
             data_list.append(df)
         except HTTPError as err:
             logger.warning(

@@ -160,6 +160,41 @@ class BoxScoreData(EuroLeagueData):
         df = pd.concat([home_df, away_df], axis=0, ignore_index=True)
         return df
 
+    def get_game_boxscore_quarter_data_round(
+        self,
+        season: int,
+        round_number: int,
+        boxscore_type: str = "ByQuarter"
+    ) -> pd.DataFrame:
+        """
+        A function that gets the boxscore quarter data of all games in a
+        particular round of a season
+
+        Args:
+
+            season (int): The start year of the season
+
+            round_number (int): The number of the round
+
+            boxscore_type (str): The type of quarter boxscore data.
+                Available values:
+                - ByQuarter
+                - EndOfQuarter
+                Default: ByQuarter
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the boxscore quarter data of all
+                games in a particular round of a season
+        """
+        get_game_boxscore_quarter_data_ = (
+            lambda season, gamecode: self.get_game_boxscore_quarter_data(
+                season, gamecode, boxscore_type)
+        )
+        data_df = self.get_round_data_from_game_data(
+            season, round_number, get_game_boxscore_quarter_data_)
+        return data_df
+
     def get_game_boxscore_quarter_data_single_season(
         self,
         season: int,
@@ -226,6 +261,27 @@ class BoxScoreData(EuroLeagueData):
         df = self.get_range_seasons_data(
             start_season, end_season, get_game_boxscore_quarter_data_)
         return df
+
+    def get_player_boxscore_stats_round(
+        self,
+        season: int,
+        round_number: int
+    ) -> pd.DataFrame:
+        """
+        A function that return the player boxscore stats for all games in a
+        single round
+
+        Args:
+            season (int): The start year of the start season
+            round_number (int): The number of the round
+
+        Returns:
+            pd.DataFrame: A dataframe with home and away team player stats for
+                a season
+        """
+        data_df = self.get_round_data_from_game_data(
+            season, round_number, self.get_player_boxscore_stats_data)
+        return data_df
 
     def get_player_boxscore_stats_single_season(
         self,

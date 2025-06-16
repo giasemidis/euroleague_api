@@ -26,7 +26,7 @@ class EuroLeagueData:
     V1 = "v1"
 
     def __init__(self, competition="E"):
-        """_summary_
+        """init function for the EuroLeagueData class.
 
         Args:
             competition (str, optional): The competition code. Choose one of:
@@ -76,7 +76,7 @@ class EuroLeagueData:
         )
         return full_url
 
-    def get_game_gamecodes_season(self, season: int) -> pd.DataFrame:
+    def get_gamecodes_season(self, season: int) -> pd.DataFrame:
         """
         A function that returns the game metadata, e.g. gamecodes of season
 
@@ -89,8 +89,6 @@ class EuroLeagueData:
             pd.DataFrame: A dataframe with the season's game metadata, e.g.
                 gamecode, score, home-away teams, date, round, etc.
         """
-        # url = f"{self.url_v1}?seasonCode={self.competition}{season}"
-        # r = get_requests(url)
         params = {
             "seasonCode": f"{self.competition}{season}",
         }
@@ -103,9 +101,13 @@ class EuroLeagueData:
         df[int_cols] = df[int_cols].astype(int)
         df["played"] = df["played"].astype(
             bool).replace({"true": True, "false": False})
+        df.rename(columns={"round": "Phase", "gameday": "Round"}, inplace=True)
         return df
 
-    def get_gamecodes_round(self, season: int, round: int) -> pd.DataFrame:
+    def get_gamecodes_round(
+            self, season: int,
+            round_number: int
+    ) -> pd.DataFrame:
         """
         A function that returns the game metadata, e.g. gamecodes of a round
         in a season.
@@ -114,32 +116,38 @@ class EuroLeagueData:
 
             season (int): The start year of the season.
 
-            round (int): The round number.
+            round_number (int): The round number.
 
         Returns:
 
-            pd.DataFrame: A dataframe with the round's game metadata, e.g.
-                gamecode, score, home-away teams, date, etc.
+            pd.DataFrame: A dataframe with the round_number's game metadata,
+                e.g. gamecode, score, home-away teams, date, etc.
         """
         url = f"{self.url_v2}/seasons/{self.competition}{season}/games"
-        params = {
-            "roundNumber": round
-        }
+        params = {"roundNumber": round_number}
         r = get_requests(url, params=params)
         try:
             data = r.json()
         except JSONDecodeError as exc:
             raise ValueError(
-                f"Round, {round}, season {season}, did not return any data."
+                f"Round, {round_number}, season {season}, "
+                "did not return any data."
             ) from exc
 
         df = pd.json_normalize(data["data"])
+        df.rename(
+            columns={
+                "round": "Round",
+                "phaseType.code": "Phase"
+            },
+            inplace=True
+        )
         return df
 
     def get_round_data_from_game_data(
         self,
         season: int,
-        round: int,
+        round_number: int,
         fun: Callable[[int, int], pd.DataFrame]
     ) -> pd.DataFrame:
         """A wrapper function for getting game data for all games in a single
@@ -148,7 +156,7 @@ class EuroLeagueData:
         Args:
             season (int, optional): The start year of the season.
 
-            round (int): The round of the season.
+            round_number (int): The round of the season.
 
             fun (Callable[[int, int], pd.DataFrame]): A callable function that
                 determines that type of data to be collected. Available values:
@@ -166,7 +174,7 @@ class EuroLeagueData:
             pd.DataFrame: A dataframe with the corresponding data of a single
                 round
         """
-        round_game_codes_df = self.get_gamecodes_round(season, round)
+        round_game_codes_df = self.get_gamecodes_round(season, round_number)
         df = get_data_over_collection_of_games(
             round_game_codes_df,
             season=season,
@@ -203,11 +211,11 @@ class EuroLeagueData:
             pd.DataFrame: A dataframe with the corresponding data of all
                 games in a single season.
         """
-        game_metadata_df = self.get_game_gamecodes_season(season)
+        game_metadata_df = self.get_gamecodes_season(season)
         game_metadata_df = game_metadata_df[game_metadata_df["played"]]
         season_game_codes_df = (
-            game_metadata_df[["round", "gameday", "gameCode"]]
-            .drop_duplicates().sort_values(["gameCode", "gameday"])
+            game_metadata_df[["Phase", "Round", "gameCode"]]
+            .drop_duplicates().sort_values(["gameCode", "Round"])
             .reset_index(drop=True)
         )
         df = get_data_over_collection_of_games(

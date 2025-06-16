@@ -78,7 +78,7 @@ class PlayByPlay(EuroLeagueData):
     def get_play_by_play_data_round(
         self,
         season: int,
-        round: int
+        round_number: int
     ) -> pd.DataFrame:
         """
         A function that gets the play-by-play data of *all* games in a single
@@ -86,14 +86,14 @@ class PlayByPlay(EuroLeagueData):
 
         Args:
             season (int): The start year of the season
-            round (int): The round of the season
+            round_number (int): The round of the season
 
         Returns:
             pd.DataFrame: A dataframe with the play-by-play data of all games
-                in a single round
+                in a single round_number
         """
         df = self.get_round_data_from_game_data(
-            season, round, self.get_game_play_by_play_data)
+            season, round_number, self.get_game_play_by_play_data)
         return df
 
     def get_game_play_by_play_data_single_season(
@@ -313,7 +313,7 @@ class PlayByPlay(EuroLeagueData):
     def get_pbp_data_with_lineups_round(
         self,
         season: int,
-        round: int
+        round_number: int
     ) -> pd.DataFrame:
         """
         A function that gets the play-by-play with lineups data of *all* games
@@ -321,14 +321,14 @@ class PlayByPlay(EuroLeagueData):
 
         Args:
             season (int): The start year of the season
-            round (int): The round of the season
+            round_number (int): The round of the season
 
         Returns:
             pd.DataFrame: A dataframe with the play-by-play data with lineups
                 of all games in a single round
         """
         df = self.get_round_data_from_game_data(
-            season, round, self.get_pbp_data_with_lineups)
+            season, round_number, self.get_pbp_data_with_lineups)
         return df
 
     def get_pbp_data_with_lineups_single_season(
