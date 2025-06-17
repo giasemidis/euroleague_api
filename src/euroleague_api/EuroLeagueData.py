@@ -108,7 +108,7 @@ class EuroLeagueData:
         df[int_cols] = df[int_cols].astype(int)
         df["played"] = df["played"].astype(
             bool).replace({"true": True, "false": False})
-        df.sort_values(["gameCode"], inplace=True)
+        df.sort_values(["gameCode"], ignore_index=True, inplace=True)
         return df
 
     def get_gamecodes_round(
@@ -149,7 +149,7 @@ class EuroLeagueData:
             },
             inplace=True
         )
-        df.sort_values(["gameCode"], inplace=True)
+        df.sort_values(["gameCode"], ignore_index=True, inplace=True)
         return df
 
     def get_round_data_from_game_data(
@@ -182,9 +182,10 @@ class EuroLeagueData:
             pd.DataFrame: A dataframe with the corresponding data of a single
                 round
         """
-        round_game_codes_df = self.get_gamecodes_round(season, round_number)
+        game_codes_df = self.get_gamecodes_round(season, round_number)
+        game_codes_df = game_codes_df[game_codes_df["played"]]
         df = get_data_over_collection_of_games(
-            round_game_codes_df,
+            game_codes_df,
             season=season,
             fun=fun
         )
@@ -219,10 +220,10 @@ class EuroLeagueData:
             pd.DataFrame: A dataframe with the corresponding data of all
                 games in a single season.
         """
-        game_metadata_df = self.get_gamecodes_season(season)
-        game_metadata_df = game_metadata_df[game_metadata_df["played"]]
+        game_codes_df = self.get_gamecodes_season(season)
+        game_codes_df = game_codes_df[game_codes_df["played"]]
         season_game_codes_df = (
-            game_metadata_df[["Phase", "Round", "gameCode"]]
+            game_codes_df[["Phase", "Round", "gameCode"]]
             .drop_duplicates().sort_values(["gameCode", "Round"])
             .reset_index(drop=True)
         )
