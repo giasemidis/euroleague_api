@@ -1073,12 +1073,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_boxscore_data">get_boxscore_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data">get_game_boxscore_quarter_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_multiple_seasons">get_game_boxscore_quarter_data_multiple_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_round">get_game_boxscore_quarter_data_round</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_single_season">get_game_boxscore_quarter_data_single_season</a></li>
-    <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_game_gamecodes_season">get_game_gamecodes_season</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_round">get_gamecodes_round</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_season">get_gamecodes_season</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_data">get_player_boxscore_stats_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_multiple_seasons">get_player_boxscore_stats_multiple_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_round">get_player_boxscore_stats_round</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_single_season">get_player_boxscore_stats_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_range_seasons_data">get_range_seasons_data</a></li>
+    <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_round_data_from_game_data">get_round_data_from_game_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
     <li class="mono"><a href="#euroleague_api.boxscore_data.BoxScoreData.make_season_game_url">make_season_game_url</a></li>
   </ul>
@@ -1159,9 +1163,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;did not return any data.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
         <span class="n">boxscore_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stats&quot;</span><span class="p">,</span> <span class="s2">&quot;ByQuarter&quot;</span><span class="p">,</span> <span class="s2">&quot;EndOfQuarter&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">boxscore_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">boxscore_types</span><span class="p">:</span>
@@ -1262,6 +1268,41 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
+    <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_round</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">boxscore_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ByQuarter&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A function that gets the boxscore quarter data of all games in a</span>
+<span class="sd">        particular round of a season</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            season (int): The start year of the season</span>
+
+<span class="sd">            round_number (int): The number of the round</span>
+
+<span class="sd">            boxscore_type (str): The type of quarter boxscore data.</span>
+<span class="sd">                Available values:</span>
+<span class="sd">                - ByQuarter</span>
+<span class="sd">                - EndOfQuarter</span>
+<span class="sd">                Default: ByQuarter</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the boxscore quarter data of all</span>
+<span class="sd">                games in a particular round of a season</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">get_game_boxscore_quarter_data_</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_boxscore_quarter_data</span><span class="p">(</span>
+                <span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="n">boxscore_type</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="n">get_game_boxscore_quarter_data_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_df</span>
+
     <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1328,6 +1369,27 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
             <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_game_boxscore_quarter_data_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_player_boxscore_stats_round</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A function that return the player boxscore stats for all games in a</span>
+<span class="sd">        single round</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            season (int): The start year of the start season</span>
+<span class="sd">            round_number (int): The number of the round</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: A dataframe with home and away team player stats for</span>
+<span class="sd">                a season</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_df</span>
 
     <span class="k">def</span> <span class="nf">get_player_boxscore_stats_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1440,9 +1502,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;did not return any data.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
         <span class="n">boxscore_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stats&quot;</span><span class="p">,</span> <span class="s2">&quot;ByQuarter&quot;</span><span class="p">,</span> <span class="s2">&quot;EndOfQuarter&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">boxscore_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">boxscore_types</span><span class="p">:</span>
@@ -1543,6 +1607,41 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">home_df</span><span class="p">,</span> <span class="n">away_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
+    <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_round</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">boxscore_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ByQuarter&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A function that gets the boxscore quarter data of all games in a</span>
+<span class="sd">        particular round of a season</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            season (int): The start year of the season</span>
+
+<span class="sd">            round_number (int): The number of the round</span>
+
+<span class="sd">            boxscore_type (str): The type of quarter boxscore data.</span>
+<span class="sd">                Available values:</span>
+<span class="sd">                - ByQuarter</span>
+<span class="sd">                - EndOfQuarter</span>
+<span class="sd">                Default: ByQuarter</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the boxscore quarter data of all</span>
+<span class="sd">                games in a particular round of a season</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">get_game_boxscore_quarter_data_</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_boxscore_quarter_data</span><span class="p">(</span>
+                <span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="n">boxscore_type</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="n">get_game_boxscore_quarter_data_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_df</span>
+
     <span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1610,6 +1709,27 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="n">get_game_boxscore_quarter_data_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
+    <span class="k">def</span> <span class="nf">get_player_boxscore_stats_round</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A function that return the player boxscore stats for all games in a</span>
+<span class="sd">        single round</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            season (int): The start year of the start season</span>
+<span class="sd">            round_number (int): The number of the round</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: A dataframe with home and away team player stats for</span>
+<span class="sd">                a season</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_df</span>
+
     <span class="k">def</span> <span class="nf">get_player_boxscore_stats_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span>
@@ -1673,7 +1793,27 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
             </div>
             <div class="item">
-            <p id="euroleague_api.boxscore_data.BoxScoreData.VERSION" class="name">var <span class="ident">VERSION</span></p>
+            <p id="euroleague_api.boxscore_data.BoxScoreData.V1" class="name">var <span class="ident">V1</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="euroleague_api.boxscore_data.BoxScoreData.V2" class="name">var <span class="ident">V2</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="euroleague_api.boxscore_data.BoxScoreData.V3" class="name">var <span class="ident">V3</span></p>
             
 
             
@@ -1740,9 +1880,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    <span class="k">except</span> <span class="n">JSONDecodeError</span><span class="p">:</span>
+    <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, did not return any data.&quot;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;did not return any data.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
     <span class="n">boxscore_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stats&quot;</span><span class="p">,</span> <span class="s2">&quot;ByQuarter&quot;</span><span class="p">,</span> <span class="s2">&quot;EndOfQuarter&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">boxscore_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">boxscore_types</span><span class="p">:</span>
         <span class="n">raise_error</span><span class="p">(</span><span class="n">boxscore_type</span><span class="p">,</span> <span class="s2">&quot;Boxscore&quot;</span><span class="p">,</span> <span class="n">boxscore_types</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -1890,6 +2032,70 @@ boxscore_type (str): The type of quarter boxscore data.
   
             
   <div class="item">
+    <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_round">
+    <p>def <span class="ident">get_game_boxscore_quarter_data_round</span>(</p><p>self, season: int, round_number: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the boxscore quarter data of all games in a
+particular round of a season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+
+round_number (int): The number of the round
+
+boxscore_type (str): The type of quarter boxscore data.
+    Available values:
+    - ByQuarter
+    - EndOfQuarter
+    Default: ByQuarter
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the boxscore quarter data of all
+    games in a particular round of a season
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_round', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_round" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_boxscore_quarter_data_round</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">boxscore_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ByQuarter&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the boxscore quarter data of all games in a</span>
+<span class="sd">    particular round of a season</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        round_number (int): The number of the round</span>
+<span class="sd">        boxscore_type (str): The type of quarter boxscore data.</span>
+<span class="sd">            Available values:</span>
+<span class="sd">            - ByQuarter</span>
+<span class="sd">            - EndOfQuarter</span>
+<span class="sd">            Default: ByQuarter</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the boxscore quarter data of all</span>
+<span class="sd">            games in a particular round of a season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">get_game_boxscore_quarter_data_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_boxscore_quarter_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">,</span> <span class="n">boxscore_type</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="n">get_game_boxscore_quarter_data_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_boxscore_quarter_data_single_season">
     <p>def <span class="ident">get_game_boxscore_quarter_data_single_season</span>(</p><p>self, season: int, boxscore_type: str = &#39;ByQuarter&#39;)</p>
     </div>
@@ -1950,8 +2156,72 @@ Default: ByQuarter
   
             
   <div class="item">
-    <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_game_gamecodes_season">
-    <p>def <span class="ident">get_game_gamecodes_season</span>(</p><p>self, season: int)</p>
+    <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_round">
+    <p>def <span class="ident">get_gamecodes_round</span>(</p><p>self, season: int, round_number: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that returns the game metadata, e.g. gamecodes of a round
+in a season.</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season.
+
+round_number (int): The round number.
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the round_number's game metadata,
+    e.g. gamecode, score, home-away teams, date, etc.
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_round', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_round" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_gamecodes_round</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that returns the game metadata, e.g. gamecodes of a round</span>
+<span class="sd">    in a season.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season.</span>
+<span class="sd">        round_number (int): The round number.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the round_number&#39;s game metadata,</span>
+<span class="sd">            e.g. gamecode, score, home-away teams, date, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/seasons/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">/games&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;roundNumber&quot;</span><span class="p">:</span> <span class="n">round_number</span><span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Round, </span><span class="si">{</span><span class="n">round_number</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;did not return any data.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;round&quot;</span><span class="p">:</span> <span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phaseType.code&quot;</span><span class="p">:</span> <span class="s2">&quot;Phase&quot;</span>
+        <span class="p">},</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gameCode&quot;</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_season">
+    <p>def <span class="ident">get_gamecodes_season</span>(</p><p>self, season: int)</p>
     </div>
     
 
@@ -1966,9 +2236,9 @@ Default: ByQuarter
     gamecode, score, home-away teams, date, round, etc.
 </code></pre></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_game_gamecodes_season', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.boxscore_data.BoxScoreData.get_game_gamecodes_season" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_gamecodes_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.BoxScoreData.get_gamecodes_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_gamecodes_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A function that returns the game metadata, e.g. gamecodes of season</span>
 <span class="sd">    Args:</span>
@@ -1977,17 +2247,25 @@ Default: ByQuarter
 <span class="sd">        pd.DataFrame: A dataframe with the season&#39;s game metadata, e.g.</span>
 <span class="sd">            gamecode, score, home-away teams, date, round, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;https://api-live.euroleague.net/v1/results&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;?seasonCode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;seasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v1</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="s2">&quot;game&quot;</span><span class="p">])</span>
-    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;gamenumber&quot;</span><span class="p">:</span> <span class="s2">&quot;gameCode&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;round&quot;</span><span class="p">:</span> <span class="s2">&quot;Phase&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gameday&quot;</span><span class="p">:</span> <span class="s2">&quot;Round&quot;</span>
+        <span class="p">},</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameCode&quot;</span><span class="p">,</span> <span class="s2">&quot;homescore&quot;</span><span class="p">,</span> <span class="s2">&quot;awayscore&quot;</span><span class="p">]</span>
     <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">int_cols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
         <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gameCode&quot;</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2115,6 +2393,51 @@ multiple season</p>
   
             
   <div class="item">
+    <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_round">
+    <p>def <span class="ident">get_player_boxscore_stats_round</span>(</p><p>self, season: int, round_number: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that return the player boxscore stats for all games in a
+single round</p>
+<p>Args:
+    season (int): The start year of the start season
+    round_number (int): The number of the round</p>
+<p>Returns:
+    pd.DataFrame: A dataframe with home and away team player stats for
+        a season</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_round', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_round" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_boxscore_stats_round</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that return the player boxscore stats for all games in a</span>
+<span class="sd">    single round</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the start season</span>
+<span class="sd">        round_number (int): The number of the round</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with home and away team player stats for</span>
+<span class="sd">            a season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_player_boxscore_stats_single_season">
     <p>def <span class="ident">get_player_boxscore_stats_single_season</span>(</p><p>self, season: int)</p>
     </div>
@@ -2175,9 +2498,15 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
     - get_game_report
     - get_game_stats
     - get_game_teams_comparison
+    - get_game_play_by_play_data
+    - get_game_shot_data
+    - get_game_boxscore_quarter_data
+    - get_player_boxscore_stats_data
+    - get_game_metadata
 </code></pre>
 <p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the game data
+<pre><code>pd.DataFrame: A dataframe with the corresponding data of all
+    games in a range of seasons.
 </code></pre></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_range_seasons_data', this);">Show source &equiv;</a></p>
@@ -2198,8 +2527,14 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 <span class="sd">            - get_game_report</span>
 <span class="sd">            - get_game_stats</span>
 <span class="sd">            - get_game_teams_comparison</span>
+<span class="sd">            - get_game_play_by_play_data</span>
+<span class="sd">            - get_game_shot_data</span>
+<span class="sd">            - get_game_boxscore_quarter_data</span>
+<span class="sd">            - get_player_boxscore_stats_data</span>
+<span class="sd">            - get_game_metadata</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the game data</span>
+<span class="sd">        pd.DataFrame: A dataframe with the corresponding data of all</span>
+<span class="sd">            games in a range of seasons.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span>
@@ -2208,6 +2543,78 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.boxscore_data.BoxScoreData.get_round_data_from_game_data">
+    <p>def <span class="ident">get_round_data_from_game_data</span>(</p><p>self, season: int, round_number: int, fun: Callable[[int, int], pandas.core.frame.DataFrame])</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for getting game data for all games in a single
+round.</p>
+<p>Args:
+    season (int, optional): The start year of the season.</p>
+<pre><code>round_number (int): The round of the season.
+
+fun (Callable[[int, int], pd.DataFrame]): A callable function that
+    determines that type of data to be collected. Available values:
+    - get_game_report
+    - get_game_stats
+    - get_game_teams_comparison
+    - get_game_play_by_play_data
+    - get_game_shot_data
+    - get_game_boxscore_quarter_data
+    - get_player_boxscore_stats_data
+    - get_game_metadata
+</code></pre>
+<p>Returns:
+    pd.DataFrame: A dataframe with the corresponding data of a single
+        round</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_round_data_from_game_data', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.boxscore_data.BoxScoreData.get_round_data_from_game_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_round_data_from_game_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A wrapper function for getting game data for all games in a single</span>
+<span class="sd">    round.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int, optional): The start year of the season.</span>
+<span class="sd">        round_number (int): The round of the season.</span>
+<span class="sd">        fun (Callable[[int, int], pd.DataFrame]): A callable function that</span>
+<span class="sd">            determines that type of data to be collected. Available values:</span>
+<span class="sd">            - get_game_report</span>
+<span class="sd">            - get_game_stats</span>
+<span class="sd">            - get_game_teams_comparison</span>
+<span class="sd">            - get_game_play_by_play_data</span>
+<span class="sd">            - get_game_shot_data</span>
+<span class="sd">            - get_game_boxscore_quarter_data</span>
+<span class="sd">            - get_player_boxscore_stats_data</span>
+<span class="sd">            - get_game_metadata</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the corresponding data of a single</span>
+<span class="sd">            round</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_gamecodes_round</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">)</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="n">game_codes_df</span><span class="p">[</span><span class="n">game_codes_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data_over_collection_of_games</span><span class="p">(</span>
+        <span class="n">game_codes_df</span><span class="p">,</span>
+        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+        <span class="n">fun</span><span class="o">=</span><span class="n">fun</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2235,9 +2642,15 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
     - get_game_report
     - get_game_stats
     - get_game_teams_comparison
+    - get_game_play_by_play_data
+    - get_game_shot_data
+    - get_game_boxscore_quarter_data
+    - get_player_boxscore_stats_data
+    - get_game_metadata
 </code></pre>
 <p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the game data.
+<pre><code>pd.DataFrame: A dataframe with the corresponding data of all
+    games in a single season.
 </code></pre></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.boxscore_data.BoxScoreData.get_season_data_from_game_data', this);">Show source &equiv;</a></p>
@@ -2257,48 +2670,28 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
 <span class="sd">            - get_game_report</span>
 <span class="sd">            - get_game_stats</span>
 <span class="sd">            - get_game_teams_comparison</span>
+<span class="sd">            - get_game_play_by_play_data</span>
+<span class="sd">            - get_game_shot_data</span>
+<span class="sd">            - get_game_boxscore_quarter_data</span>
+<span class="sd">            - get_player_boxscore_stats_data</span>
+<span class="sd">            - get_game_metadata</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the game data.</span>
+<span class="sd">        pd.DataFrame: A dataframe with the corresponding data of all</span>
+<span class="sd">            games in a single season.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_gamecodes_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
-    <span class="n">game_metadata_df</span> <span class="o">=</span> <span class="n">game_metadata_df</span><span class="p">[</span><span class="n">game_metadata_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
-    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">game_metadata_df</span><span class="p">[[</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">,</span> <span class="s2">&quot;gamenumber&quot;</span><span class="p">]]</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">,</span> <span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_gamecodes_season</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
+    <span class="n">game_codes_df</span> <span class="o">=</span> <span class="n">game_codes_df</span><span class="p">[</span><span class="n">game_codes_df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]]</span>
+    <span class="n">season_game_codes_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">game_codes_df</span><span class="p">[[</span><span class="s2">&quot;Phase&quot;</span><span class="p">,</span> <span class="s2">&quot;Round&quot;</span><span class="p">,</span> <span class="s2">&quot;gameCode&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gameCode&quot;</span><span class="p">,</span> <span class="s2">&quot;Round&quot;</span><span class="p">])</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
-                       <span class="n">total</span><span class="o">=</span><span class="n">game_codes_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                       <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">game_code</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gamenumber&quot;</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> returned no data.&quot;</span><span class="p">)</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Phase&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;round&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
-                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Round&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;gameday&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">):</span>
-                <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Round&quot;</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;gameday&quot;</span><span class="p">])</span>
-            <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;HTTPError: Didn&#39;t find gamecode </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2"> for season &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">. Invalid </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">. Skip and continue.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Something went wrong for game </span><span class="si">{</span><span class="n">game_code</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
-            <span class="p">)</span>
-    <span class="k">if</span> <span class="n">data_list</span><span class="p">:</span>
-        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">data_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([])</span>
-    <span class="k">return</span> <span class="n">data_df</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data_over_collection_of_games</span><span class="p">(</span>
+        <span class="n">season_game_codes_df</span><span class="p">,</span>
+        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+        <span class="n">fun</span><span class="o">=</span><span class="n">fun</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
   </div>

@@ -1,6 +1,41 @@
 # Module euroleague_api.utils
 
+## Variables
+
+```python3
+logger
+```
+
 ## Functions
+
+    
+### get_data_over_collection_of_games
+
+```python3
+def get_data_over_collection_of_games(
+    game_codes_df,
+    season: int,
+    fun: Callable[[int, int], pandas.core.frame.DataFrame]
+) -> pandas.core.frame.DataFrame
+```
+
+A function that collects data over a collection of games given their
+
+game codes. It is a wrapper function that calls the `fun` function
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| game_codes_df | _type_ | _description_ | None |
+| season | int | The start year of the season. | None |
+| fun | Callable[[int, int], pd.DataFrame] | A callable function that<br>determines that type of data to be collected. Available values:<br>- get_game_report<br>- get_game_stats<br>- get_game_teams_comparison<br>- get_game_play_by_play_data<br>- get_game_shot_data<br>- get_game_boxscore_quarter_data<br>- get_player_boxscore_stats_data<br>- get_game_metadata | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the corresponding data of all<br>games in the collection. |
 
     
 ### get_requests
