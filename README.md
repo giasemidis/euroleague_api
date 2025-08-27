@@ -70,6 +70,21 @@ See also the `notebooks/get-season-stats.ipynb` notebook for examples.
 
 [utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/utils.html)
 
-## TODO
 
-- Add tests
+## Testing
+
+### Running Tests
+
+```bash
+# Install with test dependencies
+pip install -e .[dev]
+
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=euroleague_api --cov-report=html
+
+# Run only unit tests (skip integration tests)
+pytest tests/ -m "not integration"
+```
