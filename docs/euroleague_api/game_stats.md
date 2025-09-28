@@ -103,6 +103,34 @@ Get game report data for a game
 | pd.DataFrame | A dataframw with the game report data |
 
     
+#### get_game_report_round
+
+```python3
+def get_game_report_round(
+    self,
+    season: int,
+    round_number: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that gets the game report data
+
+of *all* games in a single round
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| round_number | int | The round of the season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game report data of<br>all games in a single round |
+
+    
 #### get_game_reports_range_seasons
 
 ```python3
@@ -205,6 +233,34 @@ Get game stats data for *all* games in a range of seasons
 | pd.DataFrame | A dataframe with the games' stats data |
 
     
+#### get_game_stats_round
+
+```python3
+def get_game_stats_round(
+    self,
+    season: int,
+    round_number: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that gets the game stats data
+
+of *all* games in a single round
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| round_number | int | The round of the season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the game stats of<br>all games in a single round |
+
+    
 #### get_game_stats_single_season
 
 ```python3
@@ -284,6 +340,34 @@ A function that gets the pre-game "teams comparison" game stats for
 | Type | Description |
 |---|---|
 | pd.DataFrame | A dataframe with games teams comparison stats |
+
+    
+#### get_game_teams_comparison_round
+
+```python3
+def get_game_teams_comparison_round(
+    self,
+    season: int,
+    round_number: int
+) -> pandas.core.frame.DataFrame
+```
+
+A function that gets the "teams comparison" game stats
+
+of *all* games in a single round
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+| round_number | int | The round of the season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the "teams comparison" game stats of<br>all games in a single round |
 
     
 #### get_game_teams_comparison_single_season
