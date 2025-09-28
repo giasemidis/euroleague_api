@@ -81,6 +81,26 @@ class GameStats(EuroLeagueData):
         df = self.get_game_data(season, game_code, "report")
         return df
 
+    def get_game_report_round(
+        self, season: int, round_number: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the game report data
+        of *all* games in a single round
+
+        Args:
+            season (int): The start year of the season
+            round_number (int): The round of the season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the game report data of
+                all games in a single round
+        """
+        data_df = self.get_round_data_from_game_data(
+            season, round_number, self.get_game_report)
+        return data_df
+
     def get_game_reports_single_season(self, season: int) -> pd.DataFrame:
         """
         Get game report data for *all* games in a single season
@@ -134,6 +154,26 @@ class GameStats(EuroLeagueData):
         """
         df = self.get_game_data(season, game_code, "stats")
         return df
+
+    def get_game_stats_round(
+        self, season: int, round_number: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the game stats data
+        of *all* games in a single round
+
+        Args:
+            season (int): The start year of the season
+            round_number (int): The round of the season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the game stats of
+                all games in a single round
+        """
+        data_df = self.get_round_data_from_game_data(
+            season, round_number, self.get_game_stats)
+        return data_df
 
     def get_game_stats_single_season(self, season: int) -> pd.DataFrame:
         """
@@ -196,6 +236,26 @@ class GameStats(EuroLeagueData):
         """
         df = self.get_game_data(season, game_code, "teamsComparison")
         return df
+
+    def get_game_teams_comparison_round(
+        self, season: int, round_number: int
+    ) -> pd.DataFrame:
+        """
+        A function that gets the "teams comparison" game stats
+        of *all* games in a single round
+
+        Args:
+            season (int): The start year of the season
+            round_number (int): The round of the season
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the "teams comparison" game stats of
+                all games in a single round
+        """
+        data_df = self.get_round_data_from_game_data(
+            season, round_number, self.get_game_teams_comparison)
+        return data_df
 
     def get_game_teams_comparison_single_season(
             self, season: int) -> pd.DataFrame:
