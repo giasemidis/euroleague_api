@@ -1,7 +1,10 @@
+import logging
 from json.decoder import JSONDecodeError
 import pandas as pd
 from .EuroLeagueData import EuroLeagueData
 from .utils import get_requests
+
+logger = logging.getLogger(__name__)
 
 
 class GameMetadata(EuroLeagueData):
@@ -41,10 +44,11 @@ class GameMetadata(EuroLeagueData):
         try:
             data = r.json()
         except JSONDecodeError as exc:
-            raise ValueError(
-                f"Game code, {gamecode}, season {season} "
-                "did not return any data."
-            ) from exc
+            logger.error(
+                f"Game code, {gamecode}, season {season}, "
+                "did not return valid JSON data."
+            )
+            raise exc
         metadata_df = pd.json_normalize(data)
         metadata_df.insert(0, 'Season', season)
         metadata_df.insert(1, 'Gamecode', gamecode)

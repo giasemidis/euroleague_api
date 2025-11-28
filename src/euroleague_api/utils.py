@@ -1,6 +1,7 @@
 from typing import Optional, List, Callable
 import requests
 from requests.exceptions import HTTPError
+from json.decoder import JSONDecodeError
 import logging
 import pandas as pd
 from tqdm.auto import tqdm
@@ -88,7 +89,7 @@ def get_data_over_collection_of_games(
     game codes. It is a wrapper function that calls the `fun` function
 
     Args:
-        game_codes_df (_type_): _description_
+        game_codes_df (pd.DataFrame): A dataframe of the game codes to collect
         season (int, optional): The start year of the season.
         fun (Callable[[int, int], pd.DataFrame]): A callable function that
             determines that type of data to be collected. Available values:
@@ -124,12 +125,19 @@ def get_data_over_collection_of_games(
                 df.insert(2, "Round", row["Round"])
             data_list.append(df)
         except HTTPError as err:
-            logger.warning(
+            logger.error(
                 f"HTTPError: Didn't find gamecode {game_code} for season "
-                f"{season}. Invalid {err}. Skip and continue."
+                f"{season}. \nError message {err}. "
+                "\nSkip and continue."
+            )
+        except JSONDecodeError:
+            logger.error(
+                f"JSONDecodeError: Game code, {game_code}, "
+                f"season {season}, did not return valid JSON data. "
+                "\nSkip and continue."
             )
         except Exception as e:  # noqa: E722
-            logger.warning(
+            logger.error(
                 f"\nSomething went wrong for game {game_code}, "
                 f"season {season}.\nError message: {e}. "
                 "\nSkip and continue"

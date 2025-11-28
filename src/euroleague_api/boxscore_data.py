@@ -1,4 +1,5 @@
 from typing import List
+import logging
 from json.decoder import JSONDecodeError
 import pandas as pd
 import numpy as np
@@ -7,6 +8,8 @@ from .utils import (
     get_requests,
     raise_error
 )
+
+logger = logging.getLogger(__name__)
 
 
 class BoxScoreData(EuroLeagueData):
@@ -56,10 +59,18 @@ class BoxScoreData(EuroLeagueData):
         try:
             data = r.json()
         except JSONDecodeError as exc:
-            raise ValueError(
+            logger.error(
                 f"Game code, {gamecode}, season {season}, "
-                "did not return any data."
-            ) from exc
+                "did not return valid JSON data."
+            )
+            raise exc
+        except KeyError as exc:
+            logger.error(
+                f"Game code, {gamecode}, season {season}, "
+                "returned incomplete data."
+            )
+            raise exc
+
         boxscore_types = ["Stats", "ByQuarter", "EndOfQuarter"]
 
         if boxscore_type not in boxscore_types:

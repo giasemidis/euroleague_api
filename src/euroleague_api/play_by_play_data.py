@@ -50,10 +50,11 @@ class PlayByPlay(EuroLeagueData):
         try:
             data = r.json()
         except JSONDecodeError as exc:
-            raise ValueError(
+            logger.error(
                 f"Game code, {gamecode}, season {season}, "
-                "did not return any data."
-            ) from exc
+                "did not return valid JSON data."
+            )
+            raise exc
 
         periods = [
             'FirstQuarter', 'SecondQuarter', 'ThirdQuarter', 'ForthQuarter',
@@ -66,6 +67,12 @@ class PlayByPlay(EuroLeagueData):
                 df["PERIOD"] = p + 1
                 all_data.append(df)
 
+        if not all_data:
+            logger.warning(
+                f"No play-by-play data found for gamecode {gamecode} "
+                f" and season {season}"
+            )
+            return pd.DataFrame()
         pbp_df = pd.concat(all_data).reset_index(drop=True)
         pbp_df['CODETEAM'] = pbp_df['CODETEAM'].str.strip()
         pbp_df['PLAYER_ID'] = pbp_df['PLAYER_ID'].str.strip()
@@ -201,6 +208,12 @@ class PlayByPlay(EuroLeagueData):
             potential_nops = (
                 set(potential_indx).difference(processed_idxs)
             )
+            if not potential_nops:
+                logger.warning(
+                    f"No potential matching subs found for gamecode "
+                    f"{gamecode} and season {season}"
+                )
+                return five
             matching_idx = min(potential_nops)
             processed_idxs.append(idx)
             processed_idxs.append(matching_idx)
@@ -215,11 +228,17 @@ class PlayByPlay(EuroLeagueData):
                     f"Something went wrong for gamecode {gamecode} at sub "
                     f"index {idx} with matching sub index {matching_idx}"
                 )
-            player_sub = matching_row["PLAYER"].replace(" ,", ",")
+            player_sub = matching_row["PLAYER"]
             player_in = player if sub_type == "IN" else player_sub
             player_out = player_sub if sub_type == "IN" else player
             if player_in == player_out:
                 # there are instance where the same player is subbed in and out
+                return five
+            elif player_out not in five:
+                logger.warning(
+                    f"Player {player_out} not found in current lineup, "
+                    f"{five}, for gamecode {gamecode} and season {season}."
+                )
                 return five
             else:
                 pindx = five.index(player_out)
@@ -229,16 +248,39 @@ class PlayByPlay(EuroLeagueData):
         def validate_player(x, col1, col2):
             flag = False
             if (x["PLAYER"] is not None) and (x["PLAYTYPE"] != "OUT"):
-                if x["PLAYER"].replace(" ,", ",") in (x[col1] + x[col2]):
+                if x["PLAYER"] in (x[col1] + x[col2]):
                     flag = True
             else:
                 flag = True
             return flag
 
+        # Fetch play-by-play data
+        pbp_data = self.get_game_play_by_play_data(
+            season=season, gamecode=gamecode)
+        if pbp_data.empty:
+            return pbp_data
+
+        # Asign the starting lineups to the first entry of the PBP data.
+        pbp_data["Lineup_A"] = None
+        pbp_data["Lineup_B"] = None
+        pbp_data["PLAYER"] = pbp_data["PLAYER"].str.replace(
+            "  ", " ").str.replace(" , ", ", ").str.strip()
+
         # Get the starting line-ups from boxscore data
         boxscoredata = BoxScoreData(competition=self.competition)
-        game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
-            season=season, gamecode=gamecode)
+        try:
+            game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
+                season=season, gamecode=gamecode)
+        except Exception as e:  # noqa: E722
+            logger.warning(
+                f"Something went wrong when fetching boxscore data for "
+                f"game {gamecode}, season {season}.\nError message: {e}. "
+                "\nSkip and continue"
+            )
+            pbp_data["validate_on_court_player"] = False
+            pbp_data["Lineup_A"] = pbp_data["Lineup_A"].apply(lambda x: [])
+            pbp_data["Lineup_B"] = pbp_data["Lineup_B"].apply(lambda x: [])
+            return pbp_data
 
         # find home and away teams
         hm_aw = game_bxscr_stats[["Home", "Team"]].drop_duplicates()
@@ -257,15 +299,12 @@ class PlayByPlay(EuroLeagueData):
         # Reset index if needed
         starting_five.reset_index(drop=True, inplace=True)
         starting_five = starting_five[[home_team, away_team]]
+        starting_five[home_team] = starting_five[home_team].str.replace(
+            "  ", " ").str.replace(" , ", ", ").str.strip()
+        starting_five[away_team] = starting_five[away_team].str.replace(
+            "  ", " ").str.replace(" , ", ", ").str.strip()
         starting_five_dict = starting_five.to_dict(orient='list')
 
-        # Fetch play-by-play data
-        pbp_data = self.get_game_play_by_play_data(
-            season=season, gamecode=gamecode)
-
-        # Asign the starting lineups to the first entry of the PBP data.
-        pbp_data["Lineup_A"] = None
-        pbp_data["Lineup_B"] = None
         pbp_data.at[0, "Lineup_A"] = starting_five_dict[home_team]
         pbp_data.at[0, "Lineup_B"] = starting_five_dict[away_team]
         pbp_data["IsHomeTeam"] = np.where(
@@ -273,7 +312,6 @@ class PlayByPlay(EuroLeagueData):
             np.where(pbp_data["CODETEAM"] == away_team,
                      False, None)  # type: ignore
         )
-
         # start processing the sub entries, row by row.
         processed_idxs: list = []
         current_five_home = starting_five_dict[home_team].copy()
@@ -283,7 +321,7 @@ class PlayByPlay(EuroLeagueData):
             # there are rare instances of an extra space in player name
             player = (
                 row["PLAYER"] if row["PLAYER"] is None
-                else row["PLAYER"].replace(" ,", ",")
+                else row["PLAYER"]
             )
             team = row["CODETEAM"]
             markertime = row["MARKERTIME"]

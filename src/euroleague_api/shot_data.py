@@ -1,7 +1,10 @@
+import logging
 from json.decoder import JSONDecodeError
 import pandas as pd
 from .EuroLeagueData import EuroLeagueData
 from .utils import get_requests
+
+logger = logging.getLogger(__name__)
 
 
 class ShotData(EuroLeagueData):
@@ -42,11 +45,12 @@ class ShotData(EuroLeagueData):
 
         try:
             data = r.json()
-        except JSONDecodeError:
-            raise ValueError(
+        except JSONDecodeError as exc:
+            logger.error(
                 f"Game code, {gamecode}, season {season}, "
-                "did not return any data."
+                "did not return valid JSON data."
             )
+            raise exc
 
         shots_df = pd.DataFrame(data['Rows'])
         # team id, player id and action id contain trailing white space
