@@ -169,6 +169,10 @@ class BoxScoreData(EuroLeagueData):
         away_df = dict_to_df_bx(data[1], home=0)
 
         df = pd.concat([home_df, away_df], axis=0, ignore_index=True)
+        df["Player"] = (
+            df["Player"].str.replace("  ", " ")
+            .str.replace(" , ", ", ").str.strip()
+        )
         return df
 
     def get_game_boxscore_quarter_data_round(

@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from .EuroLeagueData import EuroLeagueData
 from .boxscore_data import BoxScoreData
-from .utils import get_requests
+from .utils import get_requests, get_pbp_lineups
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,8 @@ class PlayByPlay(EuroLeagueData):
     def get_game_play_by_play_data(
         self,
         season: int,
-        gamecode: int
+        gamecode: int,
+        include_ishometeam: bool = False,
     ) -> pd.DataFrame:
         """
         A function that gets the play-by-play data of a particular game.
@@ -36,6 +37,12 @@ class PlayByPlay(EuroLeagueData):
             gamecode (int): The game-code of the game of interest.
                 It can be found on Euroleague's website.
 
+            include_ishometeam (bool, optional): A bool indicator whether to
+                include the `IsHomeTeam` column in the returned dataframe,
+                which shows whether the action was performed by the home team
+                or not. Defaults to False. Introduced for backward
+                compatibility.
+
         Returns:
 
             pd.DataFrame: A dataframe with the play-by-play data of the game.
@@ -46,7 +53,6 @@ class PlayByPlay(EuroLeagueData):
             "seasoncode": f"{self.competition}{season}"
         }
         r = get_requests(url, params=params)
-
         try:
             data = r.json()
         except JSONDecodeError as exc:
@@ -73,13 +79,30 @@ class PlayByPlay(EuroLeagueData):
                 f" and season {season}"
             )
             return pd.DataFrame()
+
         pbp_df = pd.concat(all_data).reset_index(drop=True)
+        pbp_df["PLAYER"] = (
+            pbp_df["PLAYER"].str.replace("  ", " ")
+            .str.replace(" , ", ", ").str.strip()
+        )
         pbp_df['CODETEAM'] = pbp_df['CODETEAM'].str.strip()
         pbp_df['PLAYER_ID'] = pbp_df['PLAYER_ID'].str.strip()
         pbp_df["PLAYTYPE"] = pbp_df["PLAYTYPE"].str.strip()
         pbp_df["MARKERTIME"] = pbp_df["MARKERTIME"].str.strip()
+        if include_ishometeam:  # for backward compatibility
+            home_team = data["CodeTeamA"]
+            away_team = data["CodeTeamB"]
+            pbp_df["IsHomeTeam"] = np.where(
+                pbp_df["CODETEAM"] == home_team, True,
+                np.where(pbp_df["CODETEAM"] == away_team,
+                         False, None)  # type: ignore
+            )
         pbp_df.insert(0, 'Season', season)
         pbp_df.insert(1, 'Gamecode', gamecode)
+        # insert a TRUE_NUMBEROFPLAY column
+        # often the NUMBEROFPLAY column is not in order
+        pbp_df["TRUE_NUMBEROFPLAY"] = np.arange(pbp_df.shape[0])
+
         return pbp_df
 
     def get_play_by_play_data_round(
@@ -198,73 +221,10 @@ class PlayByPlay(EuroLeagueData):
             pd.DataFrame: A dataframe with the play-by-play enriched with
                 teams' lineups
         """
-        def process_sub(five, player, sub_type):
-            opp_sub_type = "OUT" if sub_type == "IN" else "IN"
-            potential_indx = (
-                pbp_data.loc[idx + 1:].index[
-                    (pbp_data.loc[idx + 1:, "PLAYTYPE"] == opp_sub_type)
-                ]
-            )
-            potential_nops = (
-                set(potential_indx).difference(processed_idxs)
-            )
-            if not potential_nops:
-                logger.warning(
-                    f"No potential matching subs found for gamecode "
-                    f"{gamecode} and season {season}"
-                )
-                return five
-            matching_idx = min(potential_nops)
-            processed_idxs.append(idx)
-            processed_idxs.append(matching_idx)
-            matching_row = pbp_data.loc[matching_idx]
-            invalid_mask = (
-                (matching_row["PLAYTYPE"] != opp_sub_type) or
-                (matching_row["CODETEAM"] != team) or
-                (matching_row["MARKERTIME"] != markertime)
-            )
-            if invalid_mask:
-                logger.warning(
-                    f"Something went wrong for gamecode {gamecode} at sub "
-                    f"index {idx} with matching sub index {matching_idx}"
-                )
-            player_sub = matching_row["PLAYER"]
-            player_in = player if sub_type == "IN" else player_sub
-            player_out = player_sub if sub_type == "IN" else player
-            if player_in == player_out:
-                # there are instance where the same player is subbed in and out
-                return five
-            elif player_out not in five:
-                logger.warning(
-                    f"Player {player_out} not found in current lineup, "
-                    f"{five}, for gamecode {gamecode} and season {season}."
-                )
-                return five
-            else:
-                pindx = five.index(player_out)
-                five = five[:pindx] + [player_in] + five[pindx + 1:]
-                return five
-
-        def validate_player(x, col1, col2):
-            flag = False
-            if (x["PLAYER"] is not None) and (x["PLAYTYPE"] != "OUT"):
-                if x["PLAYER"] in (x[col1] + x[col2]):
-                    flag = True
-            else:
-                flag = True
-            return flag
 
         # Fetch play-by-play data
         pbp_data = self.get_game_play_by_play_data(
-            season=season, gamecode=gamecode)
-        if pbp_data.empty:
-            return pbp_data
-
-        # Asign the starting lineups to the first entry of the PBP data.
-        pbp_data["Lineup_A"] = None
-        pbp_data["Lineup_B"] = None
-        pbp_data["PLAYER"] = pbp_data["PLAYER"].str.replace(
-            "  ", " ").str.replace(" , ", ", ").str.strip()
+            season=season, gamecode=gamecode, include_ishometeam=True)
 
         # Get the starting line-ups from boxscore data
         boxscoredata = BoxScoreData(competition=self.competition)
@@ -277,76 +237,14 @@ class PlayByPlay(EuroLeagueData):
                 f"game {gamecode}, season {season}.\nError message: {e}. "
                 "\nSkip and continue"
             )
-            pbp_data["validate_on_court_player"] = False
-            pbp_data["Lineup_A"] = pbp_data["Lineup_A"].apply(lambda x: [])
-            pbp_data["Lineup_B"] = pbp_data["Lineup_B"].apply(lambda x: [])
-            return pbp_data
+            game_bxscr_stats = pd.DataFrame()
 
-        # find home and away teams
-        hm_aw = game_bxscr_stats[["Home", "Team"]].drop_duplicates()
-        home_team = hm_aw.loc[hm_aw["Home"] == 1, "Team"].values[0]
-        away_team = hm_aw.loc[hm_aw["Home"] == 0, "Team"].values[0]
-
-        starting_five = game_bxscr_stats.loc[
-            game_bxscr_stats["IsStarter"] == 1, ["Team", "Player"]
-        ]
-        starting_five['ID'] = starting_five.groupby('Team').cumcount()
-
-        # Pivot the DataFrame
-        starting_five = starting_five.pivot(
-            index='ID', columns='Team', values='Player')
-
-        # Reset index if needed
-        starting_five.reset_index(drop=True, inplace=True)
-        starting_five = starting_five[[home_team, away_team]]
-        starting_five[home_team] = starting_five[home_team].str.replace(
-            "  ", " ").str.replace(" , ", ", ").str.strip()
-        starting_five[away_team] = starting_five[away_team].str.replace(
-            "  ", " ").str.replace(" , ", ", ").str.strip()
-        starting_five_dict = starting_five.to_dict(orient='list')
-
-        pbp_data.at[0, "Lineup_A"] = starting_five_dict[home_team]
-        pbp_data.at[0, "Lineup_B"] = starting_five_dict[away_team]
-        pbp_data["IsHomeTeam"] = np.where(
-            pbp_data["CODETEAM"] == home_team, True,
-            np.where(pbp_data["CODETEAM"] == away_team,
-                     False, None)  # type: ignore
+        pbp_df = get_pbp_lineups(
+            pbp_df=pbp_data,
+            boxscore_df=game_bxscr_stats,
+            validate=validate
         )
-        # start processing the sub entries, row by row.
-        processed_idxs: list = []
-        current_five_home = starting_five_dict[home_team].copy()
-        current_five_away = starting_five_dict[away_team].copy()
-        for idx, row in pbp_data.iterrows():
-            playtype = row["PLAYTYPE"]
-            # there are rare instances of an extra space in player name
-            player = (
-                row["PLAYER"] if row["PLAYER"] is None
-                else row["PLAYER"]
-            )
-            team = row["CODETEAM"]
-            markertime = row["MARKERTIME"]
-            if team != "":
-                is_home = home_team == team
-                five = current_five_home if is_home else current_five_away
-                if (playtype == "OUT") and (idx not in processed_idxs):
-                    five = process_sub(five, player, playtype)
-                elif (playtype == "IN") and (idx not in processed_idxs):
-                    five = process_sub(five, player, playtype)
-                if is_home:
-                    current_five_home = five
-                else:
-                    current_five_away = five
-
-            pbp_data.at[idx, "Lineup_A"] = current_five_home
-            pbp_data.at[idx, "Lineup_B"] = current_five_away
-
-        if validate:
-            lu_cols = [u for u in pbp_data.columns if u.startswith("Lineup_")]
-            pbp_data["validate_on_court_player"] = pbp_data.apply(
-                lambda x: validate_player(x, lu_cols[0], lu_cols[1]),
-                axis=1
-            )
-        return pbp_data
+        return pbp_df
 
     def get_pbp_data_with_lineups_round(
         self,
