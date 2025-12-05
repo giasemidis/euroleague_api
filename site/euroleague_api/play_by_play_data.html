@@ -1118,7 +1118,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">.EuroLeagueData</span> <span class="kn">import</span> <span class="n">EuroLeagueData</span>
 <span class="kn">from</span> <span class="nn">.boxscore_data</span> <span class="kn">import</span> <span class="n">BoxScoreData</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_requests</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_requests</span><span class="p">,</span> <span class="n">get_pbp_lineups</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -1138,7 +1138,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">def</span> <span class="nf">get_game_play_by_play_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">include_ishometeam</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function that gets the play-by-play data of a particular game.</span>
@@ -1150,6 +1151,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            gamecode (int): The game-code of the game of interest.</span>
 <span class="sd">                It can be found on Euroleague&#39;s website.</span>
 
+<span class="sd">            include_ishometeam (bool, optional): A bool indicator whether to</span>
+<span class="sd">                include the `IsHomeTeam` column in the returned dataframe,</span>
+<span class="sd">                which shows whether the action was performed by the home team</span>
+<span class="sd">                or not. Defaults to False. Introduced for backward</span>
+<span class="sd">                compatibility.</span>
+
 <span class="sd">        Returns:</span>
 
 <span class="sd">            pd.DataFrame: A dataframe with the play-by-play data of the game.</span>
@@ -1160,14 +1167,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="s2">&quot;seasoncode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">}</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="s2">&quot;did not return any data.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="s2">&quot;did not return valid JSON data.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">exc</span>
 
         <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;FirstQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;SecondQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ThirdQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ForthQuarter&#39;</span><span class="p">,</span>
@@ -1180,13 +1187,36 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                 <span class="n">df</span><span class="p">[</span><span class="s2">&quot;PERIOD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_data</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No play-by-play data found for gamecode </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; and season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
         <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; , &quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;CODETEAM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;CODETEAM&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;PLAYER_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;PLAYER_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">include_ishometeam</span><span class="p">:</span>  <span class="c1"># for backward compatibility</span>
+            <span class="n">home_team</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CodeTeamA&quot;</span><span class="p">]</span>
+            <span class="n">away_team</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CodeTeamB&quot;</span><span class="p">]</span>
+            <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;IsHomeTeam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">home_team</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">away_team</span><span class="p">,</span>
+                         <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>
         <span class="n">pbp_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
         <span class="n">pbp_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+        <span class="c1"># insert a TRUE_NUMBEROFPLAY column</span>
+        <span class="c1"># often the NUMBEROFPLAY column is not in order</span>
+        <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;TRUE_NUMBEROFPLAY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pbp_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
         <span class="k">return</span> <span class="n">pbp_df</span>
 
     <span class="k">def</span> <span class="nf">get_play_by_play_data_round</span><span class="p">(</span>
@@ -1305,124 +1335,30 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            pd.DataFrame: A dataframe with the play-by-play enriched with</span>
 <span class="sd">                teams&#39; lineups</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">sub_type</span><span class="p">):</span>
-            <span class="n">opp_sub_type</span> <span class="o">=</span> <span class="s2">&quot;OUT&quot;</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="s2">&quot;IN&quot;</span>
-            <span class="n">potential_indx</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
-                    <span class="p">(</span><span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">opp_sub_type</span><span class="p">)</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">potential_nops</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">set</span><span class="p">(</span><span class="n">potential_indx</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">processed_idxs</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">matching_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">potential_nops</span><span class="p">)</span>
-            <span class="n">processed_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-            <span class="n">processed_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matching_idx</span><span class="p">)</span>
-            <span class="n">matching_row</span> <span class="o">=</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matching_idx</span><span class="p">]</span>
-            <span class="n">invalid_mask</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">opp_sub_type</span><span class="p">)</span> <span class="ow">or</span>
-                <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">team</span><span class="p">)</span> <span class="ow">or</span>
-                <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">markertime</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">invalid_mask</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Something went wrong for gamecode </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2"> at sub &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> with matching sub index </span><span class="si">{</span><span class="n">matching_idx</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-            <span class="n">player_sub</span> <span class="o">=</span> <span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
-            <span class="n">player_in</span> <span class="o">=</span> <span class="n">player</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="n">player_sub</span>
-            <span class="n">player_out</span> <span class="o">=</span> <span class="n">player_sub</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="n">player</span>
-            <span class="k">if</span> <span class="n">player_in</span> <span class="o">==</span> <span class="n">player_out</span><span class="p">:</span>
-                <span class="c1"># there are instance where the same player is subbed in and out</span>
-                <span class="k">return</span> <span class="n">five</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">pindx</span> <span class="o">=</span> <span class="n">five</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">player_out</span><span class="p">)</span>
-                <span class="n">five</span> <span class="o">=</span> <span class="n">five</span><span class="p">[:</span><span class="n">pindx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">player_in</span><span class="p">]</span> <span class="o">+</span> <span class="n">five</span><span class="p">[</span><span class="n">pindx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
-                <span class="k">return</span> <span class="n">five</span>
-
-        <span class="k">def</span> <span class="nf">validate_player</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">):</span>
-            <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OUT&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">col1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">col2</span><span class="p">]):</span>
-                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">return</span> <span class="n">flag</span>
-
-        <span class="c1"># Get the starting line-ups from boxscore data</span>
-        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-
-        <span class="c1"># find home and away teams</span>
-        <span class="n">hm_aw</span> <span class="o">=</span> <span class="n">game_bxscr_stats</span><span class="p">[[</span><span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-        <span class="n">home_team</span> <span class="o">=</span> <span class="n">hm_aw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hm_aw</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">away_team</span> <span class="o">=</span> <span class="n">hm_aw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hm_aw</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="n">starting_five</span> <span class="o">=</span> <span class="n">game_bxscr_stats</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;IsStarter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Player&quot;</span><span class="p">]</span>
-        <span class="p">]</span>
-        <span class="n">starting_five</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Team&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cumcount</span><span class="p">()</span>
-
-        <span class="c1"># Pivot the DataFrame</span>
-        <span class="n">starting_five</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
-            <span class="n">index</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;Player&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Reset index if needed</span>
-        <span class="n">starting_five</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">starting_five</span> <span class="o">=</span> <span class="n">starting_five</span><span class="p">[[</span><span class="n">home_team</span><span class="p">,</span> <span class="n">away_team</span><span class="p">]]</span>
-        <span class="n">starting_five_dict</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">)</span>
 
         <span class="c1"># Fetch play-by-play data</span>
         <span class="n">pbp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">,</span> <span class="n">include_ishometeam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Asign the starting lineups to the first entry of the PBP data.</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">home_team</span><span class="p">]</span>
-        <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">away_team</span><span class="p">]</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;IsHomeTeam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">home_team</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">away_team</span><span class="p">,</span>
-                     <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="c1"># Get the starting line-ups from boxscore data</span>
+        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+                <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Something went wrong when fetching boxscore data for &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;game </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
+            <span class="p">)</span>
+            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">get_pbp_lineups</span><span class="p">(</span>
+            <span class="n">pbp_df</span><span class="o">=</span><span class="n">pbp_data</span><span class="p">,</span>
+            <span class="n">boxscore_df</span><span class="o">=</span><span class="n">game_bxscr_stats</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
         <span class="p">)</span>
-
-        <span class="c1"># start processing the sub entries, row by row.</span>
-        <span class="n">processed_idxs</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">current_five_home</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">home_team</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">current_five_away</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">away_team</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-            <span class="n">playtype</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span>
-            <span class="c1"># there are rare instances of an extra space in player name</span>
-            <span class="n">player</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">team</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span>
-            <span class="n">markertime</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">team</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                <span class="n">is_home</span> <span class="o">=</span> <span class="n">home_team</span> <span class="o">==</span> <span class="n">team</span>
-                <span class="n">five</span> <span class="o">=</span> <span class="n">current_five_home</span> <span class="k">if</span> <span class="n">is_home</span> <span class="k">else</span> <span class="n">current_five_away</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">playtype</span> <span class="o">==</span> <span class="s2">&quot;OUT&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_idxs</span><span class="p">):</span>
-                    <span class="n">five</span> <span class="o">=</span> <span class="n">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">playtype</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="p">(</span><span class="n">playtype</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_idxs</span><span class="p">):</span>
-                    <span class="n">five</span> <span class="o">=</span> <span class="n">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">playtype</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">is_home</span><span class="p">:</span>
-                    <span class="n">current_five_home</span> <span class="o">=</span> <span class="n">five</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">current_five_away</span> <span class="o">=</span> <span class="n">five</span>
-
-            <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_five_home</span>
-            <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_five_away</span>
-
-        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
-            <span class="n">lu_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Lineup_&quot;</span><span class="p">)]</span>
-            <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;validate_on_court_player&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">validate_player</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lu_cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lu_cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">pbp_data</span>
+        <span class="k">return</span> <span class="n">pbp_df</span>
 
     <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_round</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1536,7 +1472,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">def</span> <span class="nf">get_game_play_by_play_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">include_ishometeam</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A function that gets the play-by-play data of a particular game.</span>
@@ -1548,6 +1485,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            gamecode (int): The game-code of the game of interest.</span>
 <span class="sd">                It can be found on Euroleague&#39;s website.</span>
 
+<span class="sd">            include_ishometeam (bool, optional): A bool indicator whether to</span>
+<span class="sd">                include the `IsHomeTeam` column in the returned dataframe,</span>
+<span class="sd">                which shows whether the action was performed by the home team</span>
+<span class="sd">                or not. Defaults to False. Introduced for backward</span>
+<span class="sd">                compatibility.</span>
+
 <span class="sd">        Returns:</span>
 
 <span class="sd">            pd.DataFrame: A dataframe with the play-by-play data of the game.</span>
@@ -1558,14 +1501,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="s2">&quot;seasoncode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">}</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="s2">&quot;did not return any data.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="s2">&quot;did not return valid JSON data.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">exc</span>
 
         <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;FirstQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;SecondQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ThirdQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ForthQuarter&#39;</span><span class="p">,</span>
@@ -1578,13 +1521,36 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                 <span class="n">df</span><span class="p">[</span><span class="s2">&quot;PERIOD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_data</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No play-by-play data found for gamecode </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; and season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
         <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; , &quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;CODETEAM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;CODETEAM&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;PLAYER_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;PLAYER_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">include_ishometeam</span><span class="p">:</span>  <span class="c1"># for backward compatibility</span>
+            <span class="n">home_team</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CodeTeamA&quot;</span><span class="p">]</span>
+            <span class="n">away_team</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CodeTeamB&quot;</span><span class="p">]</span>
+            <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;IsHomeTeam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">home_team</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">away_team</span><span class="p">,</span>
+                         <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>
         <span class="n">pbp_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
         <span class="n">pbp_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+        <span class="c1"># insert a TRUE_NUMBEROFPLAY column</span>
+        <span class="c1"># often the NUMBEROFPLAY column is not in order</span>
+        <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;TRUE_NUMBEROFPLAY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pbp_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
         <span class="k">return</span> <span class="n">pbp_df</span>
 
     <span class="k">def</span> <span class="nf">get_play_by_play_data_round</span><span class="p">(</span>
@@ -1703,124 +1669,30 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            pd.DataFrame: A dataframe with the play-by-play enriched with</span>
 <span class="sd">                teams&#39; lineups</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">sub_type</span><span class="p">):</span>
-            <span class="n">opp_sub_type</span> <span class="o">=</span> <span class="s2">&quot;OUT&quot;</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="s2">&quot;IN&quot;</span>
-            <span class="n">potential_indx</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
-                    <span class="p">(</span><span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">opp_sub_type</span><span class="p">)</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">potential_nops</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">set</span><span class="p">(</span><span class="n">potential_indx</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">processed_idxs</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">matching_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">potential_nops</span><span class="p">)</span>
-            <span class="n">processed_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-            <span class="n">processed_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matching_idx</span><span class="p">)</span>
-            <span class="n">matching_row</span> <span class="o">=</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matching_idx</span><span class="p">]</span>
-            <span class="n">invalid_mask</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">opp_sub_type</span><span class="p">)</span> <span class="ow">or</span>
-                <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">team</span><span class="p">)</span> <span class="ow">or</span>
-                <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">markertime</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">invalid_mask</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Something went wrong for gamecode </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2"> at sub &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> with matching sub index </span><span class="si">{</span><span class="n">matching_idx</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-            <span class="n">player_sub</span> <span class="o">=</span> <span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
-            <span class="n">player_in</span> <span class="o">=</span> <span class="n">player</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="n">player_sub</span>
-            <span class="n">player_out</span> <span class="o">=</span> <span class="n">player_sub</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="n">player</span>
-            <span class="k">if</span> <span class="n">player_in</span> <span class="o">==</span> <span class="n">player_out</span><span class="p">:</span>
-                <span class="c1"># there are instance where the same player is subbed in and out</span>
-                <span class="k">return</span> <span class="n">five</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">pindx</span> <span class="o">=</span> <span class="n">five</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">player_out</span><span class="p">)</span>
-                <span class="n">five</span> <span class="o">=</span> <span class="n">five</span><span class="p">[:</span><span class="n">pindx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">player_in</span><span class="p">]</span> <span class="o">+</span> <span class="n">five</span><span class="p">[</span><span class="n">pindx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
-                <span class="k">return</span> <span class="n">five</span>
-
-        <span class="k">def</span> <span class="nf">validate_player</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">):</span>
-            <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OUT&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">col1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">col2</span><span class="p">]):</span>
-                    <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">return</span> <span class="n">flag</span>
-
-        <span class="c1"># Get the starting line-ups from boxscore data</span>
-        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-
-        <span class="c1"># find home and away teams</span>
-        <span class="n">hm_aw</span> <span class="o">=</span> <span class="n">game_bxscr_stats</span><span class="p">[[</span><span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-        <span class="n">home_team</span> <span class="o">=</span> <span class="n">hm_aw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hm_aw</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">away_team</span> <span class="o">=</span> <span class="n">hm_aw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hm_aw</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="n">starting_five</span> <span class="o">=</span> <span class="n">game_bxscr_stats</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;IsStarter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Player&quot;</span><span class="p">]</span>
-        <span class="p">]</span>
-        <span class="n">starting_five</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Team&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cumcount</span><span class="p">()</span>
-
-        <span class="c1"># Pivot the DataFrame</span>
-        <span class="n">starting_five</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
-            <span class="n">index</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;Player&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Reset index if needed</span>
-        <span class="n">starting_five</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">starting_five</span> <span class="o">=</span> <span class="n">starting_five</span><span class="p">[[</span><span class="n">home_team</span><span class="p">,</span> <span class="n">away_team</span><span class="p">]]</span>
-        <span class="n">starting_five_dict</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">)</span>
 
         <span class="c1"># Fetch play-by-play data</span>
         <span class="n">pbp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">,</span> <span class="n">include_ishometeam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Asign the starting lineups to the first entry of the PBP data.</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">home_team</span><span class="p">]</span>
-        <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">away_team</span><span class="p">]</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;IsHomeTeam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">home_team</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">away_team</span><span class="p">,</span>
-                     <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="c1"># Get the starting line-ups from boxscore data</span>
+        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+                <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Something went wrong when fetching boxscore data for &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;game </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
+            <span class="p">)</span>
+            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">get_pbp_lineups</span><span class="p">(</span>
+            <span class="n">pbp_df</span><span class="o">=</span><span class="n">pbp_data</span><span class="p">,</span>
+            <span class="n">boxscore_df</span><span class="o">=</span><span class="n">game_bxscr_stats</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
         <span class="p">)</span>
-
-        <span class="c1"># start processing the sub entries, row by row.</span>
-        <span class="n">processed_idxs</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">current_five_home</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">home_team</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">current_five_away</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">away_team</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-            <span class="n">playtype</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span>
-            <span class="c1"># there are rare instances of an extra space in player name</span>
-            <span class="n">player</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">team</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span>
-            <span class="n">markertime</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">team</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                <span class="n">is_home</span> <span class="o">=</span> <span class="n">home_team</span> <span class="o">==</span> <span class="n">team</span>
-                <span class="n">five</span> <span class="o">=</span> <span class="n">current_five_home</span> <span class="k">if</span> <span class="n">is_home</span> <span class="k">else</span> <span class="n">current_five_away</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">playtype</span> <span class="o">==</span> <span class="s2">&quot;OUT&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_idxs</span><span class="p">):</span>
-                    <span class="n">five</span> <span class="o">=</span> <span class="n">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">playtype</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="p">(</span><span class="n">playtype</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_idxs</span><span class="p">):</span>
-                    <span class="n">five</span> <span class="o">=</span> <span class="n">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">playtype</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">is_home</span><span class="p">:</span>
-                    <span class="n">current_five_home</span> <span class="o">=</span> <span class="n">five</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">current_five_away</span> <span class="o">=</span> <span class="n">five</span>
-
-            <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_five_home</span>
-            <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_five_away</span>
-
-        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
-            <span class="n">lu_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Lineup_&quot;</span><span class="p">)]</span>
-            <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;validate_on_court_player&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">validate_player</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lu_cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lu_cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">pbp_data</span>
+        <span class="k">return</span> <span class="n">pbp_df</span>
 
     <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_round</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1941,7 +1813,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             
   <div class="item">
     <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data">
-    <p>def <span class="ident">get_game_play_by_play_data</span>(</p><p>self, season: int, gamecode: int)</p>
+    <p>def <span class="ident">get_game_play_by_play_data</span>(</p><p>self, season: int, gamecode: int, include_ishometeam: bool = False)</p>
     </div>
     
 
@@ -1953,6 +1825,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 gamecode (int): The game-code of the game of interest.
     It can be found on Euroleague's website.
+
+include_ishometeam (bool, optional): A bool indicator whether to
+    include the `IsHomeTeam` column in the returned dataframe,
+    which shows whether the action was performed by the home team
+    or not. Defaults to False. Introduced for backward
+    compatibility.
 </code></pre>
 <p>Returns:</p>
 <pre><code>pd.DataFrame: A dataframe with the play-by-play data of the game.
@@ -1963,7 +1841,8 @@ gamecode (int): The game-code of the game of interest.
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_play_by_play_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">include_ishometeam</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A function that gets the play-by-play data of a particular game.</span>
@@ -1971,6 +1850,11 @@ gamecode (int): The game-code of the game of interest.
 <span class="sd">        season (int): The start year of the season</span>
 <span class="sd">        gamecode (int): The game-code of the game of interest.</span>
 <span class="sd">            It can be found on Euroleague&#39;s website.</span>
+<span class="sd">        include_ishometeam (bool, optional): A bool indicator whether to</span>
+<span class="sd">            include the `IsHomeTeam` column in the returned dataframe,</span>
+<span class="sd">            which shows whether the action was performed by the home team</span>
+<span class="sd">            or not. Defaults to False. Introduced for backward</span>
+<span class="sd">            compatibility.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of the game.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1983,10 +1867,11 @@ gamecode (int): The game-code of the game of interest.
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="s2">&quot;did not return any data.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="s2">&quot;did not return valid JSON data.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">exc</span>
     <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s1">&#39;FirstQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;SecondQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ThirdQuarter&#39;</span><span class="p">,</span> <span class="s1">&#39;ForthQuarter&#39;</span><span class="p">,</span>
         <span class="s1">&#39;ExtraTime&#39;</span>
@@ -1997,13 +1882,34 @@ gamecode (int): The game-code of the game of interest.
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">period</span><span class="p">])</span>
             <span class="n">df</span><span class="p">[</span><span class="s2">&quot;PERIOD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_data</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No play-by-play data found for gamecode </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; and season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; , &quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="p">)</span>
     <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;CODETEAM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;CODETEAM&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;PLAYER_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s1">&#39;PLAYER_ID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">include_ishometeam</span><span class="p">:</span>  <span class="c1"># for backward compatibility</span>
+        <span class="n">home_team</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CodeTeamA&quot;</span><span class="p">]</span>
+        <span class="n">away_team</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CodeTeamB&quot;</span><span class="p">]</span>
+        <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;IsHomeTeam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">home_team</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">away_team</span><span class="p">,</span>
+                     <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="p">)</span>
     <span class="n">pbp_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">pbp_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
+    <span class="c1"># insert a TRUE_NUMBEROFPLAY column</span>
+    <span class="c1"># often the NUMBEROFPLAY column is not in order</span>
+    <span class="n">pbp_df</span><span class="p">[</span><span class="s2">&quot;TRUE_NUMBEROFPLAY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pbp_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">pbp_df</span>
 </pre></div>
 
@@ -2317,113 +2223,27 @@ validate (bool, optional): A bool indicator whether to enrich the
 <span class="sd">        pd.DataFrame: A dataframe with the play-by-play enriched with</span>
 <span class="sd">            teams&#39; lineups</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">sub_type</span><span class="p">):</span>
-        <span class="n">opp_sub_type</span> <span class="o">=</span> <span class="s2">&quot;OUT&quot;</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="s2">&quot;IN&quot;</span>
-        <span class="n">potential_indx</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
-                <span class="p">(</span><span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">opp_sub_type</span><span class="p">)</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">potential_nops</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">set</span><span class="p">(</span><span class="n">potential_indx</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">processed_idxs</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">matching_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">potential_nops</span><span class="p">)</span>
-        <span class="n">processed_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-        <span class="n">processed_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matching_idx</span><span class="p">)</span>
-        <span class="n">matching_row</span> <span class="o">=</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matching_idx</span><span class="p">]</span>
-        <span class="n">invalid_mask</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">opp_sub_type</span><span class="p">)</span> <span class="ow">or</span>
-            <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">team</span><span class="p">)</span> <span class="ow">or</span>
-            <span class="p">(</span><span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">markertime</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">invalid_mask</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Something went wrong for gamecode </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2"> at sub &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> with matching sub index </span><span class="si">{</span><span class="n">matching_idx</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-        <span class="n">player_sub</span> <span class="o">=</span> <span class="n">matching_row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="n">player_in</span> <span class="o">=</span> <span class="n">player</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="n">player_sub</span>
-        <span class="n">player_out</span> <span class="o">=</span> <span class="n">player_sub</span> <span class="k">if</span> <span class="n">sub_type</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span> <span class="k">else</span> <span class="n">player</span>
-        <span class="k">if</span> <span class="n">player_in</span> <span class="o">==</span> <span class="n">player_out</span><span class="p">:</span>
-            <span class="c1"># there are instance where the same player is subbed in and out</span>
-            <span class="k">return</span> <span class="n">five</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">pindx</span> <span class="o">=</span> <span class="n">five</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">player_out</span><span class="p">)</span>
-            <span class="n">five</span> <span class="o">=</span> <span class="n">five</span><span class="p">[:</span><span class="n">pindx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">player_in</span><span class="p">]</span> <span class="o">+</span> <span class="n">five</span><span class="p">[</span><span class="n">pindx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
-            <span class="k">return</span> <span class="n">five</span>
-    <span class="k">def</span> <span class="nf">validate_player</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">):</span>
-        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OUT&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">col1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">col2</span><span class="p">]):</span>
-                <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="n">flag</span>
-    <span class="c1"># Get the starting line-ups from boxscore data</span>
-    <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-    <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-    <span class="c1"># find home and away teams</span>
-    <span class="n">hm_aw</span> <span class="o">=</span> <span class="n">game_bxscr_stats</span><span class="p">[[</span><span class="s2">&quot;Home&quot;</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-    <span class="n">home_team</span> <span class="o">=</span> <span class="n">hm_aw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hm_aw</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">away_team</span> <span class="o">=</span> <span class="n">hm_aw</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hm_aw</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Team&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">starting_five</span> <span class="o">=</span> <span class="n">game_bxscr_stats</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;IsStarter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Team&quot;</span><span class="p">,</span> <span class="s2">&quot;Player&quot;</span><span class="p">]</span>
-    <span class="p">]</span>
-    <span class="n">starting_five</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Team&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cumcount</span><span class="p">()</span>
-    <span class="c1"># Pivot the DataFrame</span>
-    <span class="n">starting_five</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
-        <span class="n">index</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;Player&#39;</span><span class="p">)</span>
-    <span class="c1"># Reset index if needed</span>
-    <span class="n">starting_five</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">starting_five</span> <span class="o">=</span> <span class="n">starting_five</span><span class="p">[[</span><span class="n">home_team</span><span class="p">,</span> <span class="n">away_team</span><span class="p">]]</span>
-    <span class="n">starting_five_dict</span> <span class="o">=</span> <span class="n">starting_five</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">)</span>
     <span class="c1"># Fetch play-by-play data</span>
     <span class="n">pbp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-    <span class="c1"># Asign the starting lineups to the first entry of the PBP data.</span>
-    <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">home_team</span><span class="p">]</span>
-    <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">away_team</span><span class="p">]</span>
-    <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;IsHomeTeam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">home_team</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">away_team</span><span class="p">,</span>
-                 <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">,</span> <span class="n">include_ishometeam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Get the starting line-ups from boxscore data</span>
+    <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Something went wrong when fetching boxscore data for &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;game </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
+        <span class="p">)</span>
+        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">get_pbp_lineups</span><span class="p">(</span>
+        <span class="n">pbp_df</span><span class="o">=</span><span class="n">pbp_data</span><span class="p">,</span>
+        <span class="n">boxscore_df</span><span class="o">=</span><span class="n">game_bxscr_stats</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
     <span class="p">)</span>
-    <span class="c1"># start processing the sub entries, row by row.</span>
-    <span class="n">processed_idxs</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">current_five_home</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">home_team</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">current_five_away</span> <span class="o">=</span> <span class="n">starting_five_dict</span><span class="p">[</span><span class="n">away_team</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-        <span class="n">playtype</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYTYPE&quot;</span><span class="p">]</span>
-        <span class="c1"># there are rare instances of an extra space in player name</span>
-        <span class="n">player</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PLAYER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; ,&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">team</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;CODETEAM&quot;</span><span class="p">]</span>
-        <span class="n">markertime</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;MARKERTIME&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">team</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-            <span class="n">is_home</span> <span class="o">=</span> <span class="n">home_team</span> <span class="o">==</span> <span class="n">team</span>
-            <span class="n">five</span> <span class="o">=</span> <span class="n">current_five_home</span> <span class="k">if</span> <span class="n">is_home</span> <span class="k">else</span> <span class="n">current_five_away</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">playtype</span> <span class="o">==</span> <span class="s2">&quot;OUT&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_idxs</span><span class="p">):</span>
-                <span class="n">five</span> <span class="o">=</span> <span class="n">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">playtype</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="p">(</span><span class="n">playtype</span> <span class="o">==</span> <span class="s2">&quot;IN&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_idxs</span><span class="p">):</span>
-                <span class="n">five</span> <span class="o">=</span> <span class="n">process_sub</span><span class="p">(</span><span class="n">five</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">playtype</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">is_home</span><span class="p">:</span>
-                <span class="n">current_five_home</span> <span class="o">=</span> <span class="n">five</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">current_five_away</span> <span class="o">=</span> <span class="n">five</span>
-        <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Lineup_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_five_home</span>
-        <span class="n">pbp_data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Lineup_B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_five_away</span>
-    <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
-        <span class="n">lu_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Lineup_&quot;</span><span class="p">)]</span>
-        <span class="n">pbp_data</span><span class="p">[</span><span class="s2">&quot;validate_on_court_player&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pbp_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">validate_player</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lu_cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lu_cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">pbp_data</span>
+    <span class="k">return</span> <span class="n">pbp_df</span>
 </pre></div>
 
   </div>

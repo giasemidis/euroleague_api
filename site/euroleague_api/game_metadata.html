@@ -1061,6 +1061,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <li class="mono"><a href="index.html">euroleague_api</a></li>
       </ul>
     </li>
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#euroleague_api.game_metadata.logger">logger</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1101,10 +1108,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_metadata', this);">Show source &equiv;</a></p>
   <div id="source-euroleague_api.game_metadata" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">json.decoder</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">json.decoder</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">.EuroLeagueData</span> <span class="kn">import</span> <span class="n">EuroLeagueData</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_requests</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">GameMetadata</span><span class="p">(</span><span class="n">EuroLeagueData</span><span class="p">):</span>
@@ -1144,10 +1154,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;did not return any data.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;did not return valid JSON data.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">exc</span>
         <span class="n">metadata_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">metadata_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
         <span class="n">metadata_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
@@ -1219,6 +1230,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="euroleague_api.game_metadata.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1275,10 +1295,11 @@ stadum, capacity and referee names.</p>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;did not return any data.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;did not return valid JSON data.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">exc</span>
         <span class="n">metadata_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">metadata_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
         <span class="n">metadata_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>
@@ -1436,10 +1457,11 @@ capacity and referee names.</p>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;did not return any data.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Game code, </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;did not return valid JSON data.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">exc</span>
     <span class="n">metadata_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">metadata_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
     <span class="n">metadata_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gamecode&#39;</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">)</span>

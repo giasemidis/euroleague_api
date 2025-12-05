@@ -1,5 +1,11 @@
 # Module euroleague_api.shot_data
 
+## Variables
+
+```python3
+logger
+```
+
 ## Classes
 
 ### ShotData

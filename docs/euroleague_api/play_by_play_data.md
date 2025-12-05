@@ -55,7 +55,8 @@ V3
 def get_game_play_by_play_data(
     self,
     season: int,
-    gamecode: int
+    gamecode: int,
+    include_ishometeam: bool = False
 ) -> pandas.core.frame.DataFrame
 ```
 
@@ -67,6 +68,7 @@ A function that gets the play-by-play data of a particular game.
 |---|---|---|---|
 | season | int | The start year of the season | None |
 | gamecode | int | The game-code of the game of interest.<br>It can be found on Euroleague's website. | None |
+| include_ishometeam | bool | A bool indicator whether to<br>include the `IsHomeTeam` column in the returned dataframe,<br>which shows whether the action was performed by the home team<br>or not. Defaults to False. Introduced for backward<br>compatibility. | None |
 
 **Returns:**
 

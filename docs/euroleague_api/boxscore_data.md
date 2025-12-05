@@ -1,5 +1,11 @@
 # Module euroleague_api.boxscore_data
 
+## Variables
+
+```python3
+logger
+```
+
 ## Classes
 
 ### BoxScoreData

@@ -1,5 +1,11 @@
 # Module euroleague_api.game_metadata
 
+## Variables
+
+```python3
+logger
+```
+
 ## Classes
 
 ### GameMetadata
