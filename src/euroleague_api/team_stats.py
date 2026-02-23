@@ -1,8 +1,6 @@
 from typing import Optional
 import pandas as pd
-import numpy as np
 from .EuroLeagueData import EuroLeagueData
-from .boxscore_data import BoxScoreData
 from .utils import (
     raise_error,
     get_requests
@@ -236,76 +234,422 @@ class TeamStats(EuroLeagueData):
             endpoint, params, phase_type_code, statistic_mode)
         return df
 
-    def get_team_advanced_stats_single_game(self, season: int, gamecode: int):
+    def get_team_stats_leaders(
+        self,
+        params: dict = {},
+        stat_category: str | None = None,
+        top_n: int = 200,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame",
+        game_type: Optional[str] = None
+    ) -> pd.DataFrame:
         """
-        In this function we derive team advanced stats from a single game
-        that are not provided by the API but can be easily estimated from
-        stats that are given from the API, i.e.
-            - Number of Possessions
-            - Pace
-        The formulas and definitions of these stats can be found in
-            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa
-            - [kenpom](https://kenpom.com/blog/the-possession/)
-            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa
+        A wrapper function for collecting the leading team in a given
+        stat category.
 
         Args:
-            season (int): The start year of the season
-            gamecode (int): The game-code of the game of interest.
-                It can be found on Euroleague's website.
+
+            params (Dict[str, Union[str, int]]): A dictionary of parameters
+                for the get request.
+
+            top_n (int): The number of top N teams to return.
+                Defaults to 200.
+
+            stat_category (str): The stat category. Available values:
+                - None # (time played)
+                - Valuation
+                - Score
+                - TotalRebounds
+                - OffensiveRebounds
+                - DefensiveRebounds
+                - Assistances
+                - Steals
+                - BlocksFavour
+                - BlocksAgainst
+                - Turnovers
+                - FoulsReceived
+                - FoulsCommited
+                - FreeThrowsMade
+                - FreeThrowsAttempted
+                - FreeThrowsPercent
+                - FieldGoalsMade2
+                - FieldGoalsAttempted2
+                - FieldGoals2Percent
+                - FieldGoalsMade3
+                - FieldGoalsAttempted3
+                - FieldGoals3Percent
+                - FieldGoalsMadeTotal
+                - FieldGoalsAttemptedTotal
+                - FieldGoalsPercent
+                - AccuracyMade
+                - AccuracyAttempted
+                - AccuracyPercent
+                - AssitancesTurnoversRation
+                - GamesPlayed
+                - GamesStarted
+                - TimePlayed
+                - Contras
+                - Dunks
+                - OffensiveReboundPercentage
+                - DefensiveReboundPercentage
+                - ReboundPercentage
+                - EffectiveFeildGoalPercentage
+                - TrueShootingPercentage
+                - AssistRatio
+                - TurnoverRatio
+                - FieldGoals2AttemptedRatio
+                - FieldGoals3AttemptedRatio
+                - FreeThrowRate
+                - Possessions
+                - GamesWon
+                - GamesLost
+                - DoubleDoubles
+                - TripleDoubles
+                - FieldGoalsAttempted2Share
+                - FieldGoalsAttempted3Share
+                - FreeThrowsAttemptedShare
+                - FieldGoalsMade2Share
+                - FieldGoalsMade3Share
+                - FreeThrowsMadeShare
+                - PointsMade2Rate
+                - PointsMade3Rate
+                - PointsMadeFreeThrowsRate
+                - PointsAttempted2Rate
+                - PointsAttempted3Rate
+                - Age
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                - PerGame
+                - Accumulated
+                - PerMinute
+                - Per100Possesions
+                - PerGameReverse
+                - AccumulatedReverse
+                Defaults to "PerGame".
+
+            game_type (Optional[str], optional): The type of games to draw the
+                top stats from. Available values:
+                - HomeGames
+                - AwayGames
+                - GamesWon
+                - GamesLost
+                Defaults to None, meaning all games
+
+        Raises:
+
+            ValueError: If the stat_category is not applicable
+
+            ValueError: If the phase_type_code is not applicable
+
+            ValueError: If the statistic_mode is not applicable
+
+            ValueError: If the game_type is not applicable
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the top teams' stats
         """
-        boxscoredata = BoxScoreData(competition=self.competition)
-        game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
-            season=season, gamecode=gamecode)
-        totals_df = (
-            game_bxscr_stats[game_bxscr_stats["Player_ID"] == "Total"]
-            .set_index("Team").T
-        )
-        fga = (totals_df.loc["FieldGoalsAttempted2"] +
-               totals_df.loc["FieldGoalsAttempted3"])
-
-        fgm = (totals_df.loc["FieldGoalsMade2"] +
-               totals_df.loc["FieldGoalsMade3"])
-        possessions_simple = (
-            fga
-            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
-            - totals_df.loc["OffensiveRebounds"] + totals_df.loc["Turnovers"]
-        )
-
-        possessions = (
-            fga
-            + 0.44 * (totals_df.loc["FreeThrowsAttempted"])
-            - 1.07 * (
-                totals_df.loc["OffensiveRebounds"] /
-                totals_df.loc["DefensiveRebounds", ::-1]
-            ) * (fga - fgm)
-            + totals_df.loc["Turnovers"]
-        )
-
-        df = pd.DataFrame(
-            {
-                "Possessions (simple)": possessions_simple,
-                "Possessions": possessions,
-            }
-        )
-        df.loc["Game"] = [possessions_simple.mean(), possessions.mean()]
-
-        min_played_ls = totals_df.loc["Minutes"].iloc[0].split(":")
-        min_played = int(min_played_ls[0]) + float(min_played_ls[1]) / 60
-        min_factor = (min_played / 5)
-
-        df["Pace (simple)"] = [
-            np.nan, np.nan, 40 * possessions_simple.mean() / min_factor
+        avaiable_stat_category = [
+            None,  # (time played)
+            "Valuation",
+            "Score",
+            "TotalRebounds",
+            "OffensiveRebounds",
+            "DefensiveRebounds",
+            "Assistances",
+            "Steals",
+            "BlocksFavour",
+            "BlocksAgainst",
+            "Turnovers",
+            "FoulsReceived",
+            "FoulsCommited",
+            "FreeThrowsMade",
+            "FreeThrowsAttempted",
+            "FreeThrowsPercent",
+            "FieldGoalsMade2",
+            "FieldGoalsAttempted2",
+            "FieldGoals2Percent",
+            "FieldGoalsMade3",
+            "FieldGoalsAttempted3",
+            "FieldGoals3Percent",
+            "FieldGoalsMadeTotal",
+            "FieldGoalsAttemptedTotal",
+            "FieldGoalsPercent",
+            "AccuracyMade",
+            "AccuracyAttempted",
+            "AccuracyPercent",
+            "AssitancesTurnoversRation",
+            "GamesPlayed",
+            "GamesStarted",
+            "TimePlayed",
+            "Contras",
+            "Dunks",
+            "OffensiveReboundPercentage",
+            "DefensiveReboundPercentage",
+            "ReboundPercentage",
+            "EffectiveFeildGoalPercentage",
+            "TrueShootingPercentage",
+            "AssistRatio",
+            "TurnoverRatio",
+            "FieldGoals2AttemptedRatio",
+            "FieldGoals3AttemptedRatio",
+            "FreeThrowRate",
+            "Possessions",
+            "GamesWon",
+            "GamesLost",
+            "DoubleDoubles",
+            "TripleDoubles",
+            "FieldGoalsAttempted2Share",
+            "FieldGoalsAttempted3Share",
+            "FreeThrowsAttemptedShare",
+            "FieldGoalsMade2Share",
+            "FieldGoalsMade3Share",
+            "FreeThrowsMadeShare",
+            "PointsMade2Rate",
+            "PointsMade3Rate",
+            "PointsMadeFreeThrowsRate",
+            "PointsAttempted2Rate",
+            "PointsAttempted3Rate",
+            "Age"
         ]
-        df["Pace"] = [np.nan, np.nan, 40 * possessions.mean() / min_factor]
-        df["Season"] = season
-        df["Gamecode"] = gamecode
-        df["Home"] = [1, 0, np.nan]
-
-        df = df[
-            [
-                "Season", "Gamecode", "Home",
-                "Possessions (simple)", "Possessions",
-                "Pace (simple)", "Pace",
-            ]
+        available_phase_type_code = ["RS", "PO", "FF"]
+        available_stat_mode = [
+            "PerGame",
+            "Accumulated",
+            "PerMinute",
+            "Per100Possesions",
+            "PerGameReverse",
+            "AccumulatedReverse"
         ]
+        available_game_types = [
+            "HomeGames",
+            "AwayGames",
+            "GamesWon",
+            "GamesLost",
+        ]
+
+        raise_error(stat_category, "Stat category",
+                    avaiable_stat_category, False)
+        raise_error(
+            statistic_mode, "Statistic Aggregation", available_stat_mode,
+            False)
+        raise_error(
+            phase_type_code, "Phase type code", available_phase_type_code,
+            True)
+        raise_error(game_type, "Game type", available_game_types, True)
+
+        params["category"] = stat_category
+        params["phaseTypeCode"] = phase_type_code
+        params["statisticMode"] = statistic_mode
+        params["limit"] = top_n
+
+        url_ = f"{self.url_v2}/stats/clubs/leaders"
+
+        r = get_requests(url_, params=params)
+        data = r.json()
+        df = pd.json_normalize(data["data"])
+        return df
+
+    def get_team_stats_leaders_all_seasons(
+        self,
+        stat_category: str | None = None,
+        top_n: int = 200,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame",
+        game_type: Optional[str] = None
+    ) -> pd.DataFrame:
+        """
+        Get the top leaders in a statistical category in all seasons
+
+        Args:
+
+            stat_category (str): The stat category. See function
+                `self.get_team_stats_leaders` for a list of available stats.
+
+            top_n (int): The number of top N teams to return.
+                Defaults to 200.
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                - PerGame
+                - Accumulated
+                - PerMinute
+                - Per100Possesions
+                - PerGameReverse
+                - AccumulatedReverse
+                Defaults to "PerGame".
+
+            game_type (Optional[str], optional): The type of games to draw the
+                top stats from. Available values:
+                - HomeGames
+                - AwayGames
+                - GamesWon
+                - GamesLost
+                Defaults to None, meaning all games
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the top leading teams and their
+                stat
+        """
+        params = {"SeasonMode": "All"}
+        df = self.get_team_stats_leaders(
+            params,
+            stat_category,
+            top_n,
+            phase_type_code,
+            statistic_mode,
+            game_type
+        )
+        return df
+
+    def get_team_stats_leaders_single_season(
+        self,
+        season: int,
+        stat_category: str = "Score",
+        top_n: int = 200,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame",
+        game_type: Optional[str] = None
+    ) -> pd.DataFrame:
+        """
+        Get the top leaders in a statistical category in a single season
+
+        Args:
+
+            season (int): The start year of the season.
+
+            stat_category (str): The stat category. See function
+                `self.get_team_stats_leaders` for a list of available stats.
+            top_n (int): The number of top N teams to return.
+                Defaults to 200.
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                - PerGame
+                - Accumulated
+                - PerMinute
+                - Per100Possesions
+                - PerGameReverse
+                - AccumulatedReverse
+                Defaults to "PerGame".
+
+            game_type (Optional[str], optional): The type of games to draw the
+                top stats from. Available values:
+                - HomeGames
+                - AwayGames
+                - GamesWon
+                - GamesLost
+                Defaults to None, meaning all games
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the top leading teams and their
+                stat
+        """
+        params = {
+            "SeasonMode": "Single",
+            "SeasonCode": f"{self.competition}{season}",
+        }
+        df = self.get_team_stats_leaders(
+            params,
+            stat_category,
+            top_n,
+            phase_type_code,
+            statistic_mode,
+            game_type
+        )
+        return df
+
+    def get_team_stats_leaders_range_seasons(
+        self,
+        start_season: int,
+        end_season: int,
+        stat_category: str = "Score",
+        top_n: int = 200,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame",
+        game_type: Optional[str] = None
+    ) -> pd.DataFrame:
+        """
+        Get the top leaders in a statistical category in a range of seasons
+
+        Args:
+
+            start_season (int): The start year of the first season in the
+                range.
+
+            end_season (int): The end year of the last season in the range.
+
+            stat_category (str): The stat category. See function
+                `self.get_team_stats_leaders` for a list of available stats.
+
+            top_n (int): The number of top N teams to return.
+                Defaults to 200.
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                - PerGame
+                - Accumulated
+                - PerMinute
+                - Per100Possesions
+                - PerGameReverse
+                - AccumulatedReverse
+                Defaults to "PerGame".
+
+            game_type (Optional[str], optional): The type of games to draw the
+                top stats from. Available values:
+                - HomeGames
+                - AwayGames
+                - GamesWon
+                - GamesLost
+                Defaults to None, meaning all games
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the top leading teams and their
+                stat
+        """
+        params = {
+            "SeasonMode": "Range",
+            "FromSeasonCode": f"{self.competition}{start_season}",
+            "ToSeasonCode": f"{self.competition}{end_season}",
+        }
+        df = self.get_team_stats_leaders(
+            params,
+            stat_category,
+            top_n,
+            phase_type_code,
+            statistic_mode,
+            game_type
+        )
         return df

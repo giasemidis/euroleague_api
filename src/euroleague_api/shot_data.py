@@ -98,7 +98,7 @@ class ShotData(EuroLeagueData):
             season, self.get_game_shot_data)
         return data_df
 
-    def get_game_shot_data_multiple_seasons(
+    def get_game_shot_data_range_seasons(
         self, start_season: int, end_season: int
     ) -> pd.DataFrame:
         """

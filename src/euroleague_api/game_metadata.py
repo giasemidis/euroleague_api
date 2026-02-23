@@ -93,7 +93,7 @@ class GameMetadata(EuroLeagueData):
         )
         return single_season_metadata_df
 
-    def get_game_metadata_multiple_seasons(
+    def get_game_metadata_range_seasons(
         self, start_season: int, end_season: int
     ) -> pd.DataFrame:
         """

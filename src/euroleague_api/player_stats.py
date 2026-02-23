@@ -52,9 +52,12 @@ class PlayerStats(EuroLeagueData):
 
             statistic_mode (str, optional): The aggregation of statistics,
                 available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
                 Defaults to "PerGame".
 
         Raises:
@@ -72,7 +75,13 @@ class PlayerStats(EuroLeagueData):
 
         available_endpoints = ["traditional", "advanced", "misc", "scoring"]
         available_phase_type_code = ["RS", "PO", "FF"]
-        available_stat_mode = ["PerGame", "Accumulated", "Per100Possesions"]
+        available_stat_mode = [
+            "PerGame",
+            "Accumulated",
+            "Per100Possesions",
+            "PerGameReverse",
+            "AccumulatedReverse"
+        ]
 
         raise_error(
             endpoint, "Statistic type", available_endpoints, False)
@@ -96,251 +105,6 @@ class PlayerStats(EuroLeagueData):
             r = get_requests(url_, params=params)
             data = r.json()
         df = pd.json_normalize(data["players"])
-        return df
-
-    def get_player_stats_leaders(
-        self,
-        params: dict = {},
-        stat_category: str = "Score",
-        top_n: int = 200,
-        phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame",
-        game_type: Optional[str] = None,
-        position: Optional[str] = None
-    ) -> pd.DataFrame:
-        """
-        A wrapper function for collecting the leading players in a given
-        stat category.
-
-        Args:
-
-            params (Dict[str, Union[str, int]]): A dictionary of parameters
-                for the get request.
-
-            top_n (int): The number of top N players to return.
-                Defaults to 200.
-
-            stat_category (str): The stat category. Available values:
-                - Valuation
-                - Score
-                - TotalRebounds
-                - OffensiveRebounds
-                - Assistances
-                - Steals
-                - BlocksFavour
-                - BlocksAgainst
-                - Turnovers
-                - FoulsReceived
-                - FoulsCommited
-                - FreeThrowsMade
-                - FreeThrowsAttempted
-                - FreeThrowsPercent
-                - FieldGoalsMade2
-                - FieldGoalsAttempted2
-                - FieldGoals2Percent
-                - FieldGoalsMade3
-                - FieldGoalsAttempted3
-                - FieldGoals3Percent
-                - FieldGoalsMadeTotal
-                - FieldGoalsAttemptedTotal
-                - FieldGoalsPercent
-                - AccuracyMade
-                - AccuracyAttempted
-                - AccuracyPercent
-                - AssitancesTurnoversRation
-                - GamesPlayed
-                - GamesStarted
-                - TimePlayed
-                - Contras
-                - Dunks
-                - OffensiveReboundPercentage
-                - DefensiveReboundPercentage
-                - ReboundPercentage
-                - EffectiveFeildGoalPercentage
-                - TrueShootingPercentage
-                - AssistRatio
-                - TurnoverRatio
-                - FieldGoals2AttemptedRatio
-                - FieldGoals3AttemptedRatio
-                - FreeThrowRate
-                - Possessions
-                - GamesWon
-                - GamesLost
-                - DoubleDoubles
-                - TripleDoubles
-                - FieldGoalsAttempted2Share
-                - FieldGoalsAttempted3Share
-                - FreeThrowsAttemptedShare
-                - FieldGoalsMade2Share
-                - FieldGoalsMade3Share
-                - FreeThrowsMadeShare
-                - PointsMade2Rate
-                - PointsMade3Rate
-                - PointsMadeFreeThrowsRate
-                - PointsAttempted2Rate
-                - PointsAttempted3Rate
-                - Age
-
-            phase_type_code (Optional[str], optional): The phase of the season,
-                available variables:
-                - "RS" (regular season)
-                - "PO" (play-off)
-                - "FF" (final four)
-                Defaults to None, which includes all phases.
-
-            statistic_mode (str, optional): The aggregation of statistics,
-                available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
-                - PerGameReverse
-                - AccumulatedReverse
-                Defaults to "PerGame".
-
-            game_type (Optional[str], optional): The type of games to draw the
-                top stats from. Available values:
-                - HomeGames
-                - AwayGames
-                - GamesWon
-                - GamesLost
-                Defaults to None, meaning all games
-
-            position (Optional[str], optional): The position of the player to
-                draw the top stats from. Available values:
-                - Guards
-                - Forwards
-                - Centers
-                - RisingStars
-                Defaults to None, meaning all positions.
-
-        Raises:
-
-            ValueError: If the stat_category is not applicable
-
-            ValueError: If the phase_type_code is not applicable
-
-            ValueError: If the statistic_mode is not applicable
-
-            ValueError: If the game_type is not applicable
-
-            ValueError: If the position is not applicable
-
-        Returns:
-
-            pd.DataFrame: A dataframe with the top players' stats
-        """
-        avaiable_stat_category = [
-            "Valuation",
-            "Score",
-            "TotalRebounds",
-            "OffensiveRebounds",
-            "Assistances",
-            "Steals",
-            "BlocksFavour",
-            "BlocksAgainst",
-            "Turnovers",
-            "FoulsReceived",
-            "FoulsCommited",
-            "FreeThrowsMade",
-            "FreeThrowsAttempted",
-            "FreeThrowsPercent",
-            "FieldGoalsMade2",
-            "FieldGoalsAttempted2",
-            "FieldGoals2Percent",
-            "FieldGoalsMade3",
-            "FieldGoalsAttempted3",
-            "FieldGoals3Percent",
-            "FieldGoalsMadeTotal",
-            "FieldGoalsAttemptedTotal",
-            "FieldGoalsPercent",
-            "AccuracyMade",
-            "AccuracyAttempted",
-            "AccuracyPercent",
-            "AssitancesTurnoversRation",
-            "GamesPlayed",
-            "GamesStarted",
-            "TimePlayed",
-            "Contras",
-            "Dunks",
-            "OffensiveReboundPercentage",
-            "DefensiveReboundPercentage",
-            "ReboundPercentage",
-            "EffectiveFeildGoalPercentage",
-            "TrueShootingPercentage",
-            "AssistRatio",
-            "TurnoverRatio",
-            "FieldGoals2AttemptedRatio",
-            "FieldGoals3AttemptedRatio",
-            "FreeThrowRate",
-            "Possessions",
-            "GamesWon",
-            "GamesLost",
-            "DoubleDoubles",
-            "TripleDoubles",
-            "FieldGoalsAttempted2Share",
-            "FieldGoalsAttempted3Share",
-            "FreeThrowsAttemptedShare",
-            "FieldGoalsMade2Share",
-            "FieldGoalsMade3Share",
-            "FreeThrowsMadeShare",
-            "PointsMade2Rate",
-            "PointsMade3Rate",
-            "PointsMadeFreeThrowsRate",
-            "PointsAttempted2Rate",
-            "PointsAttempted3Rate",
-            "Age"
-        ]
-        available_phase_type_code = ["RS", "PO", "FF"]
-        available_stat_mode = [
-            "PerGame",
-            "Accumulated",
-            "Per100Possesions",
-            "PerGameReverse",
-            "AccumulatedReverse"
-        ]
-        available_game_types = [
-            "HomeGames",
-            "AwayGames",
-            "GamesWon",
-            "GamesLost",
-        ]
-        availabe_positions = [
-            "Guards",
-            "Forwards",
-            "Centers",
-            "RisingStars"
-        ]
-
-        raise_error(stat_category, "Stat category",
-                    avaiable_stat_category, False)
-        raise_error(
-            statistic_mode, "Statistic Aggregation", available_stat_mode,
-            False)
-        raise_error(
-            phase_type_code, "Phase type code", available_phase_type_code,
-            True)
-        raise_error(game_type, "Game type", available_game_types, True)
-        raise_error(position, "Position", availabe_positions, True)
-
-        params["category"] = stat_category
-        params["phaseTypeCode"] = phase_type_code
-        params["statisticMode"] = statistic_mode
-        params["limit"] = top_n
-        if game_type is not None and position is not None:
-            raise ValueError(
-                "Cannot select a game_type and position at the same type. "
-                "One of the variables must be None"
-            )
-        elif game_type is not None and position is None:
-            params["misc"] = game_type
-        elif game_type is None and position is not None:
-            params["misc"] = position
-
-        url_ = f"{self.url}/stats/players/leaders"
-
-        r = get_requests(url_, params=params)
-        data = r.json()
-        df = pd.json_normalize(data["data"])
         return df
 
     def get_player_stats_all_seasons(
@@ -480,9 +244,278 @@ class PlayerStats(EuroLeagueData):
             endpoint, params, phase_type_code, statistic_mode)
         return df
 
+    def get_player_stats_leaders(
+        self,
+        params: dict = {},
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
+        top_n: int = 200,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame",
+        game_type: Optional[str] = None,
+        position: Optional[str] = None
+    ) -> pd.DataFrame:
+        """
+        A wrapper function for collecting the leading players in a given
+        stat category.
+
+        Args:
+
+            params (Dict[str, Union[str, int]]): A dictionary of parameters
+                for the get request.
+
+            club_code (Optional[str], optional): The club code of the team.
+                Defaults to None, which includes all teams.
+
+            round_number (Optional[int], optional): The round of the season.
+                Defaults to None, which includes all rounds.
+
+            max_round (Optional[int], optional): The maximum round of the
+                season. Defaults to None, which includes all rounds.
+
+            top_n (int): The number of top N players to return.
+                Defaults to 200.
+
+            stat_category (str): The stat category. Available values:
+                - None  # (is time played)
+                - Valuation
+                - Score
+                - TotalRebounds
+                - OffensiveRebounds
+                - DefensiveRebounds
+                - Assistances
+                - Steals
+                - BlocksFavour
+                - BlocksAgainst
+                - Turnovers
+                - FoulsReceived
+                - FoulsCommited
+                - FreeThrowsMade
+                - FreeThrowsAttempted
+                - FreeThrowsPercent
+                - FieldGoalsMade2
+                - FieldGoalsAttempted2
+                - FieldGoals2Percent
+                - FieldGoalsMade3
+                - FieldGoalsAttempted3
+                - FieldGoals3Percent
+                - FieldGoalsMadeTotal
+                - FieldGoalsAttemptedTotal
+                - FieldGoalsPercent
+                - AccuracyMade
+                - AccuracyAttempted
+                - AccuracyPercent
+                - AssitancesTurnoversRation
+                - GamesPlayed
+                - GamesStarted
+                - TimePlayed
+                - Contras
+                - Dunks
+                - OffensiveReboundPercentage
+                - DefensiveReboundPercentage
+                - ReboundPercentage
+                - EffectiveFeildGoalPercentage
+                - TrueShootingPercentage
+                - AssistRatio
+                - TurnoverRatio
+                - FieldGoals2AttemptedRatio
+                - FieldGoals3AttemptedRatio
+                - FreeThrowRate
+                - Possessions
+                - GamesWon
+                - GamesLost
+                - DoubleDoubles
+                - TripleDoubles
+                - FieldGoalsAttempted2Share
+                - FieldGoalsAttempted3Share
+                - FreeThrowsAttemptedShare
+                - FieldGoalsMade2Share
+                - FieldGoalsMade3Share
+                - FreeThrowsMadeShare
+                - PointsMade2Rate
+                - PointsMade3Rate
+                - PointsMadeFreeThrowsRate
+                - PointsAttempted2Rate
+                - PointsAttempted3Rate
+                - Age
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                - PerGame
+                - Accumulated
+                - PerMinute
+                - Per100Possesions
+                - PerGameReverse
+                - AccumulatedReverse
+                Defaults to "PerGame".
+
+            game_type (Optional[str], optional): The type of games to draw the
+                top stats from. Available values:
+                - HomeGames
+                - AwayGames
+                - GamesWon
+                - GamesLost
+                Defaults to None, meaning all games
+
+            position (Optional[str], optional): The position of the player to
+                draw the top stats from. Available values:
+                - Guards
+                - Forwards
+                - Centers
+                - RisingStars
+                Defaults to None, meaning all positions.
+
+        Raises:
+
+            ValueError: If the stat_category is not applicable
+
+            ValueError: If the phase_type_code is not applicable
+
+            ValueError: If the statistic_mode is not applicable
+
+            ValueError: If the game_type is not applicable
+
+            ValueError: If the position is not applicable
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the top players' stats
+        """
+        avaiable_stat_category = [
+            None,
+            "Valuation",
+            "Score",
+            "TotalRebounds",
+            "OffensiveRebounds",
+            "DefensiveRebounds",
+            "Assistances",
+            "Steals",
+            "BlocksFavour",
+            "BlocksAgainst",
+            "Turnovers",
+            "FoulsReceived",
+            "FoulsCommited",
+            "FreeThrowsMade",
+            "FreeThrowsAttempted",
+            "FreeThrowsPercent",
+            "FieldGoalsMade2",
+            "FieldGoalsAttempted2",
+            "FieldGoals2Percent",
+            "FieldGoalsMade3",
+            "FieldGoalsAttempted3",
+            "FieldGoals3Percent",
+            "FieldGoalsMadeTotal",
+            "FieldGoalsAttemptedTotal",
+            "FieldGoalsPercent",
+            "AccuracyMade",
+            "AccuracyAttempted",
+            "AccuracyPercent",
+            "AssitancesTurnoversRation",
+            "GamesPlayed",
+            "GamesStarted",
+            "TimePlayed",
+            "Contras",
+            "Dunks",
+            "OffensiveReboundPercentage",
+            "DefensiveReboundPercentage",
+            "ReboundPercentage",
+            "EffectiveFeildGoalPercentage",
+            "TrueShootingPercentage",
+            "AssistRatio",
+            "TurnoverRatio",
+            "FieldGoals2AttemptedRatio",
+            "FieldGoals3AttemptedRatio",
+            "FreeThrowRate",
+            "Possessions",
+            "GamesWon",
+            "GamesLost",
+            "DoubleDoubles",
+            "TripleDoubles",
+            "FieldGoalsAttempted2Share",
+            "FieldGoalsAttempted3Share",
+            "FreeThrowsAttemptedShare",
+            "FieldGoalsMade2Share",
+            "FieldGoalsMade3Share",
+            "FreeThrowsMadeShare",
+            "PointsMade2Rate",
+            "PointsMade3Rate",
+            "PointsMadeFreeThrowsRate",
+            "PointsAttempted2Rate",
+            "PointsAttempted3Rate",
+            "Age"
+        ]
+        available_phase_type_code = ["RS", "PO", "FF"]
+        available_stat_mode = [
+            "PerGame",
+            "Accumulated",
+            "PerMinute",
+            "Per100Possesions",
+            "PerGameReverse",
+            "AccumulatedReverse"
+        ]
+        available_game_types = [
+            "HomeGames",
+            "AwayGames",
+            "GamesWon",
+            "GamesLost",
+        ]
+        availabe_positions = [
+            "Guards",
+            "Forwards",
+            "Centers",
+            "RisingStars"
+        ]
+
+        raise_error(stat_category, "Stat category",
+                    avaiable_stat_category, False)
+        raise_error(
+            statistic_mode, "Statistic Aggregation", available_stat_mode,
+            False)
+        raise_error(
+            phase_type_code, "Phase type code", available_phase_type_code,
+            True)
+        raise_error(game_type, "Game type", available_game_types, True)
+        raise_error(position, "Position", availabe_positions, True)
+
+        params["clubCode"] = club_code
+        params["round"] = round_number
+        params["maxRound"] = max_round
+        params["category"] = stat_category
+        params["phaseTypeCode"] = phase_type_code
+        params["statisticMode"] = statistic_mode
+        params["limit"] = top_n
+        if game_type is not None and position is not None:
+            raise ValueError(
+                "Cannot select a game_type and position at the same type. "
+                "One of the variables must be None"
+            )
+        elif game_type is not None and position is None:
+            params["misc"] = game_type
+        elif game_type is None and position is not None:
+            params["misc"] = position
+
+        url_ = f"{self.url_v2}/stats/players/leaders"
+
+        r = get_requests(url_, params=params)
+        data = r.json()
+        df = pd.json_normalize(data["data"])
+        return df
+
     def get_player_stats_leaders_all_seasons(
         self,
-        stat_category: str,
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -494,8 +527,17 @@ class PlayerStats(EuroLeagueData):
 
         Args:
 
+            club_code (Optional[str], optional): The code of the club to
+                draw the top stats from. Defaults to None, meaning all clubs.
+
+            round_number (Optional[int], optional): The round number to draw
+                the top stats from. Defaults to None, meaning all rounds.
+
+            max_round (Optional[int], optional): The maximum round number to
+                draw the top stats from. Defaults to None, meaning all rounds.
+
             stat_category (str): The stat category. See function
-                `utils.get_player_stats_leaders` for a list of available stats.
+                `self.get_player_stats_leaders` for a list of available stats.
 
             top_n (int): The number of top N players to return.
                 Defaults to 200.
@@ -511,6 +553,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -540,6 +583,9 @@ class PlayerStats(EuroLeagueData):
         params = {"SeasonMode": "All"}
         df = self.get_player_stats_leaders(
             params,
+            club_code,
+            round_number,
+            max_round,
             stat_category,
             top_n,
             phase_type_code,
@@ -552,7 +598,10 @@ class PlayerStats(EuroLeagueData):
     def get_player_stats_leaders_single_season(
         self,
         season: int,
-        stat_category: str,
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -566,8 +615,18 @@ class PlayerStats(EuroLeagueData):
 
             season (int): The start year of the season.
 
+            club_code (Optional[str], optional): The code of the club to
+                draw the top stats from. Defaults to None, meaning all clubs.
+
+            round_number (Optional[int], optional): The round number to draw
+                the top stats from. Defaults to None, meaning all rounds.
+
+            max_round (Optional[int], optional): The maximum round number to
+                draw the top stats from. Defaults to None, meaning all rounds.
+
             stat_category (str): The stat category. See function
-                `utils.get_player_stats_leaders` for a list of available stats.
+                `self.get_player_stats_leaders` for a list of available stats.
+
             top_n (int): The number of top N players to return.
                 Defaults to 200.
 
@@ -582,6 +641,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -614,6 +674,9 @@ class PlayerStats(EuroLeagueData):
         }
         df = self.get_player_stats_leaders(
             params,
+            club_code,
+            round_number,
+            max_round,
             stat_category,
             top_n,
             phase_type_code,
@@ -627,7 +690,10 @@ class PlayerStats(EuroLeagueData):
         self,
         start_season: int,
         end_season: int,
-        stat_category: str,
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -642,8 +708,19 @@ class PlayerStats(EuroLeagueData):
             start_season (int): The start year of the first season in the
                 range.
 
+            end_season (int): The end year of the last season in the range.
+
+            club_code (Optional[str], optional): The code of the club to
+                draw the top stats from. Defaults to None, meaning all clubs.
+
+            round_number (Optional[int], optional): The round number to draw
+                the top stats from. Defaults to None, meaning all rounds.
+
+            max_round (Optional[int], optional): The maximum round number to
+                draw the top stats from. Defaults to None, meaning all rounds.
+
             stat_category (str): The stat category. See function
-                `utils.get_player_stats_leaders` for a list of available stats.
+                `self.get_player_stats_leaders` for a list of available stats.
 
             top_n (int): The number of top N players to return.
                 Defaults to 200.
@@ -659,6 +736,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -692,6 +770,9 @@ class PlayerStats(EuroLeagueData):
         }
         df = self.get_player_stats_leaders(
             params,
+            club_code,
+            round_number,
+            max_round,
             stat_category,
             top_n,
             phase_type_code,

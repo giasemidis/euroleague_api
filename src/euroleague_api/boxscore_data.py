@@ -78,7 +78,7 @@ class BoxScoreData(EuroLeagueData):
 
         return data[boxscore_type]
 
-    def get_game_boxscore_quarter_data(
+    def get_teams_boxscore_quarter_scores(
         self,
         season: int,
         gamecode: int,
@@ -119,7 +119,7 @@ class BoxScoreData(EuroLeagueData):
         df.insert(1, 'Gamecode', gamecode)
         return df
 
-    def get_player_boxscore_stats_data(
+    def get_players_boxscore_stats(
         self,
         season: int,
         gamecode: int
@@ -175,7 +175,7 @@ class BoxScoreData(EuroLeagueData):
         )
         return df
 
-    def get_game_boxscore_quarter_data_round(
+    def get_teams_boxscore_quarter_scores_round(
         self,
         season: int,
         round_number: int,
@@ -202,15 +202,15 @@ class BoxScoreData(EuroLeagueData):
             pd.DataFrame: A dataframe with the boxscore quarter data of all
                 games in a particular round of a season
         """
-        get_game_boxscore_quarter_data_ = (
-            lambda season, gamecode: self.get_game_boxscore_quarter_data(
+        get_teams_boxscore_quarter_scores_ = (
+            lambda season, gamecode: self.get_teams_boxscore_quarter_scores(
                 season, gamecode, boxscore_type)
         )
         data_df = self.get_round_data_from_game_data(
-            season, round_number, get_game_boxscore_quarter_data_)
+            season, round_number, get_teams_boxscore_quarter_scores_)
         return data_df
 
-    def get_game_boxscore_quarter_data_single_season(
+    def get_teams_boxscore_quarter_scores_single_season(
         self,
         season: int,
         boxscore_type: str = "ByQuarter"
@@ -234,15 +234,15 @@ class BoxScoreData(EuroLeagueData):
             pd.DataFrame: A dataframe with the boxscore quarter data of all
                 games in a single season
         """
-        get_game_boxscore_quarter_data_ = (
-            lambda season, gamecode: self.get_game_boxscore_quarter_data(
+        get_teams_boxscore_quarter_scores_ = (
+            lambda season, gamecode: self.get_teams_boxscore_quarter_scores(
                 season, gamecode, boxscore_type)
         )
         data_df = self.get_season_data_from_game_data(
-            season, get_game_boxscore_quarter_data_)
+            season, get_teams_boxscore_quarter_scores_)
         return data_df
 
-    def get_game_boxscore_quarter_data_multiple_seasons(
+    def get_teams_boxscore_quarter_scores_range_seasons(
         self,
         start_season: int,
         end_season: int,
@@ -269,15 +269,15 @@ class BoxScoreData(EuroLeagueData):
             pd.DataFrame: A dataframe with the boxscore quarter data of all
                 games in range of seasons
         """
-        get_game_boxscore_quarter_data_ = (
-            lambda season, gamecode: self.get_game_boxscore_quarter_data(
+        get_teams_boxscore_quarter_scores_ = (
+            lambda season, gamecode: self.get_teams_boxscore_quarter_scores(
                 season, gamecode, boxscore_type)
         )
         df = self.get_range_seasons_data(
-            start_season, end_season, get_game_boxscore_quarter_data_)
+            start_season, end_season, get_teams_boxscore_quarter_scores_)
         return df
 
-    def get_player_boxscore_stats_round(
+    def get_players_boxscore_stats_round(
         self,
         season: int,
         round_number: int
@@ -295,10 +295,10 @@ class BoxScoreData(EuroLeagueData):
                 a season
         """
         data_df = self.get_round_data_from_game_data(
-            season, round_number, self.get_player_boxscore_stats_data)
+            season, round_number, self.get_players_boxscore_stats)
         return data_df
 
-    def get_player_boxscore_stats_single_season(
+    def get_players_boxscore_stats_single_season(
         self,
         season: int
     ) -> pd.DataFrame:
@@ -314,10 +314,10 @@ class BoxScoreData(EuroLeagueData):
                 a season
         """
         data_df = self.get_season_data_from_game_data(
-            season, self.get_player_boxscore_stats_data)
+            season, self.get_players_boxscore_stats)
         return data_df
 
-    def get_player_boxscore_stats_multiple_seasons(
+    def get_players_boxscore_stats_range_seasons(
         self,
         start_season: int,
         end_season: int
@@ -336,5 +336,5 @@ class BoxScoreData(EuroLeagueData):
                 a season
         """
         data_df = self.get_range_seasons_data(
-            start_season, end_season, self.get_player_boxscore_stats_data)
+            start_season, end_season, self.get_players_boxscore_stats)
         return data_df

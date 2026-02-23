@@ -76,7 +76,7 @@ class GameStats(EuroLeagueData):
                 found on Euroleague's website.
 
         Returns:
-            pd.DataFrame: A dataframw with the game report data
+            pd.DataFrame: A dataframe with the game report data
         """
         df = self.get_game_data(season, game_code, "report")
         return df
@@ -101,7 +101,7 @@ class GameStats(EuroLeagueData):
             season, round_number, self.get_game_report)
         return data_df
 
-    def get_game_reports_single_season(self, season: int) -> pd.DataFrame:
+    def get_game_report_single_season(self, season: int) -> pd.DataFrame:
         """
         Get game report data for *all* games in a single season
 
@@ -115,7 +115,7 @@ class GameStats(EuroLeagueData):
             season, self.get_game_report)
         return data_df
 
-    def get_game_reports_range_seasons(
+    def get_game_report_range_seasons(
         self,
         start_season: int,
         end_season: int
