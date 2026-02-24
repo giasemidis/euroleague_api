@@ -244,8 +244,16 @@ class TeamStats(EuroLeagueData):
         game_type: Optional[str] = None
     ) -> pd.DataFrame:
         """
-        A wrapper function for collecting the leading team in a given
+        A wrapper function for collecting the team leaders in a given
         stat category.
+
+        We are using the v2 endpoint 
+        `/v2​/competitions​/{competitionCode}​/stats​/clubs​/leaders`
+        instead of the v3 endpoint
+        `/v3​/competitions​/{competitionCode}​/statistics​/teams​/leaders`
+        because it's richer in options, data slices and statistical
+        metrics.
+
 
         Args:
 
