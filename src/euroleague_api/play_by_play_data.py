@@ -105,7 +105,7 @@ class PlayByPlay(EuroLeagueData):
 
         return pbp_df
 
-    def get_play_by_play_data_round(
+    def get_game_play_by_play_data_round(
         self,
         season: int,
         round_number: int
@@ -147,7 +147,7 @@ class PlayByPlay(EuroLeagueData):
             season, self.get_game_play_by_play_data)
         return data_df
 
-    def get_game_play_by_play_data_multiple_seasons(
+    def get_game_play_by_play_data_range_seasons(
         self, start_season: int, end_season: int
     ) -> pd.DataFrame:
         """
@@ -169,7 +169,7 @@ class PlayByPlay(EuroLeagueData):
             start_season, end_season, self.get_game_play_by_play_data)
         return df
 
-    def get_pbp_data_with_lineups(
+    def get_game_pbp_data_lineups(
         self,
         season,
         gamecode,
@@ -229,7 +229,7 @@ class PlayByPlay(EuroLeagueData):
         # Get the starting line-ups from boxscore data
         boxscoredata = BoxScoreData(competition=self.competition)
         try:
-            game_bxscr_stats = boxscoredata.get_player_boxscore_stats_data(
+            game_bxscr_stats = boxscoredata.get_players_boxscore_stats(
                 season=season, gamecode=gamecode)
         except Exception as e:  # noqa: E722
             logger.warning(
@@ -246,7 +246,7 @@ class PlayByPlay(EuroLeagueData):
         )
         return pbp_df
 
-    def get_pbp_data_with_lineups_round(
+    def get_game_pbp_data_lineups_round(
         self,
         season: int,
         round_number: int
@@ -264,10 +264,10 @@ class PlayByPlay(EuroLeagueData):
                 of all games in a single round
         """
         df = self.get_round_data_from_game_data(
-            season, round_number, self.get_pbp_data_with_lineups)
+            season, round_number, self.get_game_pbp_data_lineups)
         return df
 
-    def get_pbp_data_with_lineups_single_season(
+    def get_game_pbp_data_lineups_single_season(
         self,
         season: int
     ) -> pd.DataFrame:
@@ -285,10 +285,10 @@ class PlayByPlay(EuroLeagueData):
                 in a single season
         """
         data_df = self.get_season_data_from_game_data(
-            season, self.get_pbp_data_with_lineups)
+            season, self.get_game_pbp_data_lineups)
         return data_df
 
-    def get_pbp_data_with_lineups_multiple_seasons(
+    def get_game_pbp_data_lineups_range_seasons(
         self, start_season: int, end_season: int
     ) -> pd.DataFrame:
         """
@@ -307,5 +307,5 @@ class PlayByPlay(EuroLeagueData):
                 in range of seasons
         """
         df = self.get_range_seasons_data(
-            start_season, end_season, self.get_pbp_data_with_lineups)
+            start_season, end_season, self.get_game_pbp_data_lineups)
         return df

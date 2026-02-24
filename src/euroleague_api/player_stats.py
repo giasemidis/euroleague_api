@@ -52,9 +52,12 @@ class PlayerStats(EuroLeagueData):
 
             statistic_mode (str, optional): The aggregation of statistics,
                 available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
                 Defaults to "PerGame".
 
         Raises:
@@ -72,7 +75,14 @@ class PlayerStats(EuroLeagueData):
 
         available_endpoints = ["traditional", "advanced", "misc", "scoring"]
         available_phase_type_code = ["RS", "PO", "FF"]
-        available_stat_mode = ["PerGame", "Accumulated", "Per100Possesions"]
+        available_stat_mode = [
+            "PerGame",
+            "Accumulated",
+            "PerMinute",
+            "Per100Possesions",
+            "PerGameReverse",
+            "AccumulatedReverse"
+        ]
 
         raise_error(
             endpoint, "Statistic type", available_endpoints, False)
@@ -98,10 +108,159 @@ class PlayerStats(EuroLeagueData):
         df = pd.json_normalize(data["players"])
         return df
 
+    def get_player_stats_all_seasons(
+        self,
+        endpoint: str,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame"
+    ) -> pd.DataFrame:
+        """
+        The players' stats for *all* seasons.
+
+        Args:
+
+            endpoint (str): The type of stats, available variables:
+                - traditional
+                - advanced
+                - misc
+                - scoring
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
+                Defaults to "PerGame".
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the players' stats
+        """
+        params = {"SeasonMode": "All"}
+        df = self.get_player_stats(
+            endpoint, params, phase_type_code, statistic_mode)
+        return df
+
+    def get_player_stats_single_season(
+        self,
+        endpoint: str,
+        season: int,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame"
+    ) -> pd.DataFrame:
+        """
+        The players' stats for a *single* season.
+
+        Args:
+
+            endpoint (str): The type of stats, available variables:
+                - traditional
+                - advanced
+                - misc
+                - scoring
+
+            season (int): The start year of the season.
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
+                Defaults to "PerGame".
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the players' stats
+        """
+        params = {
+            "SeasonMode": "Single",
+            "SeasonCode": f"{self.competition}{season}",
+        }
+        df = self.get_player_stats(
+            endpoint, params, phase_type_code, statistic_mode)
+        return df
+
+    def get_player_stats_range_seasons(
+        self,
+        endpoint: str,
+        start_season: int,
+        end_season: int,
+        phase_type_code: Optional[str] = None,
+        statistic_mode: str = "PerGame"
+    ) -> pd.DataFrame:
+        """
+        The players' stats for a range of seasons.
+
+        Args:
+
+            endpoint (str): The type of stats, available variables:
+                - traditional
+                - advanced
+                - misc
+                - scoring
+
+            start_season (int): The start year of the first season in the
+                range.
+
+            end_season (int): The start year of teh last season in the range.
+
+            phase_type_code (Optional[str], optional): The phase of the season,
+                available variables:
+                - "RS" (regular season)
+                - "PO" (play-off)
+                - "FF" (final four)
+                Defaults to None, which includes all phases.
+
+            statistic_mode (str, optional): The aggregation of statistics,
+                available variables:
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
+                Defaults to "PerGame".
+
+        Returns:
+
+            pd.DataFrame: A dataframe with the players' stats
+        """
+        params = {
+            "SeasonMode": "Range",
+            "FromSeasonCode": f"{self.competition}{start_season}",
+            "ToSeasonCode": f"{self.competition}{end_season}",
+        }
+        df = self.get_player_stats(
+            endpoint, params, phase_type_code, statistic_mode)
+        return df
+
     def get_player_stats_leaders(
         self,
         params: dict = {},
-        stat_category: str = "Score",
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -112,19 +271,37 @@ class PlayerStats(EuroLeagueData):
         A wrapper function for collecting the leading players in a given
         stat category.
 
+        We are using the v2 endpoint 
+        `/v2/competitions/{competitionCode}/stats/players/leaders`
+        instead of the v3 endpoint
+        `/v3​/competitions​/{competitionCode}​/statistics​/players​/leaders`
+        because it's richer in options, data slices and statistical
+        metrics.
+
         Args:
 
             params (Dict[str, Union[str, int]]): A dictionary of parameters
                 for the get request.
 
+            club_code (Optional[str], optional): The club code of the team.
+                Defaults to None, which includes all teams.
+
+            round_number (Optional[int], optional): The round of the season.
+                Defaults to None, which includes all rounds.
+
+            max_round (Optional[int], optional): The maximum round of the
+                season. Defaults to None, which includes all rounds.
+
             top_n (int): The number of top N players to return.
                 Defaults to 200.
 
             stat_category (str): The stat category. Available values:
+                - None  # (is time played)
                 - Valuation
                 - Score
                 - TotalRebounds
                 - OffensiveRebounds
+                - DefensiveRebounds
                 - Assistances
                 - Steals
                 - BlocksFavour
@@ -192,6 +369,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -230,10 +408,12 @@ class PlayerStats(EuroLeagueData):
             pd.DataFrame: A dataframe with the top players' stats
         """
         avaiable_stat_category = [
+            None,
             "Valuation",
             "Score",
             "TotalRebounds",
             "OffensiveRebounds",
+            "DefensiveRebounds",
             "Assistances",
             "Steals",
             "BlocksFavour",
@@ -294,6 +474,7 @@ class PlayerStats(EuroLeagueData):
         available_stat_mode = [
             "PerGame",
             "Accumulated",
+            "PerMinute",
             "Per100Possesions",
             "PerGameReverse",
             "AccumulatedReverse"
@@ -322,6 +503,9 @@ class PlayerStats(EuroLeagueData):
         raise_error(game_type, "Game type", available_game_types, True)
         raise_error(position, "Position", availabe_positions, True)
 
+        params["clubCode"] = club_code
+        params["round"] = round_number
+        params["maxRound"] = max_round
         params["category"] = stat_category
         params["phaseTypeCode"] = phase_type_code
         params["statisticMode"] = statistic_mode
@@ -336,153 +520,19 @@ class PlayerStats(EuroLeagueData):
         elif game_type is None and position is not None:
             params["misc"] = position
 
-        url_ = f"{self.url}/stats/players/leaders"
+        url_ = f"{self.url_v2}/stats/players/leaders"
 
         r = get_requests(url_, params=params)
         data = r.json()
         df = pd.json_normalize(data["data"])
         return df
 
-    def get_player_stats_all_seasons(
-        self,
-        endpoint: str,
-        phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
-    ) -> pd.DataFrame:
-        """
-        The players' stats for *all* seasons.
-
-        Args:
-
-            endpoint (str): The type of stats, available variables:
-                - traditional
-                - advanced
-                - misc
-                - scoring
-
-            phase_type_code (Optional[str], optional): The phase of the season,
-                available variables:
-                - "RS" (regular season)
-                - "PO" (play-off)
-                - "FF" (final four)
-                Defaults to None, which includes all phases.
-
-            statistic_mode (str, optional): The aggregation of statistics,
-                available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
-                Defaults to "PerGame".
-
-        Returns:
-
-            pd.DataFrame: A dataframe with the players' stats
-        """
-        params = {"SeasonMode": "All"}
-        df = self.get_player_stats(
-            endpoint, params, phase_type_code, statistic_mode)
-        return df
-
-    def get_player_stats_single_season(
-        self,
-        endpoint: str,
-        season: int,
-        phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
-    ) -> pd.DataFrame:
-        """
-        The players' stats for a *single* season.
-
-        Args:
-
-            endpoint (str): The type of stats, available variables:
-                - traditional
-                - advanced
-                - misc
-                - scoring
-
-            season (int): The start year of the season.
-
-            phase_type_code (Optional[str], optional): The phase of the season,
-                available variables:
-                - "RS" (regular season)
-                - "PO" (play-off)
-                - "FF" (final four)
-                Defaults to None, which includes all phases.
-
-            statistic_mode (str, optional): The aggregation of statistics,
-                available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
-                Defaults to "PerGame".
-
-        Returns:
-
-            pd.DataFrame: A dataframe with the players' stats
-        """
-        params = {
-            "SeasonMode": "Single",
-            "SeasonCode": f"{self.competition}{season}",
-        }
-        df = self.get_player_stats(
-            endpoint, params, phase_type_code, statistic_mode)
-        return df
-
-    def get_player_stats_range_seasons(
-        self,
-        endpoint: str,
-        start_season: int,
-        end_season: int,
-        phase_type_code: Optional[str] = None,
-        statistic_mode: str = "PerGame"
-    ) -> pd.DataFrame:
-        """
-        The players' stats for a range of seasons.
-
-        Args:
-
-            endpoint (str): The type of stats, available variables:
-                - traditional
-                - advanced
-                - misc
-                - scoring
-
-            start_season (int): The start year of the first season in the
-                range.
-
-            end_season (int): The start year of teh last season in the range.
-
-            phase_type_code (Optional[str], optional): The phase of the season,
-                available variables:
-                - "RS" (regular season)
-                - "PO" (play-off)
-                - "FF" (final four)
-                Defaults to None, which includes all phases.
-
-            statistic_mode (str, optional): The aggregation of statistics,
-                available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
-                Defaults to "PerGame".
-
-        Returns:
-
-            pd.DataFrame: A dataframe with the players' stats
-        """
-        params = {
-            "SeasonMode": "Range",
-            "FromSeasonCode": f"{self.competition}{start_season}",
-            "ToSeasonCode": f"{self.competition}{end_season}",
-        }
-        df = self.get_player_stats(
-            endpoint, params, phase_type_code, statistic_mode)
-        return df
-
     def get_player_stats_leaders_all_seasons(
         self,
-        stat_category: str,
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -494,8 +544,17 @@ class PlayerStats(EuroLeagueData):
 
         Args:
 
+            club_code (Optional[str], optional): The code of the club to
+                draw the top stats from. Defaults to None, meaning all clubs.
+
+            round_number (Optional[int], optional): The round number to draw
+                the top stats from. Defaults to None, meaning all rounds.
+
+            max_round (Optional[int], optional): The maximum round number to
+                draw the top stats from. Defaults to None, meaning all rounds.
+
             stat_category (str): The stat category. See function
-                `utils.get_player_stats_leaders` for a list of available stats.
+                `self.get_player_stats_leaders` for a list of available stats.
 
             top_n (int): The number of top N players to return.
                 Defaults to 200.
@@ -511,6 +570,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -540,6 +600,9 @@ class PlayerStats(EuroLeagueData):
         params = {"SeasonMode": "All"}
         df = self.get_player_stats_leaders(
             params,
+            club_code,
+            round_number,
+            max_round,
             stat_category,
             top_n,
             phase_type_code,
@@ -552,7 +615,10 @@ class PlayerStats(EuroLeagueData):
     def get_player_stats_leaders_single_season(
         self,
         season: int,
-        stat_category: str,
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -566,8 +632,18 @@ class PlayerStats(EuroLeagueData):
 
             season (int): The start year of the season.
 
+            club_code (Optional[str], optional): The code of the club to
+                draw the top stats from. Defaults to None, meaning all clubs.
+
+            round_number (Optional[int], optional): The round number to draw
+                the top stats from. Defaults to None, meaning all rounds.
+
+            max_round (Optional[int], optional): The maximum round number to
+                draw the top stats from. Defaults to None, meaning all rounds.
+
             stat_category (str): The stat category. See function
-                `utils.get_player_stats_leaders` for a list of available stats.
+                `self.get_player_stats_leaders` for a list of available stats.
+
             top_n (int): The number of top N players to return.
                 Defaults to 200.
 
@@ -582,6 +658,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -614,6 +691,9 @@ class PlayerStats(EuroLeagueData):
         }
         df = self.get_player_stats_leaders(
             params,
+            club_code,
+            round_number,
+            max_round,
             stat_category,
             top_n,
             phase_type_code,
@@ -627,7 +707,10 @@ class PlayerStats(EuroLeagueData):
         self,
         start_season: int,
         end_season: int,
-        stat_category: str,
+        club_code: Optional[str] = None,
+        round_number: Optional[int] = None,
+        max_round: Optional[int] = None,
+        stat_category: str | None = None,
         top_n: int = 200,
         phase_type_code: Optional[str] = None,
         statistic_mode: str = "PerGame",
@@ -642,8 +725,19 @@ class PlayerStats(EuroLeagueData):
             start_season (int): The start year of the first season in the
                 range.
 
+            end_season (int): The end year of the last season in the range.
+
+            club_code (Optional[str], optional): The code of the club to
+                draw the top stats from. Defaults to None, meaning all clubs.
+
+            round_number (Optional[int], optional): The round number to draw
+                the top stats from. Defaults to None, meaning all rounds.
+
+            max_round (Optional[int], optional): The maximum round number to
+                draw the top stats from. Defaults to None, meaning all rounds.
+
             stat_category (str): The stat category. See function
-                `utils.get_player_stats_leaders` for a list of available stats.
+                `self.get_player_stats_leaders` for a list of available stats.
 
             top_n (int): The number of top N players to return.
                 Defaults to 200.
@@ -659,6 +753,7 @@ class PlayerStats(EuroLeagueData):
                 available variables:
                 - PerGame
                 - Accumulated
+                - PerMinute
                 - Per100Possesions
                 - PerGameReverse
                 - AccumulatedReverse
@@ -692,6 +787,9 @@ class PlayerStats(EuroLeagueData):
         }
         df = self.get_player_stats_leaders(
             params,
+            club_code,
+            round_number,
+            max_round,
             stat_category,
             top_n,
             phase_type_code,
