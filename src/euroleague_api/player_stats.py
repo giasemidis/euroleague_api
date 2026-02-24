@@ -78,6 +78,7 @@ class PlayerStats(EuroLeagueData):
         available_stat_mode = [
             "PerGame",
             "Accumulated",
+            "PerMinute",
             "Per100Possesions",
             "PerGameReverse",
             "AccumulatedReverse"
@@ -133,9 +134,12 @@ class PlayerStats(EuroLeagueData):
 
             statistic_mode (str, optional): The aggregation of statistics,
                 available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
                 Defaults to "PerGame".
 
         Returns:
@@ -176,9 +180,12 @@ class PlayerStats(EuroLeagueData):
 
             statistic_mode (str, optional): The aggregation of statistics,
                 available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
                 Defaults to "PerGame".
 
         Returns:
@@ -226,9 +233,12 @@ class PlayerStats(EuroLeagueData):
 
             statistic_mode (str, optional): The aggregation of statistics,
                 available variables:
-                - PerGame
-                - Accumulated
-                - Per100Possesions
+                 - PerGame
+                 - Accumulated
+                 - PerMinute
+                 - Per100Possesions
+                 - PerGameReverse
+                 - AccumulatedReverse
                 Defaults to "PerGame".
 
         Returns:
