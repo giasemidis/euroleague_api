@@ -1072,9 +1072,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <ul>
     <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_data">get_game_data</a></li>
     <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_report">get_game_report</a></li>
+    <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_report_range_seasons">get_game_report_range_seasons</a></li>
     <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_report_round">get_game_report_round</a></li>
-    <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_reports_range_seasons">get_game_reports_range_seasons</a></li>
-    <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_reports_single_season">get_game_reports_single_season</a></li>
+    <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_report_single_season">get_game_report_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_stats">get_game_stats</a></li>
     <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_stats_range_seasons">get_game_stats_range_seasons</a></li>
     <li class="mono"><a href="#euroleague_api.game_stats.GameStats.get_game_stats_round">get_game_stats_round</a></li>
@@ -1188,7 +1188,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                found on Euroleague&#39;s website.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            pd.DataFrame: A dataframw with the game report data</span>
+<span class="sd">            pd.DataFrame: A dataframe with the game report data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
@@ -1213,7 +1213,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_report</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_reports_single_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_game_report_single_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get game report data for *all* games in a single season</span>
 
@@ -1227,7 +1227,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_report</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_reports_range_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_report_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
@@ -1507,7 +1507,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                found on Euroleague&#39;s website.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            pd.DataFrame: A dataframw with the game report data</span>
+<span class="sd">            pd.DataFrame: A dataframe with the game report data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
@@ -1532,7 +1532,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_report</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_reports_single_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_game_report_single_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get game report data for *all* games in a single season</span>
 
@@ -1546,7 +1546,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_report</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_reports_range_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_report_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
@@ -1871,7 +1871,7 @@ endpoint (str): The type of game data, available variables:
     game_code (int): The game code of the game of interest. It can be
         found on Euroleague's website.</p>
 <p>Returns:
-    pd.DataFrame: A dataframw with the game report data</p></div>
+    pd.DataFrame: A dataframe with the game report data</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_stats.GameStats.get_game_report', this);">Show source &equiv;</a></p>
   <div id="source-euroleague_api.game_stats.GameStats.get_game_report" class="source">
@@ -1883,9 +1883,53 @@ endpoint (str): The type of game data, available variables:
 <span class="sd">        game_code (int): The game code of the game of interest. It can be</span>
 <span class="sd">            found on Euroleague&#39;s website.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframw with the game report data</span>
+<span class="sd">        pd.DataFrame: A dataframe with the game report data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_data</span><span class="p">(</span><span class="n">season</span><span class="p">,</span> <span class="n">game_code</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.game_stats.GameStats.get_game_report_range_seasons">
+    <p>def <span class="ident">get_game_report_range_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Get game report data for <em>all</em> games in a range of seasons</p>
+<p>Args:</p>
+<pre><code>start_season (int): The start year of the start season
+
+end_season (int): The start year of the end season
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with game report data
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_stats.GameStats.get_game_report_range_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.game_stats.GameStats.get_game_report_range_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_report_range_seasons</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get game report data for *all* games in a range of seasons</span>
+<span class="sd">    Args:</span>
+<span class="sd">        start_season (int): The start year of the start season</span>
+<span class="sd">        end_season (int): The start year of the end season</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with game report data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
+        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_report</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -1940,52 +1984,8 @@ of <em>all</em> games in a single round</p>
   
             
   <div class="item">
-    <div class="name def" id="euroleague_api.game_stats.GameStats.get_game_reports_range_seasons">
-    <p>def <span class="ident">get_game_reports_range_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Get game report data for <em>all</em> games in a range of seasons</p>
-<p>Args:</p>
-<pre><code>start_season (int): The start year of the start season
-
-end_season (int): The start year of the end season
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with game report data
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_stats.GameStats.get_game_reports_range_seasons', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.game_stats.GameStats.get_game_reports_range_seasons" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_reports_range_seasons</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get game report data for *all* games in a range of seasons</span>
-<span class="sd">    Args:</span>
-<span class="sd">        start_season (int): The start year of the start season</span>
-<span class="sd">        end_season (int): The start year of the end season</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with game report data</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
-        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_report</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.game_stats.GameStats.get_game_reports_single_season">
-    <p>def <span class="ident">get_game_reports_single_season</span>(</p><p>self, season: int)</p>
+    <div class="name def" id="euroleague_api.game_stats.GameStats.get_game_report_single_season">
+    <p>def <span class="ident">get_game_report_single_season</span>(</p><p>self, season: int)</p>
     </div>
     
 
@@ -1997,9 +1997,9 @@ end_season (int): The start year of the end season
 <p>Returns:
     pd.DataFrame: A dataframe with game report data</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_stats.GameStats.get_game_reports_single_season', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.game_stats.GameStats.get_game_reports_single_season" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_reports_single_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_stats.GameStats.get_game_report_single_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.game_stats.GameStats.get_game_report_single_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_report_single_season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get game report data for *all* games in a single season</span>
 <span class="sd">    Args:</span>

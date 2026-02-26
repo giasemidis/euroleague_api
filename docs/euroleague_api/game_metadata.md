@@ -78,10 +78,10 @@ capacity and referee names.
 | pd.DataFrame | A dataframe containing metadata of a game. |
 
     
-#### get_game_metadata_multiple_seasons
+#### get_game_metadata_range_seasons
 
 ```python3
-def get_game_metadata_multiple_seasons(
+def get_game_metadata_range_seasons(
     self,
     start_season: int,
     end_season: int

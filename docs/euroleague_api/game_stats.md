@@ -100,7 +100,33 @@ Get game report data for a game
 
 | Type | Description |
 |---|---|
-| pd.DataFrame | A dataframw with the game report data |
+| pd.DataFrame | A dataframe with the game report data |
+
+    
+#### get_game_report_range_seasons
+
+```python3
+def get_game_report_range_seasons(
+    self,
+    start_season: int,
+    end_season: int
+) -> pandas.core.frame.DataFrame
+```
+
+Get game report data for *all* games in a range of seasons
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| start_season | int | The start year of the start season | None |
+| end_season | int | The start year of the end season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with game report data |
 
     
 #### get_game_report_round
@@ -131,36 +157,10 @@ of *all* games in a single round
 | pd.DataFrame | A dataframe with the game report data of<br>all games in a single round |
 
     
-#### get_game_reports_range_seasons
+#### get_game_report_single_season
 
 ```python3
-def get_game_reports_range_seasons(
-    self,
-    start_season: int,
-    end_season: int
-) -> pandas.core.frame.DataFrame
-```
-
-Get game report data for *all* games in a range of seasons
-
-**Parameters:**
-
-| Name | Type | Description | Default |
-|---|---|---|---|
-| start_season | int | The start year of the start season | None |
-| end_season | int | The start year of the end season | None |
-
-**Returns:**
-
-| Type | Description |
-|---|---|
-| pd.DataFrame | A dataframe with game report data |
-
-    
-#### get_game_reports_single_season
-
-```python3
-def get_game_reports_single_season(
+def get_game_report_single_season(
     self,
     season: int
 ) -> pandas.core.frame.DataFrame

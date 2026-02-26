@@ -1075,9 +1075,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_range_seasons_data">get_range_seasons_data</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_round_data_from_game_data">get_round_data_from_game_data</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
-    <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game">get_team_advanced_stats_single_game</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats">get_team_stats</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_all_seasons">get_team_stats_all_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_leaders">get_team_stats_leaders</a></li>
+    <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_leaders_all_seasons">get_team_stats_leaders_all_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_leaders_range_seasons">get_team_stats_leaders_range_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_leaders_single_season">get_team_stats_leaders_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_range_seasons">get_team_stats_range_seasons</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.get_team_stats_single_season">get_team_stats_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.team_stats.TeamStats.make_season_game_url">make_season_game_url</a></li>
@@ -1104,9 +1107,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
   <div id="source-euroleague_api.team_stats" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">.EuroLeagueData</span> <span class="kn">import</span> <span class="n">EuroLeagueData</span>
-<span class="kn">from</span> <span class="nn">.boxscore_data</span> <span class="kn">import</span> <span class="n">BoxScoreData</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">raise_error</span><span class="p">,</span>
     <span class="n">get_requests</span>
@@ -1340,78 +1341,432 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_team_advanced_stats_single_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        In this function we derive team advanced stats from a single game</span>
-<span class="sd">        that are not provided by the API but can be easily estimated from</span>
-<span class="sd">        stats that are given from the API, i.e.</span>
-<span class="sd">            - Number of Possessions</span>
-<span class="sd">            - Pace</span>
-<span class="sd">        The formulas and definitions of these stats can be found in</span>
-<span class="sd">            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa</span>
-<span class="sd">            - [kenpom](https://kenpom.com/blog/the-possession/)</span>
-<span class="sd">            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa</span>
+<span class="sd">        A wrapper function for collecting the team leaders in a given</span>
+<span class="sd">        stat category.</span>
+
+<span class="sd">        We are using the v2 endpoint</span>
+<span class="sd">        `/v2​/competitions​/{competitionCode}​/stats​/clubs​/leaders`</span>
+<span class="sd">        instead of the v3 endpoint</span>
+<span class="sd">        `/v3​/competitions​/{competitionCode}​/statistics​/teams​/leaders`</span>
+<span class="sd">        because it&#39;s richer in options, data slices and statistical</span>
+<span class="sd">        metrics.</span>
+
 
 <span class="sd">        Args:</span>
-<span class="sd">            season (int): The start year of the season</span>
-<span class="sd">            gamecode (int): The game-code of the game of interest.</span>
-<span class="sd">                It can be found on Euroleague&#39;s website.</span>
+
+<span class="sd">            params (Dict[str, Union[str, int]]): A dictionary of parameters</span>
+<span class="sd">                for the get request.</span>
+
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            stat_category (str): The stat category. Available values:</span>
+<span class="sd">                - None # (time played)</span>
+<span class="sd">                - Valuation</span>
+<span class="sd">                - Score</span>
+<span class="sd">                - TotalRebounds</span>
+<span class="sd">                - OffensiveRebounds</span>
+<span class="sd">                - DefensiveRebounds</span>
+<span class="sd">                - Assistances</span>
+<span class="sd">                - Steals</span>
+<span class="sd">                - BlocksFavour</span>
+<span class="sd">                - BlocksAgainst</span>
+<span class="sd">                - Turnovers</span>
+<span class="sd">                - FoulsReceived</span>
+<span class="sd">                - FoulsCommited</span>
+<span class="sd">                - FreeThrowsMade</span>
+<span class="sd">                - FreeThrowsAttempted</span>
+<span class="sd">                - FreeThrowsPercent</span>
+<span class="sd">                - FieldGoalsMade2</span>
+<span class="sd">                - FieldGoalsAttempted2</span>
+<span class="sd">                - FieldGoals2Percent</span>
+<span class="sd">                - FieldGoalsMade3</span>
+<span class="sd">                - FieldGoalsAttempted3</span>
+<span class="sd">                - FieldGoals3Percent</span>
+<span class="sd">                - FieldGoalsMadeTotal</span>
+<span class="sd">                - FieldGoalsAttemptedTotal</span>
+<span class="sd">                - FieldGoalsPercent</span>
+<span class="sd">                - AccuracyMade</span>
+<span class="sd">                - AccuracyAttempted</span>
+<span class="sd">                - AccuracyPercent</span>
+<span class="sd">                - AssitancesTurnoversRation</span>
+<span class="sd">                - GamesPlayed</span>
+<span class="sd">                - GamesStarted</span>
+<span class="sd">                - TimePlayed</span>
+<span class="sd">                - Contras</span>
+<span class="sd">                - Dunks</span>
+<span class="sd">                - OffensiveReboundPercentage</span>
+<span class="sd">                - DefensiveReboundPercentage</span>
+<span class="sd">                - ReboundPercentage</span>
+<span class="sd">                - EffectiveFeildGoalPercentage</span>
+<span class="sd">                - TrueShootingPercentage</span>
+<span class="sd">                - AssistRatio</span>
+<span class="sd">                - TurnoverRatio</span>
+<span class="sd">                - FieldGoals2AttemptedRatio</span>
+<span class="sd">                - FieldGoals3AttemptedRatio</span>
+<span class="sd">                - FreeThrowRate</span>
+<span class="sd">                - Possessions</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                - DoubleDoubles</span>
+<span class="sd">                - TripleDoubles</span>
+<span class="sd">                - FieldGoalsAttempted2Share</span>
+<span class="sd">                - FieldGoalsAttempted3Share</span>
+<span class="sd">                - FreeThrowsAttemptedShare</span>
+<span class="sd">                - FieldGoalsMade2Share</span>
+<span class="sd">                - FieldGoalsMade3Share</span>
+<span class="sd">                - FreeThrowsMadeShare</span>
+<span class="sd">                - PointsMade2Rate</span>
+<span class="sd">                - PointsMade3Rate</span>
+<span class="sd">                - PointsMadeFreeThrowsRate</span>
+<span class="sd">                - PointsAttempted2Rate</span>
+<span class="sd">                - PointsAttempted3Rate</span>
+<span class="sd">                - Age</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            ValueError: If the stat_category is not applicable</span>
+
+<span class="sd">            ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">            ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">            ValueError: If the game_type is not applicable</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top teams&#39; stats</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-        <span class="n">totals_df</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;Player_ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-        <span class="p">)</span>
-        <span class="n">fga</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">]</span> <span class="o">+</span>
-               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">])</span>
-
-        <span class="n">fgm</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">]</span> <span class="o">+</span>
-               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">])</span>
-        <span class="n">possessions_simple</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">fga</span>
-            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
-            <span class="o">-</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="n">possessions</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">fga</span>
-            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
-            <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
-                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
-            <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">:</span> <span class="n">possessions_simple</span><span class="p">,</span>
-                <span class="s2">&quot;Possessions&quot;</span><span class="p">:</span> <span class="n">possessions</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Game&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()]</span>
-
-        <span class="n">min_played_ls</span> <span class="o">=</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Minutes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-        <span class="n">min_played</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="n">min_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_played</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
-
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace (simple)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span>
+        <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="kc">None</span><span class="p">,</span>  <span class="c1"># (time played)</span>
+            <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;BlocksAgainst&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Turnovers&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FoulsReceived&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FoulsCommited&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsMade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsPercent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals2Percent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals3Percent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMadeTotal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttemptedTotal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsPercent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccuracyMade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccuracyAttempted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccuracyPercent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AssitancesTurnoversRation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesPlayed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesStarted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TimePlayed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Contras&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dunks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OffensiveReboundPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DefensiveReboundPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ReboundPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;EffectiveFeildGoalPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TrueShootingPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AssistRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TurnoverRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals2AttemptedRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals3AttemptedRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowRate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DoubleDoubles&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TripleDoubles&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted2Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted3Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsAttemptedShare&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade2Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade3Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsMadeShare&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsMade2Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsMade3Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsMadeFreeThrowsRate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsAttempted2Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsAttempted3Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Age&quot;</span>
         <span class="p">]</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span><span class="p">]</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Season&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">season</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Gamecode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamecode</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
-
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-            <span class="p">[</span>
-                <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Pace (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Pace&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
+        <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+        <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccumulatedReverse&quot;</span>
         <span class="p">]</span>
+        <span class="n">available_game_types</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;HomeGames&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AwayGames&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">raise_error</span><span class="p">(</span><span class="n">stat_category</span><span class="p">,</span> <span class="s2">&quot;Stat category&quot;</span><span class="p">,</span>
+                    <span class="n">avaiable_stat_category</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">raise_error</span><span class="p">(</span>
+            <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">)</span>
+        <span class="n">raise_error</span><span class="p">(</span>
+            <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">)</span>
+        <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_n</span>
+
+        <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/stats/clubs/leaders&quot;</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders_all_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the top leaders in a statistical category in all seasons</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            stat_category (str): The stat category. See function</span>
+<span class="sd">                `self.get_team_stats_leaders` for a list of available stats.</span>
+
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">                stat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">stat_category</span><span class="p">,</span>
+            <span class="n">top_n</span><span class="p">,</span>
+            <span class="n">phase_type_code</span><span class="p">,</span>
+            <span class="n">statistic_mode</span><span class="p">,</span>
+            <span class="n">game_type</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders_single_season</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the top leaders in a statistical category in a single season</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            season (int): The start year of the season.</span>
+
+<span class="sd">            stat_category (str): The stat category. See function</span>
+<span class="sd">                `self.get_team_stats_leaders` for a list of available stats.</span>
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">                stat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">stat_category</span><span class="p">,</span>
+            <span class="n">top_n</span><span class="p">,</span>
+            <span class="n">phase_type_code</span><span class="p">,</span>
+            <span class="n">statistic_mode</span><span class="p">,</span>
+            <span class="n">game_type</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders_range_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the top leaders in a statistical category in a range of seasons</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            start_season (int): The start year of the first season in the</span>
+<span class="sd">                range.</span>
+
+<span class="sd">            end_season (int): The end year of the last season in the range.</span>
+
+<span class="sd">            stat_category (str): The stat category. See function</span>
+<span class="sd">                `self.get_team_stats_leaders` for a list of available stats.</span>
+
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">                stat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">stat_category</span><span class="p">,</span>
+            <span class="n">top_n</span><span class="p">,</span>
+            <span class="n">phase_type_code</span><span class="p">,</span>
+            <span class="n">statistic_mode</span><span class="p">,</span>
+            <span class="n">game_type</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -1665,78 +2020,432 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_team_advanced_stats_single_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        In this function we derive team advanced stats from a single game</span>
-<span class="sd">        that are not provided by the API but can be easily estimated from</span>
-<span class="sd">        stats that are given from the API, i.e.</span>
-<span class="sd">            - Number of Possessions</span>
-<span class="sd">            - Pace</span>
-<span class="sd">        The formulas and definitions of these stats can be found in</span>
-<span class="sd">            - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa</span>
-<span class="sd">            - [kenpom](https://kenpom.com/blog/the-possession/)</span>
-<span class="sd">            - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa</span>
+<span class="sd">        A wrapper function for collecting the team leaders in a given</span>
+<span class="sd">        stat category.</span>
+
+<span class="sd">        We are using the v2 endpoint</span>
+<span class="sd">        `/v2​/competitions​/{competitionCode}​/stats​/clubs​/leaders`</span>
+<span class="sd">        instead of the v3 endpoint</span>
+<span class="sd">        `/v3​/competitions​/{competitionCode}​/statistics​/teams​/leaders`</span>
+<span class="sd">        because it&#39;s richer in options, data slices and statistical</span>
+<span class="sd">        metrics.</span>
+
 
 <span class="sd">        Args:</span>
-<span class="sd">            season (int): The start year of the season</span>
-<span class="sd">            gamecode (int): The game-code of the game of interest.</span>
-<span class="sd">                It can be found on Euroleague&#39;s website.</span>
+
+<span class="sd">            params (Dict[str, Union[str, int]]): A dictionary of parameters</span>
+<span class="sd">                for the get request.</span>
+
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            stat_category (str): The stat category. Available values:</span>
+<span class="sd">                - None # (time played)</span>
+<span class="sd">                - Valuation</span>
+<span class="sd">                - Score</span>
+<span class="sd">                - TotalRebounds</span>
+<span class="sd">                - OffensiveRebounds</span>
+<span class="sd">                - DefensiveRebounds</span>
+<span class="sd">                - Assistances</span>
+<span class="sd">                - Steals</span>
+<span class="sd">                - BlocksFavour</span>
+<span class="sd">                - BlocksAgainst</span>
+<span class="sd">                - Turnovers</span>
+<span class="sd">                - FoulsReceived</span>
+<span class="sd">                - FoulsCommited</span>
+<span class="sd">                - FreeThrowsMade</span>
+<span class="sd">                - FreeThrowsAttempted</span>
+<span class="sd">                - FreeThrowsPercent</span>
+<span class="sd">                - FieldGoalsMade2</span>
+<span class="sd">                - FieldGoalsAttempted2</span>
+<span class="sd">                - FieldGoals2Percent</span>
+<span class="sd">                - FieldGoalsMade3</span>
+<span class="sd">                - FieldGoalsAttempted3</span>
+<span class="sd">                - FieldGoals3Percent</span>
+<span class="sd">                - FieldGoalsMadeTotal</span>
+<span class="sd">                - FieldGoalsAttemptedTotal</span>
+<span class="sd">                - FieldGoalsPercent</span>
+<span class="sd">                - AccuracyMade</span>
+<span class="sd">                - AccuracyAttempted</span>
+<span class="sd">                - AccuracyPercent</span>
+<span class="sd">                - AssitancesTurnoversRation</span>
+<span class="sd">                - GamesPlayed</span>
+<span class="sd">                - GamesStarted</span>
+<span class="sd">                - TimePlayed</span>
+<span class="sd">                - Contras</span>
+<span class="sd">                - Dunks</span>
+<span class="sd">                - OffensiveReboundPercentage</span>
+<span class="sd">                - DefensiveReboundPercentage</span>
+<span class="sd">                - ReboundPercentage</span>
+<span class="sd">                - EffectiveFeildGoalPercentage</span>
+<span class="sd">                - TrueShootingPercentage</span>
+<span class="sd">                - AssistRatio</span>
+<span class="sd">                - TurnoverRatio</span>
+<span class="sd">                - FieldGoals2AttemptedRatio</span>
+<span class="sd">                - FieldGoals3AttemptedRatio</span>
+<span class="sd">                - FreeThrowRate</span>
+<span class="sd">                - Possessions</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                - DoubleDoubles</span>
+<span class="sd">                - TripleDoubles</span>
+<span class="sd">                - FieldGoalsAttempted2Share</span>
+<span class="sd">                - FieldGoalsAttempted3Share</span>
+<span class="sd">                - FreeThrowsAttemptedShare</span>
+<span class="sd">                - FieldGoalsMade2Share</span>
+<span class="sd">                - FieldGoalsMade3Share</span>
+<span class="sd">                - FreeThrowsMadeShare</span>
+<span class="sd">                - PointsMade2Rate</span>
+<span class="sd">                - PointsMade3Rate</span>
+<span class="sd">                - PointsMadeFreeThrowsRate</span>
+<span class="sd">                - PointsAttempted2Rate</span>
+<span class="sd">                - PointsAttempted3Rate</span>
+<span class="sd">                - Age</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            ValueError: If the stat_category is not applicable</span>
+
+<span class="sd">            ValueError: If the phase_type_code is not applicable</span>
+
+<span class="sd">            ValueError: If the statistic_mode is not applicable</span>
+
+<span class="sd">            ValueError: If the game_type is not applicable</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top teams&#39; stats</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-        <span class="n">totals_df</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;Player_ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-        <span class="p">)</span>
-        <span class="n">fga</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">]</span> <span class="o">+</span>
-               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">])</span>
-
-        <span class="n">fgm</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">]</span> <span class="o">+</span>
-               <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">])</span>
-        <span class="n">possessions_simple</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">fga</span>
-            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
-            <span class="o">-</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="n">possessions</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">fga</span>
-            <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
-            <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
-                <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
-            <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">:</span> <span class="n">possessions_simple</span><span class="p">,</span>
-                <span class="s2">&quot;Possessions&quot;</span><span class="p">:</span> <span class="n">possessions</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Game&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()]</span>
-
-        <span class="n">min_played_ls</span> <span class="o">=</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Minutes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-        <span class="n">min_played</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="n">min_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_played</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
-
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace (simple)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span>
+        <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="kc">None</span><span class="p">,</span>  <span class="c1"># (time played)</span>
+            <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;BlocksAgainst&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Turnovers&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FoulsReceived&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FoulsCommited&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsMade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsPercent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals2Percent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals3Percent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMadeTotal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttemptedTotal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsPercent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccuracyMade&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccuracyAttempted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccuracyPercent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AssitancesTurnoversRation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesPlayed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesStarted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TimePlayed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Contras&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dunks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OffensiveReboundPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DefensiveReboundPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ReboundPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;EffectiveFeildGoalPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TrueShootingPercentage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AssistRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TurnoverRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals2AttemptedRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoals3AttemptedRatio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowRate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DoubleDoubles&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TripleDoubles&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted2Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsAttempted3Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsAttemptedShare&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade2Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FieldGoalsMade3Share&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FreeThrowsMadeShare&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsMade2Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsMade3Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsMadeFreeThrowsRate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsAttempted2Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PointsAttempted3Rate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Age&quot;</span>
         <span class="p">]</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span><span class="p">]</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Season&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">season</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Gamecode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamecode</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
-
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-            <span class="p">[</span>
-                <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Pace (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Pace&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
+        <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+        <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccumulatedReverse&quot;</span>
         <span class="p">]</span>
+        <span class="n">available_game_types</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;HomeGames&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AwayGames&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">raise_error</span><span class="p">(</span><span class="n">stat_category</span><span class="p">,</span> <span class="s2">&quot;Stat category&quot;</span><span class="p">,</span>
+                    <span class="n">avaiable_stat_category</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">raise_error</span><span class="p">(</span>
+            <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">)</span>
+        <span class="n">raise_error</span><span class="p">(</span>
+            <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">)</span>
+        <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_n</span>
+
+        <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/stats/clubs/leaders&quot;</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders_all_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the top leaders in a statistical category in all seasons</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            stat_category (str): The stat category. See function</span>
+<span class="sd">                `self.get_team_stats_leaders` for a list of available stats.</span>
+
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">                stat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">stat_category</span><span class="p">,</span>
+            <span class="n">top_n</span><span class="p">,</span>
+            <span class="n">phase_type_code</span><span class="p">,</span>
+            <span class="n">statistic_mode</span><span class="p">,</span>
+            <span class="n">game_type</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders_single_season</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the top leaders in a statistical category in a single season</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            season (int): The start year of the season.</span>
+
+<span class="sd">            stat_category (str): The stat category. See function</span>
+<span class="sd">                `self.get_team_stats_leaders` for a list of available stats.</span>
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">                stat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">stat_category</span><span class="p">,</span>
+            <span class="n">top_n</span><span class="p">,</span>
+            <span class="n">phase_type_code</span><span class="p">,</span>
+            <span class="n">statistic_mode</span><span class="p">,</span>
+            <span class="n">game_type</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_team_stats_leaders_range_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the top leaders in a statistical category in a range of seasons</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            start_season (int): The start year of the first season in the</span>
+<span class="sd">                range.</span>
+
+<span class="sd">            end_season (int): The end year of the last season in the range.</span>
+
+<span class="sd">            stat_category (str): The stat category. See function</span>
+<span class="sd">                `self.get_team_stats_leaders` for a list of available stats.</span>
+
+<span class="sd">            top_n (int): The number of top N teams to return.</span>
+<span class="sd">                Defaults to 200.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - PerGame</span>
+<span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
+<span class="sd">                - Per100Possesions</span>
+<span class="sd">                - PerGameReverse</span>
+<span class="sd">                - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">            game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">                top stats from. Available values:</span>
+<span class="sd">                - HomeGames</span>
+<span class="sd">                - AwayGames</span>
+<span class="sd">                - GamesWon</span>
+<span class="sd">                - GamesLost</span>
+<span class="sd">                Defaults to None, meaning all games</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">                stat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="n">stat_category</span><span class="p">,</span>
+            <span class="n">top_n</span><span class="p">,</span>
+            <span class="n">phase_type_code</span><span class="p">,</span>
+            <span class="n">statistic_mode</span><span class="p">,</span>
+            <span class="n">game_type</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2134,104 +2843,6 @@ fun (Callable[[int, int], pd.DataFrame]): A callable function that
   
             
   <div class="item">
-    <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game">
-    <p>def <span class="ident">get_team_advanced_stats_single_game</span>(</p><p>self, season: int, gamecode: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>In this function we derive team advanced stats from a single game
-that are not provided by the API but can be easily estimated from
-stats that are given from the API, i.e.
-    - Number of Possessions
-    - Pace
-The formulas and definitions of these stats can be found in
-    - <a href="https://www.basketball-reference.com/about/glossary.html">Basketball-reference.com</a>  # noqa
-    - <a href="https://kenpom.com/blog/the-possession/">kenpom</a>
-    - <a href="https://hackastat.eu/en/learn-a-stat-possessions-and-pace/">hackastat</a>  # noqa</p>
-<p>Args:
-    season (int): The start year of the season
-    gamecode (int): The game-code of the game of interest.
-        It can be found on Euroleague's website.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.team_stats.TeamStats.get_team_advanced_stats_single_game" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_advanced_stats_single_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gamecode</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    In this function we derive team advanced stats from a single game</span>
-<span class="sd">    that are not provided by the API but can be easily estimated from</span>
-<span class="sd">    stats that are given from the API, i.e.</span>
-<span class="sd">        - Number of Possessions</span>
-<span class="sd">        - Pace</span>
-<span class="sd">    The formulas and definitions of these stats can be found in</span>
-<span class="sd">        - [Basketball-reference.com](https://www.basketball-reference.com/about/glossary.html)  # noqa</span>
-<span class="sd">        - [kenpom](https://kenpom.com/blog/the-possession/)</span>
-<span class="sd">        - [hackastat](https://hackastat.eu/en/learn-a-stat-possessions-and-pace/)  # noqa</span>
-<span class="sd">    Args:</span>
-<span class="sd">        season (int): The start year of the season</span>
-<span class="sd">        gamecode (int): The game-code of the game of interest.</span>
-<span class="sd">            It can be found on Euroleague&#39;s website.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-    <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-    <span class="n">totals_df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">game_bxscr_stats</span><span class="p">[</span><span class="n">game_bxscr_stats</span><span class="p">[</span><span class="s2">&quot;Player_ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Total&quot;</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Team&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-    <span class="p">)</span>
-    <span class="n">fga</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">]</span> <span class="o">+</span>
-           <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">])</span>
-    <span class="n">fgm</span> <span class="o">=</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">]</span> <span class="o">+</span>
-           <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">])</span>
-    <span class="n">possessions_simple</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">fga</span>
-        <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
-        <span class="o">-</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">possessions</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">fga</span>
-        <span class="o">+</span> <span class="mf">0.44</span> <span class="o">*</span> <span class="p">(</span><span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">])</span>
-        <span class="o">-</span> <span class="mf">1.07</span> <span class="o">*</span> <span class="p">(</span>
-            <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">]</span> <span class="o">/</span>
-            <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fga</span> <span class="o">-</span> <span class="n">fgm</span><span class="p">)</span>
-        <span class="o">+</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Turnovers&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">:</span> <span class="n">possessions_simple</span><span class="p">,</span>
-            <span class="s2">&quot;Possessions&quot;</span><span class="p">:</span> <span class="n">possessions</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Game&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()]</span>
-    <span class="n">min_played_ls</span> <span class="o">=</span> <span class="n">totals_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;Minutes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-    <span class="n">min_played</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_played_ls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span>
-    <span class="n">min_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_played</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace (simple)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions_simple</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span>
-    <span class="p">]</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">possessions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_factor</span><span class="p">]</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Season&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">season</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Gamecode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamecode</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Home&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;Season&quot;</span><span class="p">,</span> <span class="s2">&quot;Gamecode&quot;</span><span class="p">,</span> <span class="s2">&quot;Home&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Possessions (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Pace (simple)&quot;</span><span class="p">,</span> <span class="s2">&quot;Pace&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-    <span class="p">]</span>
-    <span class="k">return</span> <span class="n">df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
     <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_stats">
     <p>def <span class="ident">get_team_stats</span>(</p><p>self, endpoint: str, params: dict = {}, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;)</p>
     </div>
@@ -2419,6 +3030,692 @@ statistic_mode (str, optional): The aggregation of statistics,
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
     <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats</span><span class="p">(</span>
         <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_stats_leaders">
+    <p>def <span class="ident">get_team_stats_leaders</span>(</p><p>self, params: dict = {}, stat_category: str | None = None, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A wrapper function for collecting the team leaders in a given
+stat category.</p>
+<p>We are using the v2 endpoint
+<code>/v2​/competitions​/{competitionCode}​/stats​/clubs​/leaders</code>
+instead of the v3 endpoint
+<code>/v3​/competitions​/{competitionCode}​/statistics​/teams​/leaders</code>
+because it's richer in options, data slices and statistical
+metrics.</p>
+<p>Args:</p>
+<pre><code>params (Dict[str, Union[str, int]]): A dictionary of parameters
+    for the get request.
+
+top_n (int): The number of top N teams to return.
+    Defaults to 200.
+
+stat_category (str): The stat category. Available values:
+    - None # (time played)
+    - Valuation
+    - Score
+    - TotalRebounds
+    - OffensiveRebounds
+    - DefensiveRebounds
+    - Assistances
+    - Steals
+    - BlocksFavour
+    - BlocksAgainst
+    - Turnovers
+    - FoulsReceived
+    - FoulsCommited
+    - FreeThrowsMade
+    - FreeThrowsAttempted
+    - FreeThrowsPercent
+    - FieldGoalsMade2
+    - FieldGoalsAttempted2
+    - FieldGoals2Percent
+    - FieldGoalsMade3
+    - FieldGoalsAttempted3
+    - FieldGoals3Percent
+    - FieldGoalsMadeTotal
+    - FieldGoalsAttemptedTotal
+    - FieldGoalsPercent
+    - AccuracyMade
+    - AccuracyAttempted
+    - AccuracyPercent
+    - AssitancesTurnoversRation
+    - GamesPlayed
+    - GamesStarted
+    - TimePlayed
+    - Contras
+    - Dunks
+    - OffensiveReboundPercentage
+    - DefensiveReboundPercentage
+    - ReboundPercentage
+    - EffectiveFeildGoalPercentage
+    - TrueShootingPercentage
+    - AssistRatio
+    - TurnoverRatio
+    - FieldGoals2AttemptedRatio
+    - FieldGoals3AttemptedRatio
+    - FreeThrowRate
+    - Possessions
+    - GamesWon
+    - GamesLost
+    - DoubleDoubles
+    - TripleDoubles
+    - FieldGoalsAttempted2Share
+    - FieldGoalsAttempted3Share
+    - FreeThrowsAttemptedShare
+    - FieldGoalsMade2Share
+    - FieldGoalsMade3Share
+    - FreeThrowsMadeShare
+    - PointsMade2Rate
+    - PointsMade3Rate
+    - PointsMadeFreeThrowsRate
+    - PointsAttempted2Rate
+    - PointsAttempted3Rate
+    - Age
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    - PerMinute
+    - Per100Possesions
+    - PerGameReverse
+    - AccumulatedReverse
+    Defaults to "PerGame".
+
+game_type (Optional[str], optional): The type of games to draw the
+    top stats from. Available values:
+    - HomeGames
+    - AwayGames
+    - GamesWon
+    - GamesLost
+    Defaults to None, meaning all games
+</code></pre>
+<p>Raises:</p>
+<pre><code>ValueError: If the stat_category is not applicable
+
+ValueError: If the phase_type_code is not applicable
+
+ValueError: If the statistic_mode is not applicable
+
+ValueError: If the game_type is not applicable
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the top teams' stats
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_stats_leaders</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+    <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper function for collecting the team leaders in a given</span>
+<span class="sd">    stat category.</span>
+<span class="sd">    We are using the v2 endpoint</span>
+<span class="sd">    `/v2​/competitions​/{competitionCode}​/stats​/clubs​/leaders`</span>
+<span class="sd">    instead of the v3 endpoint</span>
+<span class="sd">    `/v3​/competitions​/{competitionCode}​/statistics​/teams​/leaders`</span>
+<span class="sd">    because it&#39;s richer in options, data slices and statistical</span>
+<span class="sd">    metrics.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of parameters</span>
+<span class="sd">            for the get request.</span>
+<span class="sd">        top_n (int): The number of top N teams to return.</span>
+<span class="sd">            Defaults to 200.</span>
+<span class="sd">        stat_category (str): The stat category. Available values:</span>
+<span class="sd">            - None # (time played)</span>
+<span class="sd">            - Valuation</span>
+<span class="sd">            - Score</span>
+<span class="sd">            - TotalRebounds</span>
+<span class="sd">            - OffensiveRebounds</span>
+<span class="sd">            - DefensiveRebounds</span>
+<span class="sd">            - Assistances</span>
+<span class="sd">            - Steals</span>
+<span class="sd">            - BlocksFavour</span>
+<span class="sd">            - BlocksAgainst</span>
+<span class="sd">            - Turnovers</span>
+<span class="sd">            - FoulsReceived</span>
+<span class="sd">            - FoulsCommited</span>
+<span class="sd">            - FreeThrowsMade</span>
+<span class="sd">            - FreeThrowsAttempted</span>
+<span class="sd">            - FreeThrowsPercent</span>
+<span class="sd">            - FieldGoalsMade2</span>
+<span class="sd">            - FieldGoalsAttempted2</span>
+<span class="sd">            - FieldGoals2Percent</span>
+<span class="sd">            - FieldGoalsMade3</span>
+<span class="sd">            - FieldGoalsAttempted3</span>
+<span class="sd">            - FieldGoals3Percent</span>
+<span class="sd">            - FieldGoalsMadeTotal</span>
+<span class="sd">            - FieldGoalsAttemptedTotal</span>
+<span class="sd">            - FieldGoalsPercent</span>
+<span class="sd">            - AccuracyMade</span>
+<span class="sd">            - AccuracyAttempted</span>
+<span class="sd">            - AccuracyPercent</span>
+<span class="sd">            - AssitancesTurnoversRation</span>
+<span class="sd">            - GamesPlayed</span>
+<span class="sd">            - GamesStarted</span>
+<span class="sd">            - TimePlayed</span>
+<span class="sd">            - Contras</span>
+<span class="sd">            - Dunks</span>
+<span class="sd">            - OffensiveReboundPercentage</span>
+<span class="sd">            - DefensiveReboundPercentage</span>
+<span class="sd">            - ReboundPercentage</span>
+<span class="sd">            - EffectiveFeildGoalPercentage</span>
+<span class="sd">            - TrueShootingPercentage</span>
+<span class="sd">            - AssistRatio</span>
+<span class="sd">            - TurnoverRatio</span>
+<span class="sd">            - FieldGoals2AttemptedRatio</span>
+<span class="sd">            - FieldGoals3AttemptedRatio</span>
+<span class="sd">            - FreeThrowRate</span>
+<span class="sd">            - Possessions</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            - DoubleDoubles</span>
+<span class="sd">            - TripleDoubles</span>
+<span class="sd">            - FieldGoalsAttempted2Share</span>
+<span class="sd">            - FieldGoalsAttempted3Share</span>
+<span class="sd">            - FreeThrowsAttemptedShare</span>
+<span class="sd">            - FieldGoalsMade2Share</span>
+<span class="sd">            - FieldGoalsMade3Share</span>
+<span class="sd">            - FreeThrowsMadeShare</span>
+<span class="sd">            - PointsMade2Rate</span>
+<span class="sd">            - PointsMade3Rate</span>
+<span class="sd">            - PointsMadeFreeThrowsRate</span>
+<span class="sd">            - PointsAttempted2Rate</span>
+<span class="sd">            - PointsAttempted3Rate</span>
+<span class="sd">            - Age</span>
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            - PerGameReverse</span>
+<span class="sd">            - AccumulatedReverse</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+<span class="sd">        game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">            top stats from. Available values:</span>
+<span class="sd">            - HomeGames</span>
+<span class="sd">            - AwayGames</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            Defaults to None, meaning all games</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the stat_category is not applicable</span>
+<span class="sd">        ValueError: If the phase_type_code is not applicable</span>
+<span class="sd">        ValueError: If the statistic_mode is not applicable</span>
+<span class="sd">        ValueError: If the game_type is not applicable</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the top teams&#39; stats</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="kc">None</span><span class="p">,</span>  <span class="c1"># (time played)</span>
+        <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlocksAgainst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Turnovers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FoulsReceived&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FoulsCommited&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsMade&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsAttempted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals2Percent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals3Percent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMadeTotal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttemptedTotal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyMade&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyAttempted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccuracyPercent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AssitancesTurnoversRation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesPlayed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesStarted&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TimePlayed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Contras&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Dunks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OffensiveReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DefensiveReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ReboundPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EffectiveFeildGoalPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TrueShootingPercentage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AssistRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TurnoverRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals2AttemptedRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoals3AttemptedRatio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowRate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Possessions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DoubleDoubles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TripleDoubles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted2Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsAttempted3Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsAttemptedShare&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade2Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FieldGoalsMade3Share&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FreeThrowsMadeShare&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMade2Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMade3Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsMadeFreeThrowsRate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsAttempted2Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PointsAttempted3Rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Age&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccumulatedReverse&quot;</span>
+    <span class="p">]</span>
+    <span class="n">available_game_types</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;HomeGames&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AwayGames&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesWon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GamesLost&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">stat_category</span><span class="p">,</span> <span class="s2">&quot;Stat category&quot;</span><span class="p">,</span>
+                <span class="n">avaiable_stat_category</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">statistic_mode</span><span class="p">,</span> <span class="s2">&quot;Statistic Aggregation&quot;</span><span class="p">,</span> <span class="n">available_stat_mode</span><span class="p">,</span>
+        <span class="kc">False</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span>
+        <span class="n">phase_type_code</span><span class="p">,</span> <span class="s2">&quot;Phase type code&quot;</span><span class="p">,</span> <span class="n">available_phase_type_code</span><span class="p">,</span>
+        <span class="kc">True</span><span class="p">)</span>
+    <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_n</span>
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/stats/clubs/leaders&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_stats_leaders_all_seasons">
+    <p>def <span class="ident">get_team_stats_leaders_all_seasons</span>(</p><p>self, stat_category: str | None = None, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Get the top leaders in a statistical category in all seasons</p>
+<p>Args:</p>
+<pre><code>stat_category (str): The stat category. See function
+    `self.get_team_stats_leaders` for a list of available stats.
+
+top_n (int): The number of top N teams to return.
+    Defaults to 200.
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    - PerMinute
+    - Per100Possesions
+    - PerGameReverse
+    - AccumulatedReverse
+    Defaults to "PerGame".
+
+game_type (Optional[str], optional): The type of games to draw the
+    top stats from. Available values:
+    - HomeGames
+    - AwayGames
+    - GamesWon
+    - GamesLost
+    Defaults to None, meaning all games
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the top leading teams and their
+    stat
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders_all_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders_all_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_stats_leaders_all_seasons</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+    <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the top leaders in a statistical category in all seasons</span>
+<span class="sd">    Args:</span>
+<span class="sd">        stat_category (str): The stat category. See function</span>
+<span class="sd">            `self.get_team_stats_leaders` for a list of available stats.</span>
+<span class="sd">        top_n (int): The number of top N teams to return.</span>
+<span class="sd">            Defaults to 200.</span>
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            - PerGameReverse</span>
+<span class="sd">            - AccumulatedReverse</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+<span class="sd">        game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">            top stats from. Available values:</span>
+<span class="sd">            - HomeGames</span>
+<span class="sd">            - AwayGames</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            Defaults to None, meaning all games</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">            stat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+        <span class="n">params</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">,</span>
+        <span class="n">game_type</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_stats_leaders_range_seasons">
+    <p>def <span class="ident">get_team_stats_leaders_range_seasons</span>(</p><p>self, start_season: int, end_season: int, stat_category: str = &#39;Score&#39;, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Get the top leaders in a statistical category in a range of seasons</p>
+<p>Args:</p>
+<pre><code>start_season (int): The start year of the first season in the
+    range.
+
+end_season (int): The end year of the last season in the range.
+
+stat_category (str): The stat category. See function
+    `self.get_team_stats_leaders` for a list of available stats.
+
+top_n (int): The number of top N teams to return.
+    Defaults to 200.
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    - PerMinute
+    - Per100Possesions
+    - PerGameReverse
+    - AccumulatedReverse
+    Defaults to "PerGame".
+
+game_type (Optional[str], optional): The type of games to draw the
+    top stats from. Available values:
+    - HomeGames
+    - AwayGames
+    - GamesWon
+    - GamesLost
+    Defaults to None, meaning all games
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the top leading teams and their
+    stat
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders_range_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders_range_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_stats_leaders_range_seasons</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+    <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+    <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the top leaders in a statistical category in a range of seasons</span>
+<span class="sd">    Args:</span>
+<span class="sd">        start_season (int): The start year of the first season in the</span>
+<span class="sd">            range.</span>
+<span class="sd">        end_season (int): The end year of the last season in the range.</span>
+<span class="sd">        stat_category (str): The stat category. See function</span>
+<span class="sd">            `self.get_team_stats_leaders` for a list of available stats.</span>
+<span class="sd">        top_n (int): The number of top N teams to return.</span>
+<span class="sd">            Defaults to 200.</span>
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            - PerGameReverse</span>
+<span class="sd">            - AccumulatedReverse</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+<span class="sd">        game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">            top stats from. Available values:</span>
+<span class="sd">            - HomeGames</span>
+<span class="sd">            - AwayGames</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            Defaults to None, meaning all games</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">            stat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+        <span class="n">params</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">,</span>
+        <span class="n">game_type</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.team_stats.TeamStats.get_team_stats_leaders_single_season">
+    <p>def <span class="ident">get_team_stats_leaders_single_season</span>(</p><p>self, season: int, stat_category: str = &#39;Score&#39;, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Get the top leaders in a statistical category in a single season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season.
+
+stat_category (str): The stat category. See function
+    `self.get_team_stats_leaders` for a list of available stats.
+top_n (int): The number of top N teams to return.
+    Defaults to 200.
+
+phase_type_code (Optional[str], optional): The phase of the season,
+    available variables:
+    - "RS" (regular season)
+    - "PO" (play-off)
+    - "FF" (final four)
+    Defaults to None, which includes all phases.
+
+statistic_mode (str, optional): The aggregation of statistics,
+    available variables:
+    - PerGame
+    - Accumulated
+    - PerMinute
+    - Per100Possesions
+    - PerGameReverse
+    - AccumulatedReverse
+    Defaults to "PerGame".
+
+game_type (Optional[str], optional): The type of games to draw the
+    top stats from. Available values:
+    - HomeGames
+    - AwayGames
+    - GamesWon
+    - GamesLost
+    Defaults to None, meaning all games
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the top leading teams and their
+    stat
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders_single_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.team_stats.TeamStats.get_team_stats_leaders_single_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_team_stats_leaders_single_season</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+    <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+    <span class="n">game_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the top leaders in a statistical category in a single season</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season.</span>
+<span class="sd">        stat_category (str): The stat category. See function</span>
+<span class="sd">            `self.get_team_stats_leaders` for a list of available stats.</span>
+<span class="sd">        top_n (int): The number of top N teams to return.</span>
+<span class="sd">            Defaults to 200.</span>
+<span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - &quot;RS&quot; (regular season)</span>
+<span class="sd">            - &quot;PO&quot; (play-off)</span>
+<span class="sd">            - &quot;FF&quot; (final four)</span>
+<span class="sd">            Defaults to None, which includes all phases.</span>
+<span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">            available variables:</span>
+<span class="sd">            - PerGame</span>
+<span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
+<span class="sd">            - Per100Possesions</span>
+<span class="sd">            - PerGameReverse</span>
+<span class="sd">            - AccumulatedReverse</span>
+<span class="sd">            Defaults to &quot;PerGame&quot;.</span>
+<span class="sd">        game_type (Optional[str], optional): The type of games to draw the</span>
+<span class="sd">            top stats from. Available values:</span>
+<span class="sd">            - HomeGames</span>
+<span class="sd">            - AwayGames</span>
+<span class="sd">            - GamesWon</span>
+<span class="sd">            - GamesLost</span>
+<span class="sd">            Defaults to None, meaning all games</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the top leading teams and their</span>
+<span class="sd">            stat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_team_stats_leaders</span><span class="p">(</span>
+        <span class="n">params</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">,</span>
+        <span class="n">top_n</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">,</span>
+        <span class="n">game_type</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 

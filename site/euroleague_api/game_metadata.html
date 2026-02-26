@@ -1078,7 +1078,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
           
   <ul>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata">get_game_metadata</a></li>
-    <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_multiple_seasons">get_game_metadata_multiple_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_range_seasons">get_game_metadata_range_seasons</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_round">get_game_metadata_round</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_game_metadata_single_season">get_game_metadata_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.game_metadata.GameMetadata.get_gamecodes_round">get_gamecodes_round</a></li>
@@ -1203,7 +1203,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">single_season_metadata_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_metadata_multiple_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_metadata_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1344,7 +1344,7 @@ stadum, capacity and referee names.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">single_season_metadata_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_metadata_multiple_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_metadata_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1476,8 +1476,8 @@ capacity and referee names.</p>
   
             
   <div class="item">
-    <div class="name def" id="euroleague_api.game_metadata.GameMetadata.get_game_metadata_multiple_seasons">
-    <p>def <span class="ident">get_game_metadata_multiple_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
+    <div class="name def" id="euroleague_api.game_metadata.GameMetadata.get_game_metadata_range_seasons">
+    <p>def <span class="ident">get_game_metadata_range_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
     </div>
     
 
@@ -1494,9 +1494,9 @@ end_season (int): The start year of the end season
     of seasons
 </code></pre></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_metadata.GameMetadata.get_game_metadata_multiple_seasons', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.game_metadata.GameMetadata.get_game_metadata_multiple_seasons" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_metadata_multiple_seasons</span><span class="p">(</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.game_metadata.GameMetadata.get_game_metadata_range_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.game_metadata.GameMetadata.get_game_metadata_range_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_metadata_range_seasons</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>

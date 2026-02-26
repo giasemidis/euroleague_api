@@ -1159,9 +1159,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
 <span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
 <span class="sd">                Defaults to &quot;PerGame&quot;.</span>
 
 <span class="sd">        Raises:</span>
@@ -1179,7 +1182,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">]</span>
         <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
-        <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span> <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">]</span>
+        <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccumulatedReverse&quot;</span>
+        <span class="p">]</span>
 
         <span class="n">raise_error</span><span class="p">(</span>
             <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -1205,10 +1215,159 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">df</span>
 
+    <span class="k">def</span> <span class="nf">get_player_stats_all_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The players&#39; stats for *all* seasons.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            endpoint (str): The type of stats, available variables:</span>
+<span class="sd">                - traditional</span>
+<span class="sd">                - advanced</span>
+<span class="sd">                - misc</span>
+<span class="sd">                - scoring</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_player_stats_single_season</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The players&#39; stats for a *single* season.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            endpoint (str): The type of stats, available variables:</span>
+<span class="sd">                - traditional</span>
+<span class="sd">                - advanced</span>
+<span class="sd">                - misc</span>
+<span class="sd">                - scoring</span>
+
+<span class="sd">            season (int): The start year of the season.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_player_stats_range_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The players&#39; stats for a range of seasons.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            endpoint (str): The type of stats, available variables:</span>
+<span class="sd">                - traditional</span>
+<span class="sd">                - advanced</span>
+<span class="sd">                - misc</span>
+<span class="sd">                - scoring</span>
+
+<span class="sd">            start_season (int): The start year of the first season in the</span>
+<span class="sd">                range.</span>
+
+<span class="sd">            end_season (int): The start year of teh last season in the range.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
     <span class="k">def</span> <span class="nf">get_player_stats_leaders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -1219,19 +1378,37 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">        A wrapper function for collecting the leading players in a given</span>
 <span class="sd">        stat category.</span>
 
+<span class="sd">        We are using the v2 endpoint</span>
+<span class="sd">        `/v2/competitions/{competitionCode}/stats/players/leaders`</span>
+<span class="sd">        instead of the v3 endpoint</span>
+<span class="sd">        `/v3​/competitions​/{competitionCode}​/statistics​/players​/leaders`</span>
+<span class="sd">        because it&#39;s richer in options, data slices and statistical</span>
+<span class="sd">        metrics.</span>
+
 <span class="sd">        Args:</span>
 
 <span class="sd">            params (Dict[str, Union[str, int]]): A dictionary of parameters</span>
 <span class="sd">                for the get request.</span>
 
+<span class="sd">            club_code (Optional[str], optional): The club code of the team.</span>
+<span class="sd">                Defaults to None, which includes all teams.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round of the season.</span>
+<span class="sd">                Defaults to None, which includes all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round of the</span>
+<span class="sd">                season. Defaults to None, which includes all rounds.</span>
+
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
 
 <span class="sd">            stat_category (str): The stat category. Available values:</span>
+<span class="sd">                - None  # (is time played)</span>
 <span class="sd">                - Valuation</span>
 <span class="sd">                - Score</span>
 <span class="sd">                - TotalRebounds</span>
 <span class="sd">                - OffensiveRebounds</span>
+<span class="sd">                - DefensiveRebounds</span>
 <span class="sd">                - Assistances</span>
 <span class="sd">                - Steals</span>
 <span class="sd">                - BlocksFavour</span>
@@ -1299,6 +1476,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -1337,10 +1515,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            pd.DataFrame: A dataframe with the top players&#39; stats</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="kc">None</span><span class="p">,</span>
             <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
             <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
             <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
             <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
@@ -1401,6 +1581,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
             <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
             <span class="s2">&quot;AccumulatedReverse&quot;</span>
@@ -1429,6 +1610,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">raise_error</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;Position&quot;</span><span class="p">,</span> <span class="n">availabe_positions</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;clubCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">club_code</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">round_number</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;maxRound&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_round</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
@@ -1443,153 +1627,19 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
 
-        <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
+        <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
 
         <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_player_stats_all_seasons</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The players&#39; stats for *all* seasons.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            endpoint (str): The type of stats, available variables:</span>
-<span class="sd">                - traditional</span>
-<span class="sd">                - advanced</span>
-<span class="sd">                - misc</span>
-<span class="sd">                - scoring</span>
-
-<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - &quot;RS&quot; (regular season)</span>
-<span class="sd">                - &quot;PO&quot; (play-off)</span>
-<span class="sd">                - &quot;FF&quot; (final four)</span>
-<span class="sd">                Defaults to None, which includes all phases.</span>
-
-<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
-<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
-            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
-    <span class="k">def</span> <span class="nf">get_player_stats_single_season</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The players&#39; stats for a *single* season.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            endpoint (str): The type of stats, available variables:</span>
-<span class="sd">                - traditional</span>
-<span class="sd">                - advanced</span>
-<span class="sd">                - misc</span>
-<span class="sd">                - scoring</span>
-
-<span class="sd">            season (int): The start year of the season.</span>
-
-<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - &quot;RS&quot; (regular season)</span>
-<span class="sd">                - &quot;PO&quot; (play-off)</span>
-<span class="sd">                - &quot;FF&quot; (final four)</span>
-<span class="sd">                Defaults to None, which includes all phases.</span>
-
-<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
-<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
-            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
-    <span class="k">def</span> <span class="nf">get_player_stats_range_seasons</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The players&#39; stats for a range of seasons.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            endpoint (str): The type of stats, available variables:</span>
-<span class="sd">                - traditional</span>
-<span class="sd">                - advanced</span>
-<span class="sd">                - misc</span>
-<span class="sd">                - scoring</span>
-
-<span class="sd">            start_season (int): The start year of the first season in the</span>
-<span class="sd">                range.</span>
-
-<span class="sd">            end_season (int): The start year of teh last season in the range.</span>
-
-<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - &quot;RS&quot; (regular season)</span>
-<span class="sd">                - &quot;PO&quot; (play-off)</span>
-<span class="sd">                - &quot;FF&quot; (final four)</span>
-<span class="sd">                Defaults to None, which includes all phases.</span>
-
-<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
-<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
-            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
     <span class="k">def</span> <span class="nf">get_player_stats_leaders_all_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -1601,8 +1651,17 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="sd">        Args:</span>
 
+<span class="sd">            club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all clubs.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">                the top stats from. Defaults to None, meaning all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all rounds.</span>
+
 <span class="sd">            stat_category (str): The stat category. See function</span>
-<span class="sd">                `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">                `self.get_player_stats_leaders` for a list of available stats.</span>
 
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
@@ -1618,6 +1677,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -1647,6 +1707,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
             <span class="n">params</span><span class="p">,</span>
+            <span class="n">club_code</span><span class="p">,</span>
+            <span class="n">round_number</span><span class="p">,</span>
+            <span class="n">max_round</span><span class="p">,</span>
             <span class="n">stat_category</span><span class="p">,</span>
             <span class="n">top_n</span><span class="p">,</span>
             <span class="n">phase_type_code</span><span class="p">,</span>
@@ -1659,7 +1722,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">def</span> <span class="nf">get_player_stats_leaders_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -1673,8 +1739,18 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="sd">            season (int): The start year of the season.</span>
 
+<span class="sd">            club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all clubs.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">                the top stats from. Defaults to None, meaning all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all rounds.</span>
+
 <span class="sd">            stat_category (str): The stat category. See function</span>
-<span class="sd">                `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">                `self.get_player_stats_leaders` for a list of available stats.</span>
+
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
 
@@ -1689,6 +1765,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -1721,6 +1798,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
             <span class="n">params</span><span class="p">,</span>
+            <span class="n">club_code</span><span class="p">,</span>
+            <span class="n">round_number</span><span class="p">,</span>
+            <span class="n">max_round</span><span class="p">,</span>
             <span class="n">stat_category</span><span class="p">,</span>
             <span class="n">top_n</span><span class="p">,</span>
             <span class="n">phase_type_code</span><span class="p">,</span>
@@ -1734,7 +1814,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -1749,8 +1832,19 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            start_season (int): The start year of the first season in the</span>
 <span class="sd">                range.</span>
 
+<span class="sd">            end_season (int): The end year of the last season in the range.</span>
+
+<span class="sd">            club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all clubs.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">                the top stats from. Defaults to None, meaning all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all rounds.</span>
+
 <span class="sd">            stat_category (str): The stat category. See function</span>
-<span class="sd">                `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">                `self.get_player_stats_leaders` for a list of available stats.</span>
 
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
@@ -1766,6 +1860,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -1799,6 +1894,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
             <span class="n">params</span><span class="p">,</span>
+            <span class="n">club_code</span><span class="p">,</span>
+            <span class="n">round_number</span><span class="p">,</span>
+            <span class="n">max_round</span><span class="p">,</span>
             <span class="n">stat_category</span><span class="p">,</span>
             <span class="n">top_n</span><span class="p">,</span>
             <span class="n">phase_type_code</span><span class="p">,</span>
@@ -1877,9 +1975,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
 <span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
 <span class="sd">                Defaults to &quot;PerGame&quot;.</span>
 
 <span class="sd">        Raises:</span>
@@ -1897,7 +1998,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">]</span>
         <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
-        <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span> <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">]</span>
+        <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AccumulatedReverse&quot;</span>
+        <span class="p">]</span>
 
         <span class="n">raise_error</span><span class="p">(</span>
             <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -1923,10 +2031,159 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;players&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">df</span>
 
+    <span class="k">def</span> <span class="nf">get_player_stats_all_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The players&#39; stats for *all* seasons.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            endpoint (str): The type of stats, available variables:</span>
+<span class="sd">                - traditional</span>
+<span class="sd">                - advanced</span>
+<span class="sd">                - misc</span>
+<span class="sd">                - scoring</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_player_stats_single_season</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The players&#39; stats for a *single* season.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            endpoint (str): The type of stats, available variables:</span>
+<span class="sd">                - traditional</span>
+<span class="sd">                - advanced</span>
+<span class="sd">                - misc</span>
+<span class="sd">                - scoring</span>
+
+<span class="sd">            season (int): The start year of the season.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">get_player_stats_range_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The players&#39; stats for a range of seasons.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            endpoint (str): The type of stats, available variables:</span>
+<span class="sd">                - traditional</span>
+<span class="sd">                - advanced</span>
+<span class="sd">                - misc</span>
+<span class="sd">                - scoring</span>
+
+<span class="sd">            start_season (int): The start year of the first season in the</span>
+<span class="sd">                range.</span>
+
+<span class="sd">            end_season (int): The start year of teh last season in the range.</span>
+
+<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                - &quot;RS&quot; (regular season)</span>
+<span class="sd">                - &quot;PO&quot; (play-off)</span>
+<span class="sd">                - &quot;FF&quot; (final four)</span>
+<span class="sd">                Defaults to None, which includes all phases.</span>
+
+<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
+<span class="sd">                available variables:</span>
+<span class="sd">                 - PerGame</span>
+<span class="sd">                 - Accumulated</span>
+<span class="sd">                 - PerMinute</span>
+<span class="sd">                 - Per100Possesions</span>
+<span class="sd">                 - PerGameReverse</span>
+<span class="sd">                 - AccumulatedReverse</span>
+<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
     <span class="k">def</span> <span class="nf">get_player_stats_leaders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -1937,19 +2194,37 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">        A wrapper function for collecting the leading players in a given</span>
 <span class="sd">        stat category.</span>
 
+<span class="sd">        We are using the v2 endpoint</span>
+<span class="sd">        `/v2/competitions/{competitionCode}/stats/players/leaders`</span>
+<span class="sd">        instead of the v3 endpoint</span>
+<span class="sd">        `/v3​/competitions​/{competitionCode}​/statistics​/players​/leaders`</span>
+<span class="sd">        because it&#39;s richer in options, data slices and statistical</span>
+<span class="sd">        metrics.</span>
+
 <span class="sd">        Args:</span>
 
 <span class="sd">            params (Dict[str, Union[str, int]]): A dictionary of parameters</span>
 <span class="sd">                for the get request.</span>
 
+<span class="sd">            club_code (Optional[str], optional): The club code of the team.</span>
+<span class="sd">                Defaults to None, which includes all teams.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round of the season.</span>
+<span class="sd">                Defaults to None, which includes all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round of the</span>
+<span class="sd">                season. Defaults to None, which includes all rounds.</span>
+
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
 
 <span class="sd">            stat_category (str): The stat category. Available values:</span>
+<span class="sd">                - None  # (is time played)</span>
 <span class="sd">                - Valuation</span>
 <span class="sd">                - Score</span>
 <span class="sd">                - TotalRebounds</span>
 <span class="sd">                - OffensiveRebounds</span>
+<span class="sd">                - DefensiveRebounds</span>
 <span class="sd">                - Assistances</span>
 <span class="sd">                - Steals</span>
 <span class="sd">                - BlocksFavour</span>
@@ -2017,6 +2292,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -2055,10 +2331,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            pd.DataFrame: A dataframe with the top players&#39; stats</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="kc">None</span><span class="p">,</span>
             <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
             <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
             <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
             <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
@@ -2119,6 +2397,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
             <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
             <span class="s2">&quot;AccumulatedReverse&quot;</span>
@@ -2147,6 +2426,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">raise_error</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;Position&quot;</span><span class="p">,</span> <span class="n">availabe_positions</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;clubCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">club_code</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">round_number</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;maxRound&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_round</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
@@ -2161,153 +2443,19 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
 
-        <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
+        <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
 
         <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_player_stats_all_seasons</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The players&#39; stats for *all* seasons.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            endpoint (str): The type of stats, available variables:</span>
-<span class="sd">                - traditional</span>
-<span class="sd">                - advanced</span>
-<span class="sd">                - misc</span>
-<span class="sd">                - scoring</span>
-
-<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - &quot;RS&quot; (regular season)</span>
-<span class="sd">                - &quot;PO&quot; (play-off)</span>
-<span class="sd">                - &quot;FF&quot; (final four)</span>
-<span class="sd">                Defaults to None, which includes all phases.</span>
-
-<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
-<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
-            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
-    <span class="k">def</span> <span class="nf">get_player_stats_single_season</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The players&#39; stats for a *single* season.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            endpoint (str): The type of stats, available variables:</span>
-<span class="sd">                - traditional</span>
-<span class="sd">                - advanced</span>
-<span class="sd">                - misc</span>
-<span class="sd">                - scoring</span>
-
-<span class="sd">            season (int): The start year of the season.</span>
-
-<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - &quot;RS&quot; (regular season)</span>
-<span class="sd">                - &quot;PO&quot; (play-off)</span>
-<span class="sd">                - &quot;FF&quot; (final four)</span>
-<span class="sd">                Defaults to None, which includes all phases.</span>
-
-<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
-<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
-            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
-    <span class="k">def</span> <span class="nf">get_player_stats_range_seasons</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The players&#39; stats for a range of seasons.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            endpoint (str): The type of stats, available variables:</span>
-<span class="sd">                - traditional</span>
-<span class="sd">                - advanced</span>
-<span class="sd">                - misc</span>
-<span class="sd">                - scoring</span>
-
-<span class="sd">            start_season (int): The start year of the first season in the</span>
-<span class="sd">                range.</span>
-
-<span class="sd">            end_season (int): The start year of teh last season in the range.</span>
-
-<span class="sd">            phase_type_code (Optional[str], optional): The phase of the season,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - &quot;RS&quot; (regular season)</span>
-<span class="sd">                - &quot;PO&quot; (play-off)</span>
-<span class="sd">                - &quot;FF&quot; (final four)</span>
-<span class="sd">                Defaults to None, which includes all phases.</span>
-
-<span class="sd">            statistic_mode (str, optional): The aggregation of statistics,</span>
-<span class="sd">                available variables:</span>
-<span class="sd">                - PerGame</span>
-<span class="sd">                - Accumulated</span>
-<span class="sd">                - Per100Possesions</span>
-<span class="sd">                Defaults to &quot;PerGame&quot;.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            pd.DataFrame: A dataframe with the players&#39; stats</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;Range&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;FromSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">start_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ToSeasonCode&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="si">}{</span><span class="n">end_season</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats</span><span class="p">(</span>
-            <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase_type_code</span><span class="p">,</span> <span class="n">statistic_mode</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
     <span class="k">def</span> <span class="nf">get_player_stats_leaders_all_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -2319,8 +2467,17 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="sd">        Args:</span>
 
+<span class="sd">            club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all clubs.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">                the top stats from. Defaults to None, meaning all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all rounds.</span>
+
 <span class="sd">            stat_category (str): The stat category. See function</span>
-<span class="sd">                `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">                `self.get_player_stats_leaders` for a list of available stats.</span>
 
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
@@ -2336,6 +2493,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -2365,6 +2523,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
             <span class="n">params</span><span class="p">,</span>
+            <span class="n">club_code</span><span class="p">,</span>
+            <span class="n">round_number</span><span class="p">,</span>
+            <span class="n">max_round</span><span class="p">,</span>
             <span class="n">stat_category</span><span class="p">,</span>
             <span class="n">top_n</span><span class="p">,</span>
             <span class="n">phase_type_code</span><span class="p">,</span>
@@ -2377,7 +2538,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     <span class="k">def</span> <span class="nf">get_player_stats_leaders_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -2391,8 +2555,18 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <span class="sd">            season (int): The start year of the season.</span>
 
+<span class="sd">            club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all clubs.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">                the top stats from. Defaults to None, meaning all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all rounds.</span>
+
 <span class="sd">            stat_category (str): The stat category. See function</span>
-<span class="sd">                `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">                `self.get_player_stats_leaders` for a list of available stats.</span>
+
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
 
@@ -2407,6 +2581,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -2439,6 +2614,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
             <span class="n">params</span><span class="p">,</span>
+            <span class="n">club_code</span><span class="p">,</span>
+            <span class="n">round_number</span><span class="p">,</span>
+            <span class="n">max_round</span><span class="p">,</span>
             <span class="n">stat_category</span><span class="p">,</span>
             <span class="n">top_n</span><span class="p">,</span>
             <span class="n">phase_type_code</span><span class="p">,</span>
@@ -2452,7 +2630,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -2467,8 +2648,19 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">            start_season (int): The start year of the first season in the</span>
 <span class="sd">                range.</span>
 
+<span class="sd">            end_season (int): The end year of the last season in the range.</span>
+
+<span class="sd">            club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all clubs.</span>
+
+<span class="sd">            round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">                the top stats from. Defaults to None, meaning all rounds.</span>
+
+<span class="sd">            max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">                draw the top stats from. Defaults to None, meaning all rounds.</span>
+
 <span class="sd">            stat_category (str): The stat category. See function</span>
-<span class="sd">                `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">                `self.get_player_stats_leaders` for a list of available stats.</span>
 
 <span class="sd">            top_n (int): The number of top N players to return.</span>
 <span class="sd">                Defaults to 200.</span>
@@ -2484,6 +2676,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                available variables:</span>
 <span class="sd">                - PerGame</span>
 <span class="sd">                - Accumulated</span>
+<span class="sd">                - PerMinute</span>
 <span class="sd">                - Per100Possesions</span>
 <span class="sd">                - PerGameReverse</span>
 <span class="sd">                - AccumulatedReverse</span>
@@ -2517,6 +2710,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">}</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
             <span class="n">params</span><span class="p">,</span>
+            <span class="n">club_code</span><span class="p">,</span>
+            <span class="n">round_number</span><span class="p">,</span>
+            <span class="n">max_round</span><span class="p">,</span>
             <span class="n">stat_category</span><span class="p">,</span>
             <span class="n">top_n</span><span class="p">,</span>
             <span class="n">phase_type_code</span><span class="p">,</span>
@@ -2730,9 +2926,12 @@ phase_type_code (Optional[str], optional): The phase of the season,
 
 statistic_mode (str, optional): The aggregation of statistics,
     available variables:
-    - PerGame
-    - Accumulated
-    - Per100Possesions
+     - PerGame
+     - Accumulated
+     - PerMinute
+     - Per100Possesions
+     - PerGameReverse
+     - AccumulatedReverse
     Defaults to "PerGame".
 </code></pre>
 <p>Raises:</p>
@@ -2776,9 +2975,12 @@ ValueError: If the statistic_mode is not applicable
 <span class="sd">            Defaults to None, which includes all phases.</span>
 <span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
 <span class="sd">            available variables:</span>
-<span class="sd">            - PerGame</span>
-<span class="sd">            - Accumulated</span>
-<span class="sd">            - Per100Possesions</span>
+<span class="sd">             - PerGame</span>
+<span class="sd">             - Accumulated</span>
+<span class="sd">             - PerMinute</span>
+<span class="sd">             - Per100Possesions</span>
+<span class="sd">             - PerGameReverse</span>
+<span class="sd">             - AccumulatedReverse</span>
 <span class="sd">            Defaults to &quot;PerGame&quot;.</span>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If the endpoint is not applicable</span>
@@ -2789,7 +2991,14 @@ ValueError: If the statistic_mode is not applicable
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">available_endpoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;traditional&quot;</span><span class="p">,</span> <span class="s2">&quot;advanced&quot;</span><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">]</span>
     <span class="n">available_phase_type_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RS&quot;</span><span class="p">,</span> <span class="s2">&quot;PO&quot;</span><span class="p">,</span> <span class="s2">&quot;FF&quot;</span><span class="p">]</span>
-    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PerGame&quot;</span><span class="p">,</span> <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span> <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">]</span>
+    <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AccumulatedReverse&quot;</span>
+    <span class="p">]</span>
     <span class="n">raise_error</span><span class="p">(</span>
         <span class="n">endpoint</span><span class="p">,</span> <span class="s2">&quot;Statistic type&quot;</span><span class="p">,</span> <span class="n">available_endpoints</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">raise_error</span><span class="p">(</span>
@@ -2843,9 +3052,12 @@ phase_type_code (Optional[str], optional): The phase of the season,
 
 statistic_mode (str, optional): The aggregation of statistics,
     available variables:
-    - PerGame
-    - Accumulated
-    - Per100Possesions
+     - PerGame
+     - Accumulated
+     - PerMinute
+     - Per100Possesions
+     - PerGameReverse
+     - AccumulatedReverse
     Defaults to "PerGame".
 </code></pre>
 <p>Returns:</p>
@@ -2876,9 +3088,12 @@ statistic_mode (str, optional): The aggregation of statistics,
 <span class="sd">            Defaults to None, which includes all phases.</span>
 <span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
 <span class="sd">            available variables:</span>
-<span class="sd">            - PerGame</span>
-<span class="sd">            - Accumulated</span>
-<span class="sd">            - Per100Possesions</span>
+<span class="sd">             - PerGame</span>
+<span class="sd">             - Accumulated</span>
+<span class="sd">             - PerMinute</span>
+<span class="sd">             - Per100Possesions</span>
+<span class="sd">             - PerGameReverse</span>
+<span class="sd">             - AccumulatedReverse</span>
 <span class="sd">            Defaults to &quot;PerGame&quot;.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: A dataframe with the players&#39; stats</span>
@@ -2897,7 +3112,7 @@ statistic_mode (str, optional): The aggregation of statistics,
             
   <div class="item">
     <div class="name def" id="euroleague_api.player_stats.PlayerStats.get_player_stats_leaders">
-    <p>def <span class="ident">get_player_stats_leaders</span>(</p><p>self, params: dict = {}, stat_category: str = &#39;Score&#39;, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
+    <p>def <span class="ident">get_player_stats_leaders</span>(</p><p>self, params: dict = {}, club_code: Optional[str] = None, round_number: Optional[int] = None, max_round: Optional[int] = None, stat_category: str | None = None, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
     </div>
     
 
@@ -2905,18 +3120,35 @@ statistic_mode (str, optional): The aggregation of statistics,
   
     <div class="desc"><p>A wrapper function for collecting the leading players in a given
 stat category.</p>
+<p>We are using the v2 endpoint
+<code>/v2/competitions/{competitionCode}/stats/players/leaders</code>
+instead of the v3 endpoint
+<code>/v3​/competitions​/{competitionCode}​/statistics​/players​/leaders</code>
+because it's richer in options, data slices and statistical
+metrics.</p>
 <p>Args:</p>
 <pre><code>params (Dict[str, Union[str, int]]): A dictionary of parameters
     for the get request.
+
+club_code (Optional[str], optional): The club code of the team.
+    Defaults to None, which includes all teams.
+
+round_number (Optional[int], optional): The round of the season.
+    Defaults to None, which includes all rounds.
+
+max_round (Optional[int], optional): The maximum round of the
+    season. Defaults to None, which includes all rounds.
 
 top_n (int): The number of top N players to return.
     Defaults to 200.
 
 stat_category (str): The stat category. Available values:
+    - None  # (is time played)
     - Valuation
     - Score
     - TotalRebounds
     - OffensiveRebounds
+    - DefensiveRebounds
     - Assistances
     - Steals
     - BlocksFavour
@@ -2984,6 +3216,7 @@ statistic_mode (str, optional): The aggregation of statistics,
     available variables:
     - PerGame
     - Accumulated
+    - PerMinute
     - Per100Possesions
     - PerGameReverse
     - AccumulatedReverse
@@ -3025,7 +3258,10 @@ ValueError: If the position is not applicable
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_stats_leaders</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
+    <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
     <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -3035,16 +3271,30 @@ ValueError: If the position is not applicable
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A wrapper function for collecting the leading players in a given</span>
 <span class="sd">    stat category.</span>
+<span class="sd">    We are using the v2 endpoint</span>
+<span class="sd">    `/v2/competitions/{competitionCode}/stats/players/leaders`</span>
+<span class="sd">    instead of the v3 endpoint</span>
+<span class="sd">    `/v3​/competitions​/{competitionCode}​/statistics​/players​/leaders`</span>
+<span class="sd">    because it&#39;s richer in options, data slices and statistical</span>
+<span class="sd">    metrics.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        params (Dict[str, Union[str, int]]): A dictionary of parameters</span>
 <span class="sd">            for the get request.</span>
+<span class="sd">        club_code (Optional[str], optional): The club code of the team.</span>
+<span class="sd">            Defaults to None, which includes all teams.</span>
+<span class="sd">        round_number (Optional[int], optional): The round of the season.</span>
+<span class="sd">            Defaults to None, which includes all rounds.</span>
+<span class="sd">        max_round (Optional[int], optional): The maximum round of the</span>
+<span class="sd">            season. Defaults to None, which includes all rounds.</span>
 <span class="sd">        top_n (int): The number of top N players to return.</span>
 <span class="sd">            Defaults to 200.</span>
 <span class="sd">        stat_category (str): The stat category. Available values:</span>
+<span class="sd">            - None  # (is time played)</span>
 <span class="sd">            - Valuation</span>
 <span class="sd">            - Score</span>
 <span class="sd">            - TotalRebounds</span>
 <span class="sd">            - OffensiveRebounds</span>
+<span class="sd">            - DefensiveRebounds</span>
 <span class="sd">            - Assistances</span>
 <span class="sd">            - Steals</span>
 <span class="sd">            - BlocksFavour</span>
@@ -3110,6 +3360,7 @@ ValueError: If the position is not applicable
 <span class="sd">            available variables:</span>
 <span class="sd">            - PerGame</span>
 <span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
 <span class="sd">            - Per100Possesions</span>
 <span class="sd">            - PerGameReverse</span>
 <span class="sd">            - AccumulatedReverse</span>
@@ -3138,10 +3389,12 @@ ValueError: If the position is not applicable
 <span class="sd">        pd.DataFrame: A dataframe with the top players&#39; stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">avaiable_stat_category</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;Valuation&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Score&quot;</span><span class="p">,</span>
         <span class="s2">&quot;TotalRebounds&quot;</span><span class="p">,</span>
         <span class="s2">&quot;OffensiveRebounds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DefensiveRebounds&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Assistances&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Steals&quot;</span><span class="p">,</span>
         <span class="s2">&quot;BlocksFavour&quot;</span><span class="p">,</span>
@@ -3202,6 +3455,7 @@ ValueError: If the position is not applicable
     <span class="n">available_stat_mode</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Accumulated&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PerMinute&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Per100Possesions&quot;</span><span class="p">,</span>
         <span class="s2">&quot;PerGameReverse&quot;</span><span class="p">,</span>
         <span class="s2">&quot;AccumulatedReverse&quot;</span>
@@ -3228,6 +3482,9 @@ ValueError: If the position is not applicable
         <span class="kc">True</span><span class="p">)</span>
     <span class="n">raise_error</span><span class="p">(</span><span class="n">game_type</span><span class="p">,</span> <span class="s2">&quot;Game type&quot;</span><span class="p">,</span> <span class="n">available_game_types</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="n">raise_error</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;Position&quot;</span><span class="p">,</span> <span class="n">availabe_positions</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;clubCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">club_code</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;round&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">round_number</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;maxRound&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_round</span>
     <span class="n">params</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat_category</span>
     <span class="n">params</span><span class="p">[</span><span class="s2">&quot;phaseTypeCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase_type_code</span>
     <span class="n">params</span><span class="p">[</span><span class="s2">&quot;statisticMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistic_mode</span>
@@ -3241,7 +3498,7 @@ ValueError: If the position is not applicable
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_type</span>
     <span class="k">elif</span> <span class="n">game_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="s2">&quot;misc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">position</span>
-    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
+    <span class="n">url_</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">url_v2</span><span class="si">}</span><span class="s2">/stats/players/leaders&quot;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">get_requests</span><span class="p">(</span><span class="n">url_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
@@ -3256,7 +3513,7 @@ ValueError: If the position is not applicable
             
   <div class="item">
     <div class="name def" id="euroleague_api.player_stats.PlayerStats.get_player_stats_leaders_all_seasons">
-    <p>def <span class="ident">get_player_stats_leaders_all_seasons</span>(</p><p>self, stat_category: str, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
+    <p>def <span class="ident">get_player_stats_leaders_all_seasons</span>(</p><p>self, club_code: Optional[str] = None, round_number: Optional[int] = None, max_round: Optional[int] = None, stat_category: str | None = None, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
     </div>
     
 
@@ -3264,8 +3521,17 @@ ValueError: If the position is not applicable
   
     <div class="desc"><p>Get the top leaders in a statistical category in all seasons</p>
 <p>Args:</p>
-<pre><code>stat_category (str): The stat category. See function
-    `utils.get_player_stats_leaders` for a list of available stats.
+<pre><code>club_code (Optional[str], optional): The code of the club to
+    draw the top stats from. Defaults to None, meaning all clubs.
+
+round_number (Optional[int], optional): The round number to draw
+    the top stats from. Defaults to None, meaning all rounds.
+
+max_round (Optional[int], optional): The maximum round number to
+    draw the top stats from. Defaults to None, meaning all rounds.
+
+stat_category (str): The stat category. See function
+    `self.get_player_stats_leaders` for a list of available stats.
 
 top_n (int): The number of top N players to return.
     Defaults to 200.
@@ -3281,6 +3547,7 @@ statistic_mode (str, optional): The aggregation of statistics,
     available variables:
     - PerGame
     - Accumulated
+    - PerMinute
     - Per100Possesions
     - PerGameReverse
     - AccumulatedReverse
@@ -3311,7 +3578,10 @@ position (Optional[str], optional): The position of the player to
   <div id="source-euroleague_api.player_stats.PlayerStats.get_player_stats_leaders_all_seasons" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_stats_leaders_all_seasons</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
     <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -3321,8 +3591,14 @@ position (Optional[str], optional): The position of the player to
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the top leaders in a statistical category in all seasons</span>
 <span class="sd">    Args:</span>
+<span class="sd">        club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">            draw the top stats from. Defaults to None, meaning all clubs.</span>
+<span class="sd">        round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">            the top stats from. Defaults to None, meaning all rounds.</span>
+<span class="sd">        max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">            draw the top stats from. Defaults to None, meaning all rounds.</span>
 <span class="sd">        stat_category (str): The stat category. See function</span>
-<span class="sd">            `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">            `self.get_player_stats_leaders` for a list of available stats.</span>
 <span class="sd">        top_n (int): The number of top N players to return.</span>
 <span class="sd">            Defaults to 200.</span>
 <span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
@@ -3335,6 +3611,7 @@ position (Optional[str], optional): The position of the player to
 <span class="sd">            available variables:</span>
 <span class="sd">            - PerGame</span>
 <span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
 <span class="sd">            - Per100Possesions</span>
 <span class="sd">            - PerGameReverse</span>
 <span class="sd">            - AccumulatedReverse</span>
@@ -3360,6 +3637,9 @@ position (Optional[str], optional): The position of the player to
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SeasonMode&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">}</span>
     <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
         <span class="n">params</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">,</span>
         <span class="n">stat_category</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">,</span>
@@ -3378,7 +3658,7 @@ position (Optional[str], optional): The position of the player to
             
   <div class="item">
     <div class="name def" id="euroleague_api.player_stats.PlayerStats.get_player_stats_leaders_range_seasons">
-    <p>def <span class="ident">get_player_stats_leaders_range_seasons</span>(</p><p>self, start_season: int, end_season: int, stat_category: str, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
+    <p>def <span class="ident">get_player_stats_leaders_range_seasons</span>(</p><p>self, start_season: int, end_season: int, club_code: Optional[str] = None, round_number: Optional[int] = None, max_round: Optional[int] = None, stat_category: str | None = None, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
     </div>
     
 
@@ -3389,8 +3669,19 @@ position (Optional[str], optional): The position of the player to
 <pre><code>start_season (int): The start year of the first season in the
     range.
 
+end_season (int): The end year of the last season in the range.
+
+club_code (Optional[str], optional): The code of the club to
+    draw the top stats from. Defaults to None, meaning all clubs.
+
+round_number (Optional[int], optional): The round number to draw
+    the top stats from. Defaults to None, meaning all rounds.
+
+max_round (Optional[int], optional): The maximum round number to
+    draw the top stats from. Defaults to None, meaning all rounds.
+
 stat_category (str): The stat category. See function
-    `utils.get_player_stats_leaders` for a list of available stats.
+    `self.get_player_stats_leaders` for a list of available stats.
 
 top_n (int): The number of top N players to return.
     Defaults to 200.
@@ -3406,6 +3697,7 @@ statistic_mode (str, optional): The aggregation of statistics,
     available variables:
     - PerGame
     - Accumulated
+    - PerMinute
     - Per100Possesions
     - PerGameReverse
     - AccumulatedReverse
@@ -3438,7 +3730,10 @@ position (Optional[str], optional): The position of the player to
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
     <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -3450,8 +3745,15 @@ position (Optional[str], optional): The position of the player to
 <span class="sd">    Args:</span>
 <span class="sd">        start_season (int): The start year of the first season in the</span>
 <span class="sd">            range.</span>
+<span class="sd">        end_season (int): The end year of the last season in the range.</span>
+<span class="sd">        club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">            draw the top stats from. Defaults to None, meaning all clubs.</span>
+<span class="sd">        round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">            the top stats from. Defaults to None, meaning all rounds.</span>
+<span class="sd">        max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">            draw the top stats from. Defaults to None, meaning all rounds.</span>
 <span class="sd">        stat_category (str): The stat category. See function</span>
-<span class="sd">            `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">            `self.get_player_stats_leaders` for a list of available stats.</span>
 <span class="sd">        top_n (int): The number of top N players to return.</span>
 <span class="sd">            Defaults to 200.</span>
 <span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
@@ -3464,6 +3766,7 @@ position (Optional[str], optional): The position of the player to
 <span class="sd">            available variables:</span>
 <span class="sd">            - PerGame</span>
 <span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
 <span class="sd">            - Per100Possesions</span>
 <span class="sd">            - PerGameReverse</span>
 <span class="sd">            - AccumulatedReverse</span>
@@ -3493,6 +3796,9 @@ position (Optional[str], optional): The position of the player to
     <span class="p">}</span>
     <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
         <span class="n">params</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">,</span>
         <span class="n">stat_category</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">,</span>
@@ -3511,7 +3817,7 @@ position (Optional[str], optional): The position of the player to
             
   <div class="item">
     <div class="name def" id="euroleague_api.player_stats.PlayerStats.get_player_stats_leaders_single_season">
-    <p>def <span class="ident">get_player_stats_leaders_single_season</span>(</p><p>self, season: int, stat_category: str, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
+    <p>def <span class="ident">get_player_stats_leaders_single_season</span>(</p><p>self, season: int, club_code: Optional[str] = None, round_number: Optional[int] = None, max_round: Optional[int] = None, stat_category: str | None = None, top_n: int = 200, phase_type_code: Optional[str] = None, statistic_mode: str = &#39;PerGame&#39;, game_type: Optional[str] = None, position: Optional[str] = None)</p>
     </div>
     
 
@@ -3521,8 +3827,18 @@ position (Optional[str], optional): The position of the player to
 <p>Args:</p>
 <pre><code>season (int): The start year of the season.
 
+club_code (Optional[str], optional): The code of the club to
+    draw the top stats from. Defaults to None, meaning all clubs.
+
+round_number (Optional[int], optional): The round number to draw
+    the top stats from. Defaults to None, meaning all rounds.
+
+max_round (Optional[int], optional): The maximum round number to
+    draw the top stats from. Defaults to None, meaning all rounds.
+
 stat_category (str): The stat category. See function
-    `utils.get_player_stats_leaders` for a list of available stats.
+    `self.get_player_stats_leaders` for a list of available stats.
+
 top_n (int): The number of top N players to return.
     Defaults to 200.
 
@@ -3537,6 +3853,7 @@ statistic_mode (str, optional): The aggregation of statistics,
     available variables:
     - PerGame
     - Accumulated
+    - PerMinute
     - Per100Possesions
     - PerGameReverse
     - AccumulatedReverse
@@ -3568,7 +3885,10 @@ position (Optional[str], optional): The position of the player to
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_player_stats_leaders_single_season</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">club_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_round</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stat_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
     <span class="n">phase_type_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">statistic_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PerGame&quot;</span><span class="p">,</span>
@@ -3579,8 +3899,14 @@ position (Optional[str], optional): The position of the player to
 <span class="sd">    Get the top leaders in a statistical category in a single season</span>
 <span class="sd">    Args:</span>
 <span class="sd">        season (int): The start year of the season.</span>
+<span class="sd">        club_code (Optional[str], optional): The code of the club to</span>
+<span class="sd">            draw the top stats from. Defaults to None, meaning all clubs.</span>
+<span class="sd">        round_number (Optional[int], optional): The round number to draw</span>
+<span class="sd">            the top stats from. Defaults to None, meaning all rounds.</span>
+<span class="sd">        max_round (Optional[int], optional): The maximum round number to</span>
+<span class="sd">            draw the top stats from. Defaults to None, meaning all rounds.</span>
 <span class="sd">        stat_category (str): The stat category. See function</span>
-<span class="sd">            `utils.get_player_stats_leaders` for a list of available stats.</span>
+<span class="sd">            `self.get_player_stats_leaders` for a list of available stats.</span>
 <span class="sd">        top_n (int): The number of top N players to return.</span>
 <span class="sd">            Defaults to 200.</span>
 <span class="sd">        phase_type_code (Optional[str], optional): The phase of the season,</span>
@@ -3593,6 +3919,7 @@ position (Optional[str], optional): The position of the player to
 <span class="sd">            available variables:</span>
 <span class="sd">            - PerGame</span>
 <span class="sd">            - Accumulated</span>
+<span class="sd">            - PerMinute</span>
 <span class="sd">            - Per100Possesions</span>
 <span class="sd">            - PerGameReverse</span>
 <span class="sd">            - AccumulatedReverse</span>
@@ -3621,6 +3948,9 @@ position (Optional[str], optional): The position of the player to
     <span class="p">}</span>
     <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_player_stats_leaders</span><span class="p">(</span>
         <span class="n">params</span><span class="p">,</span>
+        <span class="n">club_code</span><span class="p">,</span>
+        <span class="n">round_number</span><span class="p">,</span>
+        <span class="n">max_round</span><span class="p">,</span>
         <span class="n">stat_category</span><span class="p">,</span>
         <span class="n">top_n</span><span class="p">,</span>
         <span class="n">phase_type_code</span><span class="p">,</span>
@@ -3667,9 +3997,12 @@ phase_type_code (Optional[str], optional): The phase of the season,
 
 statistic_mode (str, optional): The aggregation of statistics,
     available variables:
-    - PerGame
-    - Accumulated
-    - Per100Possesions
+     - PerGame
+     - Accumulated
+     - PerMinute
+     - Per100Possesions
+     - PerGameReverse
+     - AccumulatedReverse
     Defaults to "PerGame".
 </code></pre>
 <p>Returns:</p>
@@ -3705,9 +4038,12 @@ statistic_mode (str, optional): The aggregation of statistics,
 <span class="sd">            Defaults to None, which includes all phases.</span>
 <span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
 <span class="sd">            available variables:</span>
-<span class="sd">            - PerGame</span>
-<span class="sd">            - Accumulated</span>
-<span class="sd">            - Per100Possesions</span>
+<span class="sd">             - PerGame</span>
+<span class="sd">             - Accumulated</span>
+<span class="sd">             - PerMinute</span>
+<span class="sd">             - Per100Possesions</span>
+<span class="sd">             - PerGameReverse</span>
+<span class="sd">             - AccumulatedReverse</span>
 <span class="sd">            Defaults to &quot;PerGame&quot;.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: A dataframe with the players&#39; stats</span>
@@ -3755,9 +4091,12 @@ phase_type_code (Optional[str], optional): The phase of the season,
 
 statistic_mode (str, optional): The aggregation of statistics,
     available variables:
-    - PerGame
-    - Accumulated
-    - Per100Possesions
+     - PerGame
+     - Accumulated
+     - PerMinute
+     - Per100Possesions
+     - PerGameReverse
+     - AccumulatedReverse
     Defaults to "PerGame".
 </code></pre>
 <p>Returns:</p>
@@ -3790,9 +4129,12 @@ statistic_mode (str, optional): The aggregation of statistics,
 <span class="sd">            Defaults to None, which includes all phases.</span>
 <span class="sd">        statistic_mode (str, optional): The aggregation of statistics,</span>
 <span class="sd">            available variables:</span>
-<span class="sd">            - PerGame</span>
-<span class="sd">            - Accumulated</span>
-<span class="sd">            - Per100Possesions</span>
+<span class="sd">             - PerGame</span>
+<span class="sd">             - Accumulated</span>
+<span class="sd">             - PerMinute</span>
+<span class="sd">             - Per100Possesions</span>
+<span class="sd">             - PerGameReverse</span>
+<span class="sd">             - AccumulatedReverse</span>
 <span class="sd">            Defaults to &quot;PerGame&quot;.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: A dataframe with the players&#39; stats</span>

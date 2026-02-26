@@ -75,10 +75,10 @@ A function that gets the shot data of a particular game.
 | pd.DataFrame | A dataframe with the shot data of the game. |
 
     
-#### get_game_shot_data_multiple_seasons
+#### get_game_shot_data_range_seasons
 
 ```python3
-def get_game_shot_data_multiple_seasons(
+def get_game_shot_data_range_seasons(
     self,
     start_season: int,
     end_season: int

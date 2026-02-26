@@ -1077,16 +1077,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         
           
   <ul>
+    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups">get_game_pbp_data_lineups</a></li>
+    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_range_seasons">get_game_pbp_data_lineups_range_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_round">get_game_pbp_data_lineups_round</a></li>
+    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_single_season">get_game_pbp_data_lineups_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data">get_game_play_by_play_data</a></li>
-    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_multiple_seasons">get_game_play_by_play_data_multiple_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_range_seasons">get_game_play_by_play_data_range_seasons</a></li>
+    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_round">get_game_play_by_play_data_round</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_single_season">get_game_play_by_play_data_single_season</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_gamecodes_round">get_gamecodes_round</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_gamecodes_season">get_gamecodes_season</a></li>
-    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups">get_pbp_data_with_lineups</a></li>
-    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_multiple_seasons">get_pbp_data_with_lineups_multiple_seasons</a></li>
-    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_round">get_pbp_data_with_lineups_round</a></li>
-    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_single_season">get_pbp_data_with_lineups_single_season</a></li>
-    <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_play_by_play_data_round">get_play_by_play_data_round</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_range_seasons_data">get_range_seasons_data</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_round_data_from_game_data">get_round_data_from_game_data</a></li>
     <li class="mono"><a href="#euroleague_api.play_by_play_data.PlayByPlay.get_season_data_from_game_data">get_season_data_from_game_data</a></li>
@@ -1219,7 +1219,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="k">return</span> <span class="n">pbp_df</span>
 
-    <span class="k">def</span> <span class="nf">get_play_by_play_data_round</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_play_by_play_data_round</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
@@ -1261,7 +1261,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_play_by_play_data_multiple_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_play_by_play_data_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1283,7 +1283,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">,</span>
         <span class="n">gamecode</span><span class="p">,</span>
@@ -1343,7 +1343,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="c1"># Get the starting line-ups from boxscore data</span>
         <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_players_boxscore_stats</span><span class="p">(</span>
                 <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -1360,7 +1360,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">pbp_df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_round</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_round</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
@@ -1378,10 +1378,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                of all games in a single round</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_single_season</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1399,10 +1399,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                in a single season</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data_from_game_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
+            <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_multiple_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1421,7 +1421,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                in range of seasons</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
-            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
+            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -1553,7 +1553,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
         <span class="k">return</span> <span class="n">pbp_df</span>
 
-    <span class="k">def</span> <span class="nf">get_play_by_play_data_round</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_play_by_play_data_round</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
@@ -1595,7 +1595,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_game_play_by_play_data_multiple_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_play_by_play_data_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1617,7 +1617,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
             <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">,</span>
         <span class="n">gamecode</span><span class="p">,</span>
@@ -1677,7 +1677,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="c1"># Get the starting line-ups from boxscore data</span>
         <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
+            <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_players_boxscore_stats</span><span class="p">(</span>
                 <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -1694,7 +1694,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">pbp_df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_round</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_round</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
@@ -1712,10 +1712,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                of all games in a single round</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
+            <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_single_season</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_single_season</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1733,10 +1733,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                in a single season</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data_from_game_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
+            <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data_df</span>
 
-    <span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_multiple_seasons</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_range_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1755,7 +1755,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <span class="sd">                in range of seasons</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
-            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
+            <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -1810,6 +1810,264 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
             </div>
           <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups">
+    <p>def <span class="ident">get_game_pbp_data_lineups</span>(</p><p>self, season, gamecode, validate=True)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Get the play-by-play (PBP) data enriched with the teams' lineups for
+every action in the PBP data.</p>
+<p>There are three cases where the player in the corresponding row
+(action) is not part of the lineup:</p>
+<pre><code>1. When the player is subbed "OUT", the assigned lineup does not
+contain player name. Since this is reasonable, the value of the
+`validate_on_court_player` indicator is set to `True`.
+
+2. A player passes on to a teamate, who draws a shooting foul. If
+the passer is subbed before the first free throw and the first free
+throw is made then the subbed player is given an assist. However,
+the player is not in the extracted lineup because he has already
+been subbed. The value of the `validate_on_court_player`
+indicator is set to `False`. We don't fix the lineup, because it
+breaks the lineup continuinity. It is a quirk of the data
+collection andrecording.
+
+3. There are a few instances where a sub is recorded many seconds
+and actions since it actually happened. This causes issues, such
+as a player records an actions, such as a rebound, but he comes
+on the court (according to the data) many seconds after. This has
+been validated by watching theactual footage of the game. This
+requires a lot of manual work, which is beyond the score of this
+library. It is another quirk of the datacollection and recording,
+hence the value of the `validate_on_court_player` indicator is set
+to `False`.
+</code></pre>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+
+gamecode (int): The game-code of the game of interest.
+    It can be found on Euroleague's website.
+
+validate (bool, optional): A bool indicator whether to enrich the
+    dataframe with two extra columns, which validate the validity
+    and consistency of the extracted lineup. Defaults to True.
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the play-by-play enriched with
+    teams' lineups
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_pbp_data_lineups</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">,</span>
+    <span class="n">gamecode</span><span class="p">,</span>
+    <span class="n">validate</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the play-by-play (PBP) data enriched with the teams&#39; lineups for</span>
+<span class="sd">    every action in the PBP data.</span>
+<span class="sd">    There are three cases where the player in the corresponding row</span>
+<span class="sd">    (action) is not part of the lineup:</span>
+<span class="sd">        1. When the player is subbed &quot;OUT&quot;, the assigned lineup does not</span>
+<span class="sd">        contain player name. Since this is reasonable, the value of the</span>
+<span class="sd">        `validate_on_court_player` indicator is set to `True`.</span>
+<span class="sd">        2. A player passes on to a teamate, who draws a shooting foul. If</span>
+<span class="sd">        the passer is subbed before the first free throw and the first free</span>
+<span class="sd">        throw is made then the subbed player is given an assist. However,</span>
+<span class="sd">        the player is not in the extracted lineup because he has already</span>
+<span class="sd">        been subbed. The value of the `validate_on_court_player`</span>
+<span class="sd">        indicator is set to `False`. We don&#39;t fix the lineup, because it</span>
+<span class="sd">        breaks the lineup continuinity. It is a quirk of the data</span>
+<span class="sd">        collection andrecording.</span>
+<span class="sd">        3. There are a few instances where a sub is recorded many seconds</span>
+<span class="sd">        and actions since it actually happened. This causes issues, such</span>
+<span class="sd">        as a player records an actions, such as a rebound, but he comes</span>
+<span class="sd">        on the court (according to the data) many seconds after. This has</span>
+<span class="sd">        been validated by watching theactual footage of the game. This</span>
+<span class="sd">        requires a lot of manual work, which is beyond the score of this</span>
+<span class="sd">        library. It is another quirk of the datacollection and recording,</span>
+<span class="sd">        hence the value of the `validate_on_court_player` indicator is set</span>
+<span class="sd">        to `False`.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        gamecode (int): The game-code of the game of interest.</span>
+<span class="sd">            It can be found on Euroleague&#39;s website.</span>
+<span class="sd">        validate (bool, optional): A bool indicator whether to enrich the</span>
+<span class="sd">            dataframe with two extra columns, which validate the validity</span>
+<span class="sd">            and consistency of the extracted lineup. Defaults to True.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the play-by-play enriched with</span>
+<span class="sd">            teams&#39; lineups</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Fetch play-by-play data</span>
+    <span class="n">pbp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">,</span> <span class="n">include_ishometeam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Get the starting line-ups from boxscore data</span>
+    <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_players_boxscore_stats</span><span class="p">(</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Something went wrong when fetching boxscore data for &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;game </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
+        <span class="p">)</span>
+        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">get_pbp_lineups</span><span class="p">(</span>
+        <span class="n">pbp_df</span><span class="o">=</span><span class="n">pbp_data</span><span class="p">,</span>
+        <span class="n">boxscore_df</span><span class="o">=</span><span class="n">game_bxscr_stats</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pbp_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_range_seasons">
+    <p>def <span class="ident">get_game_pbp_data_lineups_range_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the play-by-play data enriched with team lineups
+of <em>all</em> games in a range of seasons</p>
+<p>Args:</p>
+<pre><code>start_season (int): The start year of the start season
+
+end_season (int): The start year of the end season
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the play-by-play data of all games
+    in range of seasons
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_range_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_range_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_range_seasons</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the play-by-play data enriched with team lineups</span>
+<span class="sd">    of *all* games in a range of seasons</span>
+<span class="sd">    Args:</span>
+<span class="sd">        start_season (int): The start year of the start season</span>
+<span class="sd">        end_season (int): The start year of the end season</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of all games</span>
+<span class="sd">            in range of seasons</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
+        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_round">
+    <p>def <span class="ident">get_game_pbp_data_lineups_round</span>(</p><p>self, season: int, round_number: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the play-by-play with lineups data of <em>all</em> games
+in a single round</p>
+<p>Args:
+    season (int): The start year of the season
+    round_number (int): The round of the season</p>
+<p>Returns:
+    pd.DataFrame: A dataframe with the play-by-play data with lineups
+        of all games in a single round</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_round', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_round" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_round</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the play-by-play with lineups data of *all* games</span>
+<span class="sd">    in a single round</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        round_number (int): The round of the season</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data with lineups</span>
+<span class="sd">            of all games in a single round</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_single_season">
+    <p>def <span class="ident">get_game_pbp_data_lineups_single_season</span>(</p><p>self, season: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the play-by-play data enriched with team lineups
+of <em>all</em> games in a single season</p>
+<p>Args:</p>
+<pre><code>season (int): The start year of the season
+</code></pre>
+<p>Returns:</p>
+<pre><code>pd.DataFrame: A dataframe with the play-by-play data of all games
+    in a single season
+</code></pre></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_single_season', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_pbp_data_lineups_single_season" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_pbp_data_lineups_single_season</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the play-by-play data enriched with team lineups</span>
+<span class="sd">    of *all* games in a single season</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of all games</span>
+<span class="sd">            in a single season</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_pbp_data_lineups</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
             
   <div class="item">
     <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data">
@@ -1920,8 +2178,8 @@ include_ishometeam (bool, optional): A bool indicator whether to
   
             
   <div class="item">
-    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_multiple_seasons">
-    <p>def <span class="ident">get_game_play_by_play_data_multiple_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
+    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_range_seasons">
+    <p>def <span class="ident">get_game_play_by_play_data_range_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
     </div>
     
 
@@ -1939,9 +2197,9 @@ end_season (int): The start year of the end season
     in range of seasons
 </code></pre></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_multiple_seasons', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_multiple_seasons" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_play_by_play_data_multiple_seasons</span><span class="p">(</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_range_seasons', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_range_seasons" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_play_by_play_data_range_seasons</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1956,6 +2214,51 @@ end_season (int): The start year of the end season
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
         <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_round">
+    <p>def <span class="ident">get_game_play_by_play_data_round</span>(</p><p>self, season: int, round_number: int)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>A function that gets the play-by-play data of <em>all</em> games in a single
+round</p>
+<p>Args:
+    season (int): The start year of the season
+    round_number (int): The round of the season</p>
+<p>Returns:
+    pd.DataFrame: A dataframe with the play-by-play data of all games
+        in a single round_number</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_round', this);">Show source &equiv;</a></p>
+  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_game_play_by_play_data_round" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_game_play_by_play_data_round</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that gets the play-by-play data of *all* games in a single</span>
+<span class="sd">    round</span>
+<span class="sd">    Args:</span>
+<span class="sd">        season (int): The start year of the season</span>
+<span class="sd">        round_number (int): The round of the season</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of all games</span>
+<span class="sd">            in a single round_number</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
+        <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -2120,309 +2423,6 @@ round_number (int): The round number.
     <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;played&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
         <span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;true&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
     <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;gameCode&quot;</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups">
-    <p>def <span class="ident">get_pbp_data_with_lineups</span>(</p><p>self, season, gamecode, validate=True)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Get the play-by-play (PBP) data enriched with the teams' lineups for
-every action in the PBP data.</p>
-<p>There are three cases where the player in the corresponding row
-(action) is not part of the lineup:</p>
-<pre><code>1. When the player is subbed "OUT", the assigned lineup does not
-contain player name. Since this is reasonable, the value of the
-`validate_on_court_player` indicator is set to `True`.
-
-2. A player passes on to a teamate, who draws a shooting foul. If
-the passer is subbed before the first free throw and the first free
-throw is made then the subbed player is given an assist. However,
-the player is not in the extracted lineup because he has already
-been subbed. The value of the `validate_on_court_player`
-indicator is set to `False`. We don't fix the lineup, because it
-breaks the lineup continuinity. It is a quirk of the data
-collection andrecording.
-
-3. There are a few instances where a sub is recorded many seconds
-and actions since it actually happened. This causes issues, such
-as a player records an actions, such as a rebound, but he comes
-on the court (according to the data) many seconds after. This has
-been validated by watching theactual footage of the game. This
-requires a lot of manual work, which is beyond the score of this
-library. It is another quirk of the datacollection and recording,
-hence the value of the `validate_on_court_player` indicator is set
-to `False`.
-</code></pre>
-<p>Args:</p>
-<pre><code>season (int): The start year of the season
-
-gamecode (int): The game-code of the game of interest.
-    It can be found on Euroleague's website.
-
-validate (bool, optional): A bool indicator whether to enrich the
-    dataframe with two extra columns, which validate the validity
-    and consistency of the extracted lineup. Defaults to True.
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the play-by-play enriched with
-    teams' lineups
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_pbp_data_with_lineups</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">season</span><span class="p">,</span>
-    <span class="n">gamecode</span><span class="p">,</span>
-    <span class="n">validate</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the play-by-play (PBP) data enriched with the teams&#39; lineups for</span>
-<span class="sd">    every action in the PBP data.</span>
-<span class="sd">    There are three cases where the player in the corresponding row</span>
-<span class="sd">    (action) is not part of the lineup:</span>
-<span class="sd">        1. When the player is subbed &quot;OUT&quot;, the assigned lineup does not</span>
-<span class="sd">        contain player name. Since this is reasonable, the value of the</span>
-<span class="sd">        `validate_on_court_player` indicator is set to `True`.</span>
-<span class="sd">        2. A player passes on to a teamate, who draws a shooting foul. If</span>
-<span class="sd">        the passer is subbed before the first free throw and the first free</span>
-<span class="sd">        throw is made then the subbed player is given an assist. However,</span>
-<span class="sd">        the player is not in the extracted lineup because he has already</span>
-<span class="sd">        been subbed. The value of the `validate_on_court_player`</span>
-<span class="sd">        indicator is set to `False`. We don&#39;t fix the lineup, because it</span>
-<span class="sd">        breaks the lineup continuinity. It is a quirk of the data</span>
-<span class="sd">        collection andrecording.</span>
-<span class="sd">        3. There are a few instances where a sub is recorded many seconds</span>
-<span class="sd">        and actions since it actually happened. This causes issues, such</span>
-<span class="sd">        as a player records an actions, such as a rebound, but he comes</span>
-<span class="sd">        on the court (according to the data) many seconds after. This has</span>
-<span class="sd">        been validated by watching theactual footage of the game. This</span>
-<span class="sd">        requires a lot of manual work, which is beyond the score of this</span>
-<span class="sd">        library. It is another quirk of the datacollection and recording,</span>
-<span class="sd">        hence the value of the `validate_on_court_player` indicator is set</span>
-<span class="sd">        to `False`.</span>
-<span class="sd">    Args:</span>
-<span class="sd">        season (int): The start year of the season</span>
-<span class="sd">        gamecode (int): The game-code of the game of interest.</span>
-<span class="sd">            It can be found on Euroleague&#39;s website.</span>
-<span class="sd">        validate (bool, optional): A bool indicator whether to enrich the</span>
-<span class="sd">            dataframe with two extra columns, which validate the validity</span>
-<span class="sd">            and consistency of the extracted lineup. Defaults to True.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the play-by-play enriched with</span>
-<span class="sd">            teams&#39; lineups</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Fetch play-by-play data</span>
-    <span class="n">pbp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">,</span> <span class="n">include_ishometeam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># Get the starting line-ups from boxscore data</span>
-    <span class="n">boxscoredata</span> <span class="o">=</span> <span class="n">BoxScoreData</span><span class="p">(</span><span class="n">competition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">competition</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">boxscoredata</span><span class="o">.</span><span class="n">get_player_boxscore_stats_data</span><span class="p">(</span>
-            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span> <span class="n">gamecode</span><span class="o">=</span><span class="n">gamecode</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Something went wrong when fetching boxscore data for &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;game </span><span class="si">{</span><span class="n">gamecode</span><span class="si">}</span><span class="s2">, season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Error message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Skip and continue&quot;</span>
-        <span class="p">)</span>
-        <span class="n">game_bxscr_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    <span class="n">pbp_df</span> <span class="o">=</span> <span class="n">get_pbp_lineups</span><span class="p">(</span>
-        <span class="n">pbp_df</span><span class="o">=</span><span class="n">pbp_data</span><span class="p">,</span>
-        <span class="n">boxscore_df</span><span class="o">=</span><span class="n">game_bxscr_stats</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">pbp_df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_multiple_seasons">
-    <p>def <span class="ident">get_pbp_data_with_lineups_multiple_seasons</span>(</p><p>self, start_season: int, end_season: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that gets the play-by-play data enriched with team lineups
-of <em>all</em> games in a range of seasons</p>
-<p>Args:</p>
-<pre><code>start_season (int): The start year of the start season
-
-end_season (int): The start year of the end season
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the play-by-play data of all games
-    in range of seasons
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_multiple_seasons', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_multiple_seasons" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_multiple_seasons</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">start_season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_season</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the play-by-play data enriched with team lineups</span>
-<span class="sd">    of *all* games in a range of seasons</span>
-<span class="sd">    Args:</span>
-<span class="sd">        start_season (int): The start year of the start season</span>
-<span class="sd">        end_season (int): The start year of the end season</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of all games</span>
-<span class="sd">            in range of seasons</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_seasons_data</span><span class="p">(</span>
-        <span class="n">start_season</span><span class="p">,</span> <span class="n">end_season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_round">
-    <p>def <span class="ident">get_pbp_data_with_lineups_round</span>(</p><p>self, season: int, round_number: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that gets the play-by-play with lineups data of <em>all</em> games
-in a single round</p>
-<p>Args:
-    season (int): The start year of the season
-    round_number (int): The round of the season</p>
-<p>Returns:
-    pd.DataFrame: A dataframe with the play-by-play data with lineups
-        of all games in a single round</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_round', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_round" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_round</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the play-by-play with lineups data of *all* games</span>
-<span class="sd">    in a single round</span>
-<span class="sd">    Args:</span>
-<span class="sd">        season (int): The start year of the season</span>
-<span class="sd">        round_number (int): The round of the season</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data with lineups</span>
-<span class="sd">            of all games in a single round</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_single_season">
-    <p>def <span class="ident">get_pbp_data_with_lineups_single_season</span>(</p><p>self, season: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that gets the play-by-play data enriched with team lineups
-of <em>all</em> games in a single season</p>
-<p>Args:</p>
-<pre><code>season (int): The start year of the season
-</code></pre>
-<p>Returns:</p>
-<pre><code>pd.DataFrame: A dataframe with the play-by-play data of all games
-    in a single season
-</code></pre></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_single_season', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_pbp_data_with_lineups_single_season" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_pbp_data_with_lineups_single_season</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the play-by-play data enriched with team lineups</span>
-<span class="sd">    of *all* games in a single season</span>
-<span class="sd">    Args:</span>
-<span class="sd">        season (int): The start year of the season</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of all games</span>
-<span class="sd">            in a single season</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data_from_game_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pbp_data_with_lineups</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data_df</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="euroleague_api.play_by_play_data.PlayByPlay.get_play_by_play_data_round">
-    <p>def <span class="ident">get_play_by_play_data_round</span>(</p><p>self, season: int, round_number: int)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>A function that gets the play-by-play data of <em>all</em> games in a single
-round</p>
-<p>Args:
-    season (int): The start year of the season
-    round_number (int): The round of the season</p>
-<p>Returns:
-    pd.DataFrame: A dataframe with the play-by-play data of all games
-        in a single round_number</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-euroleague_api.play_by_play_data.PlayByPlay.get_play_by_play_data_round', this);">Show source &equiv;</a></p>
-  <div id="source-euroleague_api.play_by_play_data.PlayByPlay.get_play_by_play_data_round" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_play_by_play_data_round</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">season</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">round_number</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A function that gets the play-by-play data of *all* games in a single</span>
-<span class="sd">    round</span>
-<span class="sd">    Args:</span>
-<span class="sd">        season (int): The start year of the season</span>
-<span class="sd">        round_number (int): The round of the season</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: A dataframe with the play-by-play data of all games</span>
-<span class="sd">            in a single round_number</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_round_data_from_game_data</span><span class="p">(</span>
-        <span class="n">season</span><span class="p">,</span> <span class="n">round_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_game_play_by_play_data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 

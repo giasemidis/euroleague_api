@@ -30,8 +30,8 @@ Base class for collecting Euroleague and Eurocup competition's data.
 * euroleague_api.player_stats.PlayerStats
 * euroleague_api.shot_data.ShotData
 * euroleague_api.standings.Standings
-* euroleague_api.boxscore_data.BoxScoreData
 * euroleague_api.team_stats.TeamStats
+* euroleague_api.boxscore_data.BoxScoreData
 * euroleague_api.play_by_play_data.PlayByPlay
 * euroleague_api.game_metadata.GameMetadata
 
