@@ -247,7 +247,7 @@ class TeamStats(EuroLeagueData):
         A wrapper function for collecting the team leaders in a given
         stat category.
 
-        We are using the v2 endpoint 
+        We are using the v2 endpoint
         `/v2​/competitions​/{competitionCode}​/stats​/clubs​/leaders`
         instead of the v3 endpoint
         `/v3​/competitions​/{competitionCode}​/statistics​/teams​/leaders`
