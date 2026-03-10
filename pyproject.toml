@@ -1,3 +1,35 @@
 [build-system]
-requires = ['setuptools>=42']
-build-backend = 'setuptools.build_meta'
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "euroleague_api"
+version = "0.1.0"
+description = "A Python wrapper of the Euroleague API"
+readme = "README.md"
+long-description-content-type = "text/markdown"
+requires-python = ">=3.9"
+keywords = ["euroleague", "api", "basketball"]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: Other/Proprietary License",
+]
+authors = [
+    {name = "Georgios Giasemidis", email = "g.giasemidis@gmail.com"},
+]
+license = {text = "GPLv3 (with Commercial License option)"}
+urls = {"Homepage" = "https://github.com/giasemidis/euroleague_api", "Download" = "https://github.com/giasemidis/euroleague_api/archive/refs/tags/v0.1.0.tar.gz"}
+
+[project.dependencies]
+requests = "*"
+pandas = "*"
+numpy = "*"
+xmltodict = "*"
+tqdm = "*"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["notebooks*"]
