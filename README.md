@@ -66,6 +66,9 @@ See also the `notebooks/get-season-stats.ipynb` notebook for examples.
 
 [game_metadata.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/game_metadata.html)
 
+### League Schedule
+[schedule.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/schedule.html)
+
 ### Auxiliary functions
 
 [utils.py](https://htmlpreview.github.io/?https://github.com/giasemidis/euroleague_api/blob/main/site/euroleague_api/utils.html)
