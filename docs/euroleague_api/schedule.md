@@ -1,40 +1,26 @@
-# Module euroleague_api.EuroLeagueData
-
-## Variables
-
-```python3
-logger
-```
+# Module euroleague_api.schedule
 
 ## Classes
 
-### EuroLeagueData
+### Schedule
 
 ```python3
-class EuroLeagueData(
+class Schedule(
     competition='E'
 )
 ```
 
-Base class for collecting Euroleague and Eurocup competition's data.
+A class for getting schedule data.
 
 #### Attributes
 
 | Name | Type | Description | Default |
 |---|---|---|---|
-| competition | str | The competition code. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
+| competition | str | The competition code, inherited from the<br>`EuroLeagueData` class. Choose one of:<br>- 'E' for Euroleague<br>- 'U' for Eurocup<br>Defaults to "E". | None |
 
-#### Descendants
+#### Ancestors (in MRO)
 
-* euroleague_api.game_stats.GameStats
-* euroleague_api.player_stats.PlayerStats
-* euroleague_api.shot_data.ShotData
-* euroleague_api.standings.Standings
-* euroleague_api.team_stats.TeamStats
-* euroleague_api.boxscore_data.BoxScoreData
-* euroleague_api.play_by_play_data.PlayByPlay
-* euroleague_api.game_metadata.GameMetadata
-* euroleague_api.schedule.Schedule
+* euroleague_api.EuroLeagueData.EuroLeagueData
 
 #### Class variables
 
@@ -165,6 +151,34 @@ round.
 | Type | Description |
 |---|---|
 | pd.DataFrame | A dataframe with the corresponding data of a single<br>round |
+
+    
+#### get_schedule
+
+```python3
+def get_schedule(
+    self,
+    season: int
+) -> pandas.core.frame.DataFrame
+```
+
+Get the schedule of a season. The schedule includes the date,
+
+time, and the teams playing in each game.
+
+The schedule gets updated as the season progresses.
+
+**Parameters:**
+
+| Name | Type | Description | Default |
+|---|---|---|---|
+| season | int | The start year of the season | None |
+
+**Returns:**
+
+| Type | Description |
+|---|---|
+| pd.DataFrame | A dataframe with the schedule of the games |
 
     
 #### get_season_data_from_game_data
