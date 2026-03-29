@@ -1,3 +1,104 @@
 [build-system]
-requires = ['setuptools>=42']
+requires = ['setuptools>=42', 'wheel']
 build-backend = 'setuptools.build_meta'
+
+[project]
+name = "euroleague_api"
+version = "0.0.18"
+description = "A Python wrapper of the Euroleague API"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {text = "GPLv3 (with Commercial License option)"}
+authors = [
+    {name = "Georgios Giasemidis", email = "g.giasemidis@gmail.com"}
+]
+keywords = ["euroleague", "api", "basketball"]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "requests",
+    "pandas",
+    "numpy", 
+    "xmltodict",
+    "tqdm"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov", 
+    "pytest-mock",
+    "responses",
+    "mypy",
+    "pandas-stubs",
+    "pre-commit",
+    "nbstripout",
+    "twine",
+    "pdocs",
+    "build"
+]
+
+[project.urls]
+Homepage = "https://github.com/giasemidis/euroleague_api"
+Repository = "https://github.com/giasemidis/euroleague_api"
+Download = "https://github.com/giasemidis/euroleague_api/archive/refs/tags/v0.0.18.tar.gz"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.exclude-package-data]
+"*" = ["notebooks*"]
+
+# Tool configurations
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config", 
+    "--verbose",
+    "--cov=euroleague_api",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80"
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests requiring API access", 
+    "slow: Slow tests that make real API calls"
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+python_version = "3.6"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.coverage.run]
+source = ["src/euroleague_api"]
+omit = ["tests/*", "setup.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError"
+]
