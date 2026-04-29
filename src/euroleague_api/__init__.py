@@ -3,6 +3,7 @@ from . import player_stats
 from . import shot_data
 from . import standings
 from . import team_stats
+from . import schedule
 from . import play_by_play_data
 from . import boxscore_data
 from . import game_metadata
@@ -14,6 +15,7 @@ __all__ = [
     "shot_data",
     "standings",
     "team_stats",
+    "schedule",
     "play_by_play_data",
     "boxscore_data",
     "game_metadata",
