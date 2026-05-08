@@ -6,3 +6,21 @@ notebooks/data/*
 *egg-info/
 build/*
 dist/*
+
+# Coverage files
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+coverage.xml
+
+# Test artifacts
+.tox/
+.nox/
+.cache
+
+# Virtual environments
+.venv/
+.env/
+venv/
+env/
